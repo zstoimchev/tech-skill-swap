@@ -93,17 +93,22 @@ users.get('/session', async (req, res, next) => {
     }
 })
 
-// log out user, function to log out the user and destroy the session
-users.get('/logout', async (req, res, next) => {
-    try {
-        req.session.destroy(() => {
-            console.log("User logged out")
-            res.json(req.session)
-            //res.redirect('/users/login')
-        })
-    } catch (error) {
-        res.sendStatus(500)
+// log out the user and destroy the session
+users.post('/logout', (req, res) => {
+    if (req.session) {
+        // delete session object
+        req.session.destroy(function (err) {
+            if (err) {
+                res.json({ status: { success: false, msg: "Error destroying session" } });
+            } else {
+                res.json({ status: { success: true, msg: "Session destroyed" } });
+            }
+        });
+    } else {
+        res.json({ status: { success: false, msg: "No active session" } });
     }
-})
+});
+
+
 
 module.exports = users
