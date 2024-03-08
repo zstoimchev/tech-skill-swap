@@ -7,6 +7,13 @@ const multer = require("multer")
 
 // gets all the posts in the DB 
 posts.get('/', async (req, res, next) => {
+    if (!req.session.logged_in) {
+        res.json({
+            success: false,
+            msg: "Can not load posts. You need to log-in!"
+        })
+        return
+    }
     try {
         const queryResult = await DB.allPosts();
         res.json(queryResult)
@@ -20,6 +27,13 @@ posts.get('/', async (req, res, next) => {
 
 // gets one post based on the id 
 posts.get('/:id', async (req, res, next) => {
+    if (!req.session.logged_in) {
+        res.json({
+            success: false,
+            msg: "Can not load post. You need to log-in!"
+        })
+        return
+    }
     try {
         const queryResult = await DB.onePost(req.params.id)
         res.json(queryResult)
@@ -33,16 +47,16 @@ posts.get('/:id', async (req, res, next) => {
 
 // inserts one post to the database
 posts.post('/', /*upload_dest.single('file'),*/ async (req, res, next) => {
-    // if (!req.session.logged_in) {
-    //     res.json({
-    //         success: false,
-    //         msg: "Can not add news. You need to log-in!"
-    //     })
-    //     return
-    // }
+    if (!req.session.logged_in) {
+        res.json({
+            success: false,
+            msg: "Can not add post. You need to log-in!"
+        })
+        return
+    }
     try {
         // const user_id = req.session.user_id
-        const user_id = 1
+        const user_id = req.session.user[0].id;
         const title = req.body.title
         const body = req.body.body
         let image = ""
@@ -63,10 +77,6 @@ posts.post('/', /*upload_dest.single('file'),*/ async (req, res, next) => {
             }
         } else {
             console.log("A field is empty!!")
-            console.log("this is the userid!" + user_id)
-            console.log("this is the title!" + title)
-            console.log("this is the body!" + body)
-            console.log("this is the image!" + image)
             res.statusCode = 200
             res.send({ success: false, msg: "Input item missing" })
         }
