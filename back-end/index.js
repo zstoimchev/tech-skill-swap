@@ -51,12 +51,13 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const novice = require('./routes/novice')
 const users = require('./routes/users')
+const posts = require('./routes/posts')
+
 const upload = require('./routes/upload')
 
-app.use('/novice', novice)
 app.use('/users', users)
+app.use('/posts', posts)
 app.use('/uploadFile', upload)
 
 const path = require('path')

@@ -2,6 +2,7 @@ const express = require("express")
 const users = express.Router();
 const DB = require('../db/dbConn.js')
 
+// log in user
 users.post('/login', async (req, res, next) => {
     try {
         console.log(req.body);
@@ -10,7 +11,7 @@ users.post('/login', async (req, res, next) => {
         if (username && password) {
             const queryResult = await DB.AuthUser(username)
             if (queryResult.length > 0) {
-                if (password === queryResult[0].user_password) {
+                if (password === queryResult[0].password) {
                     req.session.user = queryResult
                     req.session.logged_in = true
                     res.statusCode = 200;
@@ -38,22 +39,17 @@ users.post('/login', async (req, res, next) => {
     }
 });
 
-users.get('/session', async (req, res, next) => {
-    try {
-        res.json(req.session)
-    } catch (error) {
-        res.sendStatus(500)
-    }
-})
-
-//Inserts a new user in our database id field are complete
+// inserts new user into the DB
 users.post('/register', async (req, res, next) => {
     try {
+        const name = req.body.name
+        const surname = req.body.surname
+        const email = req.body.email
         const username = req.body.username
         const password = req.body.password
-        const email = req.body.email
-        if (username && password && email) {
-            const queryResult = await DB.AddUser(username, email, password);
+        // TODO: Add validation, check if user already exists
+        if (name && surname && email && username && password) {
+            const queryResult = await DB.addUser(name, surname, email, username, password);
             if (queryResult.affectedRows) {
                 res.statusCode = 200;
                 res.send({ status: { success: true, msg: "New user created" } })
@@ -74,5 +70,40 @@ users.post('/register', async (req, res, next) => {
     }
 
 });
+
+// fetch all users from the DB
+users.get('/all', async (req, res, next) => {
+    try {
+        const queryResult = await DB.allUsers(req.params.id)
+        res.json(queryResult)
+    }
+    catch (err) {
+        console.log(err)
+        res.sendStatus(500)
+        next()
+    }
+})
+
+// check session
+users.get('/session', async (req, res, next) => {
+    try {
+        res.json(req.session)
+    } catch (error) {
+        res.sendStatus(500)
+    }
+})
+
+// log out user, function to log out the user and destroy the session
+users.get('/logout', async (req, res, next) => {
+    try {
+        req.session.destroy(() => {
+            console.log("User logged out")
+            res.json(req.session)
+            //res.redirect('/users/login')
+        })
+    } catch (error) {
+        res.sendStatus(500)
+    }
+})
 
 module.exports = users
