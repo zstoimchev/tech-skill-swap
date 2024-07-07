@@ -1,87 +1,105 @@
-import {Component} from "react";
-import {ABOUT, HOME} from "./Utils/Constants"
+import React, {Component} from "react";
+import {ABOUT, HOME, POSTS, LOGIN, LOGOUT, REGISTER} from "./Utils/Constants"
 import HomeView from "./CustomComponents/HomeView";
 import AboutView from "./CustomComponents/AboutView";
-// import axios from "axios";
-// import { API_URL } from "./Utils/Configuration";
-// import Cookies from 'universal-cookie';
-// const cookies = new Cookies();
+import PostsView from "./CustomComponents/PostsView";
+import LoginView from "./CustomComponents/LoginView";
+import RegisterView from "./CustomComponents/RegisterView";
+import {Nav, Navbar} from "react-bootstrap";
 
 class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            CurrentPage: HOME, Novica: 1, status: {
+            CurrentPage: HOME, // Posts: 1,
+            status: {
                 success: null, msg: ""
             }, user: null
         };
     }
 
-    QGetView(state) {
+    handleLogin = (user) => {
+        this.setState({
+            user: user, CurrentPage: POSTS
+        });
+    }
+
+    handleLogout = () => {
+        this.setState({
+            user: null, CurrentPage: LOGIN
+        });
+    }
+
+    GetView(state) {
         const page = state.CurrentPage;
         switch (page) {
             case HOME:
-              return <HomeView />;
+                return <HomeView/>;
             case ABOUT:
-                return <AboutView />
+                return <AboutView/>
+            case POSTS:
+                return <PostsView/>
+            case LOGIN:
+                return <LoginView onLogin={this.handleLogin}/>
+            case LOGOUT:
+                this.handleLogout();
+                return <HomeView/>
+            case REGISTER:
+                return <RegisterView/>
             default:
-              return <HomeView />;
+                return <HomeView/>;
         }
     };
 
-    QSetView = (obj) => {
+    SetView = (obj) => {
+        // eslint-disable-next-line react/no-direct-mutation-state
         this.setState(this.state.status = {success: null, msg: ""})
-        console.log("QSetView");
-        this.setState({
-            CurrentPage: obj.page, Novica: obj.id || 0
-        });
+        this.setState({CurrentPage: obj.page /*, Posts: obj.id || 0 */});
     };
 
     render() {
         return (<div id="APP" className="container">
             <div id="menu" className="row">
 
-
-                <nav className="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+                <Navbar className="navbar navbar-expand-lg navbar-dark" bg="primary" expand="lg">
                     <div className="container-fluid">
-                        <a
-                            onClick={this.QSetView.bind(this, {page: "home"})}
-                            className="navbar-brand"
-                            href="#">
-                            Tech Skill Swap
-                        </a>
-                        <button
-                            className="navbar-toggler"
-                            type="button"
-                            data-toggle="collapse"
-                            data-target="#navbarNavAltMarkup"
-                            aria-controls="navbarNavAltMarkup"
-                            aria-expanded="false"
-                            aria-label="Toggle navigation"
-                        >
-                            <span className="navbar-toggler-icon"></span>
-                        </button>
+                        <Navbar.Brand
+                            onClick={this.SetView.bind(this, {page: HOME})}
+                            href="#home">Tech Skill Swap</Navbar.Brand>
+                        <Navbar.Toggle aria-controls="basic-navbar-nav"/>
+                        <Navbar.Collapse id="basic-navbar-nav">
+                            <Nav className="mr-auto">
+                                <Nav.Link
+                                    onClick={this.SetView.bind(this, {page: HOME})}
+                                    href="#home">Home</Nav.Link>
+                                <Nav.Link
+                                    onClick={this.SetView.bind(this, {page: ABOUT})}
+                                    href="#about">About</Nav.Link>
+                                <Nav.Link
+                                    onClick={this.SetView.bind(this, {page: POSTS})}
+                                    href="#posts">Posts</Nav.Link>
 
-                        <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-                            <div className="navbar-nav">
-                                <a className="nav-item nav-link active"
-                                   onClick={this.QSetView.bind(this, {page: HOME})} href="#">Home</a>
-                                <a className="nav-item nav-link"
-                                   onClick={this.QSetView.bind(this, {page: ABOUT})} href="#">About</a>
-                                <a className="nav-item nav-link" href="#">Posts</a>
-                                <a className="nav-item nav-link" href="#">Register</a>
-                                <a className="nav-item nav-link" href="#">Login</a>
-                            </div>
-                        </div>
+
+                                {this.state.user ? (<Nav.Link
+                                    onClick={this.handleLogout}
+                                    href="#login">Logout</Nav.Link>) : (<>
+                                    <Nav.Link
+                                        onClick={this.SetView.bind(this, {page: REGISTER})}
+                                        href="#register">Register</Nav.Link>
+                                    <Nav.Link
+                                        onClick={this.SetView.bind(this, {page: LOGIN})}
+                                        href="#login">Login</Nav.Link>
+                                </>)}
+
+
+                            </Nav>
+                        </Navbar.Collapse>
                     </div>
-                </nav>
-                {/*onClick={this.QSetView.bind(this, {page: ABOUT})}*/}
-
+                </Navbar>
 
             </div>
-
             <div id="viewer" className="row container">
-                {this.QGetView(this.state)}
+                {this.GetView(this.state)}
             </div>
         </div>);
     }
