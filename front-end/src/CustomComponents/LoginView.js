@@ -1,6 +1,9 @@
 import React from "react";
 import axios from "axios";
 import {API_URL} from "../Utils/Configuration";
+import {Cookies} from "react-cookie";
+
+const cookies = new Cookies();
 
 class LoginView extends React.Component {
     constructor(props) {
@@ -20,12 +23,10 @@ class LoginView extends React.Component {
         this.setState({user_input: this.state.user_input});
     }
 
-
     PostLogin = () => {
         console.log(this.state)
         // TODO: you should validate the data before sending it to the server,
         if (this.state.user_input.username === "" || this.state.user_input.password === "") {
-            //this.state.status= {success:false, msg:"Missing input filed"}
             // eslint-disable-next-line react/no-direct-mutation-state
             this.setState(this.state.status = {success: false, msg: "Missing input filed"})
             return
@@ -36,15 +37,18 @@ class LoginView extends React.Component {
         })
             .then(response => {
                 console.log("Sent to server...")
-                console.log(this.state.user_input)
-                console.log(response.status)
+                // console.log(this.state.user_input)
+                // console.log(response.status)
                 if (response.status === 200) {
-                    console.log(response.data)
                     // eslint-disable-next-line react/no-direct-mutation-state
                     this.setState(this.state.status = response.data.status)
                     // eslint-disable-next-line react/no-direct-mutation-state
                     this.setState(this.state.user = response.data.user)
-                    this.props.onLogin(response.data.user);
+
+                    cookies.set('sessionId', response.data.user.sessionId, { path: '/' });
+                    if (response.data.logged_in) {
+                        this.setState({ logged_in: true });
+                    }
 
                 } else {
                     console.log("Something is really wrong, DEBUG!")
@@ -55,8 +59,10 @@ class LoginView extends React.Component {
                 console.log(err)
             })
     }
-
     render() {
+        // Get the cookie here
+        const sessionId = cookies.get('sessionId');
+
         return (<div className="card"
                      style={{
                          width: "400px",

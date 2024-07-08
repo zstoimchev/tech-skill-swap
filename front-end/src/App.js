@@ -1,11 +1,12 @@
 import React, {Component} from "react";
-import {ABOUT, HOME, POSTS, LOGIN, LOGOUT, REGISTER} from "./Utils/Constants"
+import {ABOUT, HOME, POSTS, LOGIN, REGISTER} from "./Utils/Constants"
 import HomeView from "./CustomComponents/HomeView";
 import AboutView from "./CustomComponents/AboutView";
 import PostsView from "./CustomComponents/PostsView";
 import LoginView from "./CustomComponents/LoginView";
 import RegisterView from "./CustomComponents/RegisterView";
 import {Nav, Navbar} from "react-bootstrap";
+// import cookie here
 
 class App extends Component {
     constructor(props) {
@@ -13,21 +14,16 @@ class App extends Component {
         this.state = {
             CurrentPage: HOME, // Posts: 1,
             status: {
-                success: null, msg: ""
-            }, user: null
+                success: null,
+                msg: ""
+            },
+            user: null
         };
+        this.updateState = this.updateState.bind(this);
     }
 
-    handleLogin = (user) => {
-        this.setState({
-            user: user, CurrentPage: POSTS
-        });
-    }
-
-    handleLogout = () => {
-        this.setState({
-            user: null, CurrentPage: LOGIN
-        });
+    updateState(newState) {
+        this.setState(newState);
     }
 
     GetView(state) {
@@ -38,12 +34,9 @@ class App extends Component {
             case ABOUT:
                 return <AboutView/>
             case POSTS:
-                return <PostsView/>
+                return <PostsView appState={this.state} />
             case LOGIN:
-                return <LoginView onLogin={this.handleLogin}/>
-            case LOGOUT:
-                this.handleLogout();
-                return <HomeView/>
+                return <LoginView appState={this.state} updateState={this.updateState} />
             case REGISTER:
                 return <RegisterView/>
             default:
@@ -52,8 +45,6 @@ class App extends Component {
     };
 
     SetView = (obj) => {
-        // eslint-disable-next-line react/no-direct-mutation-state
-        this.setState(this.state.status = {success: null, msg: ""})
         this.setState({CurrentPage: obj.page /*, Posts: obj.id || 0 */});
     };
 
@@ -78,20 +69,12 @@ class App extends Component {
                                 <Nav.Link
                                     onClick={this.SetView.bind(this, {page: POSTS})}
                                     href="#posts">Posts</Nav.Link>
-
-
-                                {this.state.user ? (<Nav.Link
-                                    onClick={this.handleLogout}
-                                    href="#login">Logout</Nav.Link>) : (<>
-                                    <Nav.Link
-                                        onClick={this.SetView.bind(this, {page: REGISTER})}
-                                        href="#register">Register</Nav.Link>
-                                    <Nav.Link
-                                        onClick={this.SetView.bind(this, {page: LOGIN})}
-                                        href="#login">Login</Nav.Link>
-                                </>)}
-
-
+                                <Nav.Link
+                                    onClick={this.SetView.bind(this, {page: REGISTER})}
+                                    href="#register">Register</Nav.Link>
+                                <Nav.Link
+                                    onClick={this.SetView.bind(this, {page: LOGIN})}
+                                    href="#login">Login</Nav.Link>
                             </Nav>
                         </Navbar.Collapse>
                     </div>
