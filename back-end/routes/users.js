@@ -8,7 +8,7 @@ users.get('/all', async (req, res, next) => {
         const q = await DB.allUsers()
         return res.json(q)
     } catch (err) {
-        consolee.log(err)
+        console.log(err)
     }
 })
 
