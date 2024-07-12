@@ -92,6 +92,7 @@ users.get('/session', async (req, res, next) => {
 })
 
 users.post('/register', async (req, res, next) => {
+    // TODO: when registering, verify the user with email confirmation???
     try {
         // TODO: if user is already logged it, new user cannot be added, but for that sessions are needed
 
@@ -138,9 +139,9 @@ users.post('/register', async (req, res, next) => {
     }
 });
 
-// TODO: when registering, verify the user with email confirmation???
 
 // TODO: reset password function: reset the password for given user, overwrite password, send link to email, and when clicked, new password should be entered
+// something with nodemailer package
 
 // Some way of logging, keeping logs of what is going on, like which user logs in registers logs out at what time etc.
 
