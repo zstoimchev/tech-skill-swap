@@ -3,6 +3,10 @@ const cors = require("cors")
 const session = require('express-session')
 // const cookieParser = require("cookie-parser");
 
+
+// TODO: manage the packages, everything is everywhere
+
+
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 8127
@@ -32,8 +36,10 @@ app.use(cors({
 
 const users = require("./routes/users")
 const posts = require("./routes/posts")
+const reset = require("./routes/reset")
 app.use('/users', users)
 app.use('/posts', posts)
+app.use('/reset', reset)
 
 // here most probably path needs to be initialized for the brontend build directory
 // and then app uses that build directory, and sends file index.html in the root page?
