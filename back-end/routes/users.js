@@ -1,36 +1,11 @@
 const express = require("express")
 const users = express.Router()
-const DB = require('../DB/dbConn.js')
+const DB = require('../utilities/dbConn.js')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
+const UTILS = require('../utilities/utils.js')
 
-users.get('/all', async (req, res, next) => {
-    try {
-        const q = await DB.allUsers()
-        return res.json(q)
-    } catch (err) {
-        console.log(err)
-    }
-})
-
-async function hashPassword(password) {
-    try {
-        return await bcrypt.hash(password, saltRounds);
-    } catch (err) {
-        console.error(err);
-        return null
-    }
-}
-
-async function comparePassword(userPassword, hashedPassword) {
-    try {
-        return await bcrypt.compare(userPassword, hashedPassword);
-    } catch (err) {
-        console.error(err);
-        return false;
-    }
-}
 
 users.post('/login', async (req, res, next) => {
     try {
@@ -50,7 +25,7 @@ users.post('/login', async (req, res, next) => {
         }
 
         const storedHashedPassword = queryResult[0].password;
-        const isPasswordMatch = await comparePassword(password, storedHashedPassword);
+        const isPasswordMatch = await UTILS.comparePassword(password, storedHashedPassword);
 
         if (!isPasswordMatch) {
             return res.status(401).json({ success: false, msg: "Incorrect password!" });    // unauthorized access
@@ -106,7 +81,7 @@ users.post('/register', async (req, res, next) => {
             return res.json({ success: false, msg: "Passwords do not match!" });
         }
 
-        const hashedPassword = await hashPassword(password);
+        const hashedPassword = await UTILS.hashPassword(password);
         if (!hashedPassword) {
             console.log("Error hashing password!");
             return res.status(500).json({ success: false, msg: "Internal server error!" });
@@ -119,7 +94,7 @@ users.post('/register', async (req, res, next) => {
         const queryResultUsername = await DB.authUsername(username);
         const queryResultEmail = await DB.authEmail(email);
 
-        if (queryResultEmail.length > 0) {
+        if (queryResultEmail.length != 0) {
             return res.json({ success: false, msg: "User with that E-mail already exists!" });
         }
 
@@ -139,9 +114,6 @@ users.post('/register', async (req, res, next) => {
     }
 });
 
-
-// TODO: reset password function: reset the password for given user, overwrite password, send link to email, and when clicked, new password should be entered
-// something with nodemailer package
 
 // Some way of logging, keeping logs of what is going on, like which user logs in registers logs out at what time etc.
 
