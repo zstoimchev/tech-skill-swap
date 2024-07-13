@@ -1,10 +1,10 @@
 const express = require("express")
 const users = express.Router()
-const DB = require('../utilities/dbConn.js')
+const DB = require('../DB/dbConn.js')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
-const UTILS = require('../utilities/utils.js')
+const UTILS = require('../utils/functions.js')
 
 
 users.post('/login', async (req, res, next) => {

@@ -23,6 +23,16 @@ funct.comparePassword = async function (userPassword, hashedPassword) {
 
 funct.verifyEmail = function (email) {
     // TODO: using regex verify if the email is valid
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    return emailRegex.test(email)
+}
+
+funct.verifyPassStrength = function(pass) {
+    // TODO: implement a function that checks if given password is of the required length, contains special chars, caps, unmbers, etc.
+    // minimum 8 characters, I want it to be secure.
+    if (pass.length < 8)
+        return false;
+    
 }
 
 module.exports = funct

@@ -1,9 +1,9 @@
 const express = require("express")
 const reset = express.Router()
-const DB = require('../utilities/dbConn.js')
+const DB = require('../DB/dbConn.js')
 const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer')
-const UTILS = require('../utilities/utils.js')
+const UTILS = require('../utils/functions.js')
 require('dotenv').config()
 
 let transporter = nodemailer.createTransport({
@@ -19,7 +19,7 @@ let transporter = nodemailer.createTransport({
     }
 })
 
-reset.post('/', async (req, res) => {
+reset.post('/reset', async (req, res) => {
     // TODO: if the user is logged in, check existing password and prompt for new one
 
     const email = req.body.email
@@ -54,7 +54,7 @@ reset.post('/', async (req, res) => {
     })
 })
 
-reset.get('/:token', async (req, res) => {
+reset.get('/reset/:token', async (req, res) => {
     if (!req.params.token) {
         return res.json({ success: false, msg: "No password-reset token provided!" })
     }
@@ -76,7 +76,7 @@ reset.get('/:token', async (req, res) => {
     }
 })
 
-reset.post('/:token', async (req, res) => {
+reset.post('/reset/:token', async (req, res) => {
     if (!req.params.token) {
         return res.json({ success: false, msg: "No password-reset token provided!" })
     }
