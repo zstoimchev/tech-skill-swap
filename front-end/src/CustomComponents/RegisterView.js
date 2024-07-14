@@ -1,88 +1,115 @@
-import {Component} from "react";
+import React, {Component} from "react";
 import axios from 'axios'
-import { API_URL } from "../Utils/Configuration";
-import {REGISTER} from "../Utils/Constants";
-/**
- * The SignupView component provides a form for users to sign up.
- *
- * @class SignupView
- * @extends {React.Component}
- */
-class SignupView extends Component{
-    // TODO: change this implementation to match your use case.
-    constructor(props){
+import {API_URL} from "../Utils/Configuration";
+
+
+class RegisterView extends Component {
+    constructor(props) {
         super(props);
-        this.state={
-            user:{
-                type:REGISTER
+        this.state = {
+            status: {
+                success: null, msg: ""
+            }, user: {
+                name: "", surname: "", email: "", username: "", password: "", password2: "",
             }
         }
     }
 
-    QPostSignup=()=>{
-        // TODO: you should validate the data before sending it to the server,
-        axios.post(API_URL + '/users/register',{
-            username:this.state.user.username,
-            email:this.state.user.email,
-            password:this.state.user.password
-        })
-            .then(response=>{
-                // TODO: implement encryption for the password and handle bad responses
-                console.log("Sent to server...")
-            })
-            .catch(err=>{
-                console.log(err)
-            })
-    }
-
-    QGetTextFromField=(e)=>{
-        this.setState(prevState=>({
-            user:{...prevState.user,[e.target.name]:e.target.value}
+    SetValueFromUserInput = (e) => {
+        this.setState(prevState => ({
+            user: {...prevState.user, [e.target.id]: e.target.value}
         }))
     }
 
-    render(){
-        console.log(this.state.user)
-        return(
-            <div className="card"
-                 style={{width:"400px", marginLeft:"auto", marginRight:"auto", marginTop:"10px", marginBottom:"10px"}}>
-                <form style={{margin:"20px"}} >
-                    <div className="mb-3">
-                        <label className="form-label">Username</label>
-                        <input name="username"
-                               onChange={(e)=>this.QGetTextFromField(e)}
-                               type="text"
-                               className="form-control"
-                               id="exampleInputEmail1"
-                               aria-describedby="emailHelp"/>
+    Register = () => {
+        // TODO: validate all the data before sending it to the server,
+        axios.post(API_URL + '/users/register', // TODO: include header to check if there is already logged in user
+            {
+                name: this.state.user.name,
+                surname: this.state.user.surname,
+                username: this.state.user.username,
+                email: this.state.user.email,
+                password: this.state.user.password,
+                password2: this.state.user.password2,
+            })
+            .then(response => {
+                this.setState({status: response.data})
+                // TODO: implement encryption for the password and handle bad responses
+                console.log("Sent to server...")
+            })
+            .catch(err => {
+                this.setState({status: err.response.data})
+                console.log(err.response.data)
+                console.log(err.response.status)
+            })
+    }
+
+
+    render() {
+        return (<div className="card"
+                     style={{
+                         width: "400px",
+                         marginLeft: "auto",
+                         marginRight: "auto",
+                         marginTop: "10px",
+                         marginBottom: "10px"
+                     }}>
+            <form style={{margin: "20px"}}>
+
+                <div className="row">
+                    <div className="col">
+                        {/*<input type="text" className="form-control" placeholder="First name"/>*/}
+                        <label htmlFor="name">First Name</label>
+                        <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="name"
+                               placeholder="Name"/>
                     </div>
-                    <div className="mb-3">
-                        <label className="form-label">Email address</label>
-                        <input name="email"
-                               onChange={(e)=>this.QGetTextFromField(e)}
-                               type="email"
-                               className="form-control"
-                               id="exampleInputEmail1"
-                               aria-describedby="emailHelp"/>
-                        <div id="emailHelp"
-                             className="form-text">We`&apos;`ll never share your email with anyone else.
-                        </div>
+
+                    <div className="col">
+                        {/*<input type="text" className="form-control" placeholder="Last name"/>*/}
+                        <label htmlFor="surname">Last name</label>
+                        <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="surname"
+                               placeholder="Surname"/>
                     </div>
-                    <div className="mb-3">
-                        <label className="form-label">Password</label>
-                        <input name="password"
-                               onChange={(e)=>this.QGetTextFromField(e)}
-                               type="password"
-                               className="form-control"
-                               id="exampleInputPassword1"/>
-                    </div>
-                </form>
-                <button style={{margin:"10px"}}
-                        onClick={()=>this.QPostSignup()}
-                        className="btn btn-primary bt">Submit</button>
-            </div>
-        )
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="email">E-mail</label>
+                    <input onChange={this.SetValueFromUserInput} type="email" className="form-control" id="email"
+                           placeholder="E-mail"/>
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="username">Username</label>
+                    <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="username"
+                           placeholder="Username"/>
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="password">Password</label>
+                    <input onChange={this.SetValueFromUserInput} type="password" className="form-control" id="password"
+                           placeholder="Password"/>
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="password2">Repeat password</label>
+                    <input onChange={this.SetValueFromUserInput} type="password" className="form-control" id="password2"
+                           placeholder="Repeat password"/>
+                </div>
+
+
+            </form>
+            <button style={{margin: "10px"}}
+                    onClick={() => this.Register()}
+                    className="btn btn-primary bt">Submit
+            </button>
+
+            {this.state.status.success ?
+                <p className="alert alert-success" role="alert">{this.state.status.msg}</p> : null}
+            {!this.state.status.success && this.state.status.msg !== "" ?
+                <p className="alert alert-danger" role="alert">{this.state.status.msg}</p> : null}
+
+        </div>)
     }
 }
 
-export default SignupView
+export default RegisterView
