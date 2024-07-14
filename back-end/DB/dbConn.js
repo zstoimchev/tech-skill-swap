@@ -58,16 +58,6 @@ dataPool.allUsers = () => {
     })
 }
 
-// dataPool.changePass = (pw, email) => {
-//     return new Promise((resolve, reject) => {
-//         conn.query(`UPDATE User SET password = ? WHERE email = ?`,
-//             [pw, email],
-//             (err, res) => {
-//                 if (err) { return reject(err) }
-//                 return resolve(res)
-//             })
-//     })
-// }
 
 dataPool.changePass = async (pw, email) => {
     return new Promise((resolve, reject) => {
@@ -77,35 +67,28 @@ dataPool.changePass = async (pw, email) => {
                 if (err) { return reject(err) }
                 return resolve(res)
             })
-    }).catch(err => console.log(err)) // Log any errors
+    }).catch(err => console.log(err))
 }
 
 
 
 
-// dataPool.changePass = async (pw, email) => {
-//     return new Promise((resolve, reject) => {
-//         // first get the current password
-//         conn.query(`SELECT password FROM User WHERE email = ?`, [email], async (err, res) => {
-//             if (err) { return reject(err) }
+dataPool.allPosts = () => {
+    return new Promise((resolve, reject) => {
+        conn.query('SELECT * FROM Post', (err, res) => {
+            if (err) { return reject(err); }
+            return resolve(res);
+        })
+    })
+}
 
-//             const currentPassword = res[0].password;
+dataPool.onePost = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query('SELECT * FROM Post WHERE id = ?', id, (err, res, fields) => {
+            if (err) { return reject(err) }
+            return resolve(res)
+        })
+    })
+}
 
-//             // now update the password
-//             conn.query(`UPDATE User SET password = ? WHERE email = ?`, [pw, email], (err, res) => {
-//                 if (err) { return reject(err) }
-//                 // check if the password is changed
-//                 if (pw !== currentPassword) {
-//                     res.passwordChanged = true;
-//                 } else {
-//                     res.passwordChanged = false;
-//                 }
-//                 return resolve(res)
-//             })
-//         })
-//     })
-// }
-
-
-
-module.exports = dataPool;
+module.exports = dataPool
