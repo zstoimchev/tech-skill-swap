@@ -1,26 +1,23 @@
-import React, {Component} from "react";
-import {Nav, Navbar} from "react-bootstrap";
-import {ABOUT, HOME, POSTS, POST, LOGIN, REGISTER} from "./Utils/Constants"
-import HomeView from "./CustomComponents/HomeView";
-import AboutView from "./CustomComponents/AboutView";
-import PostsView from "./CustomComponents/PostsView";
-import LoginView from "./CustomComponents/LoginView";
-import RegisterView from "./CustomComponents/RegisterView";
-import OnePostView from "./CustomComponents/OnePostView";
+import React, {Component} from "react"
+import {Nav, Navbar} from "react-bootstrap"
+import {ABOUT, HOME, POSTS, POST, LOGIN, REGISTER, LOGOUT, ADDPOST} from "./Utils/Constants"
+import HomeView from "./CustomComponents/HomeView"
+import AboutView from "./CustomComponents/AboutView"
+import PostsView from "./CustomComponents/PostsView"
+import LoginView from "./CustomComponents/LoginView"
+import RegisterView from "./CustomComponents/RegisterView"
+import OnePostView from "./CustomComponents/OnePostView"
+import AddPostView from "./CustomComponents/AddPostView"
+
 // import cookie here
 
 class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            CurrentPage: REGISTER,
-            status: {
-                success: null,
-                msg: ""
-            },
-            user: null,
-            id: null,
-            loggedIn: false,
+            CurrentPage: ADDPOST, status: {
+                success: null, msg: ""
+            }, user: null, id: null, loggedIn: false,
         };
         this.updateStateApp = this.updateStateApp.bind(this);
     }
@@ -37,11 +34,13 @@ class App extends Component {
             case ABOUT:
                 return <AboutView/>
             case POSTS:
-                return <PostsView changeState={this.updateStateApp} />
+                return <PostsView changeState={this.updateStateApp}/>
             case POST:
-                return <OnePostView changeState={this.updateStateApp} id={this.state.id} />
+                return <OnePostView changeState={this.updateStateApp} id={this.state.id}/>
+            case ADDPOST:
+                return <AddPostView/>
             case LOGIN:
-                return <LoginView updateState={this.updateStateApp} />
+                return <LoginView updateState={this.updateStateApp}/>
             case REGISTER:
                 return <RegisterView/>
             default:
@@ -50,32 +49,8 @@ class App extends Component {
     };
 
     SetView = (obj) => {
-        this.setState({CurrentPage: obj.page });
+        this.setState({CurrentPage: obj.page});
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     render() {
@@ -99,12 +74,26 @@ class App extends Component {
                                 <Nav.Link
                                     onClick={this.SetView.bind(this, {page: POSTS})}
                                     href="#posts">Posts</Nav.Link>
-                                <Nav.Link
-                                    onClick={this.SetView.bind(this, {page: REGISTER})}
-                                    href="#register">Register</Nav.Link>
-                                <Nav.Link
-                                    onClick={this.SetView.bind(this, {page: LOGIN})}
-                                    href="#login">Login</Nav.Link>
+
+                                {this.state.loggedIn && localStorage.getItem('token')
+
+                                    ? (<> <Nav.Link
+                                        onClick={this.SetView.bind(this, {page: ADDPOST})}
+                                        href="#addpost">Add New Post</Nav.Link>
+                                        <Nav.Link
+                                            onClick={this.SetView.bind(this, {page: LOGOUT})}
+                                            href="#logout">Logout</Nav.Link>
+                                    </>)
+
+                                    : (<> <Nav.Link
+                                        onClick={this.SetView.bind(this, {page: REGISTER})}
+                                        href="#register">Register</Nav.Link>
+                                        <Nav.Link
+                                            onClick={this.SetView.bind(this, {page: LOGIN})}
+                                            href="#login">Login</Nav.Link>
+                                    </>)}
+
+
                             </Nav>
                         </Navbar.Collapse>
                     </div>
