@@ -9,16 +9,17 @@ const UTILS = require('../utils/functions.js')
 
 users.post('/login', async (req, res, next) => {
     try {
-        if (req.session.loggedIn) {
-            return res.status(200).json({ success: true, msg: "User is already logged in!" });
-        }
+        // TODO: if there is already a JWT token, refuse the request
 
         const { username, password } = req.body;
         if (!(username && password)) {
             return res.status(400).json({ success: false, msg: "Please enter both Username & Password!" });     // bad request
         }
 
-        // TODO: validate input before sending to DB to prevent SQL injection
+        if (!(UTILS.verifyUsername(username))) {
+            return res.status(400).son({ success: false, msg: "Bad username, contains disallowed characters!" })
+        }
+
         const queryResult = await DB.authUsername(username);
         if (queryResult.length <= 0) {
             return res.status(404).json({ success: false, msg: "Username does not exist. Please create new account!" });    // not found
@@ -31,18 +32,22 @@ users.post('/login', async (req, res, next) => {
             return res.status(401).json({ success: false, msg: "Incorrect password!" });    // unauthorized access
         }
 
-        // TODO: set up JWT and refresh token instead of session authentication
-        // const token = jwt.sign({username: username}, 'i-love-programming'/*, { expiresIn: 'never' }*/);
+        // TODO: set up refresh token for the JWT
 
-        req.session.user = queryResult[0];
-        req.session.loggedIn = true;
+        const secretKey = process.env.JWT_TOKEN_SECRET
+        const expiresIn = '1h'
+        const token = jwt.sign({ user: username }, secretKey, { expiresIn })
+
+        // not a typical implementation for the server to set the headers
+        // res.setHeader('Authorization', 'Bearer ' + token);
+
         console.log("User successfully logged in!");
-        return res.status(200).json({ success: true, msg: "User is logged in!" });  // all ok
+        return res.status(200).json({ success: true, token: token, msg: "User is logged in!" });  // all ok
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, msg: "Internal server error!" });     // internal server error
+        return res.status(500).json({ success: false, msg: `Internal server error! ${err}` });     // internal server error
     }
-});
+})
 
 users.post('/logout', (req, res) => {
     if (!(req.session.loggedIn)) {
