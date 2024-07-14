@@ -2,10 +2,6 @@ import React from "react";
 import axios from "axios";
 import {API_URL} from "../Utils/Configuration";
 
-const api = axios.create({
-    baseURL: API_URL, withCredentials: true, // enable credentials
-});
-
 class PostsView extends React.Component {
     constructor(props) {
         super(props);
@@ -15,20 +11,33 @@ class PostsView extends React.Component {
     }
 
     componentDidMount() {
-        api.get('/posts')
+        axios.get(API_URL + '/posts', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        })
             .then(response => {
-                if (Array.isArray(response.data)) {
+                console.log(response.data.arr)
+                if (Array.isArray(response.data.arr)) {
                     this.setState({
-                        Posts: response.data
+                        Posts: response.data.arr
                     });
+                    console.log(this.state.Posts)
                 } else {
                     console.error(response.data.msg);
                 }
             })
+            .catch(error => {
+                // Handle the error here
+                console.error("---------- An error occurred while fetching posts ----------")
+                console.log(error)
+            });
     }
+
 
     render() {
         const data = this.state.Posts
+        console.log(data)
         return (<div className="row row-cols-1 row-cols-md-3 g-4" style={{margin: "10px"}}>
             {data.length > 0 ? data.map((d) => {
                 return (<div className="col" key={d.id}>
