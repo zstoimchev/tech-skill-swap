@@ -1,23 +1,25 @@
 import React, {Component} from "react";
-import {ABOUT, HOME, POSTS, LOGIN, REGISTER} from "./Utils/Constants"
+import {Nav, Navbar} from "react-bootstrap";
+import {ABOUT, HOME, POSTS, POST, LOGIN, REGISTER} from "./Utils/Constants"
 import HomeView from "./CustomComponents/HomeView";
 import AboutView from "./CustomComponents/AboutView";
 import PostsView from "./CustomComponents/PostsView";
 import LoginView from "./CustomComponents/LoginView";
 import RegisterView from "./CustomComponents/RegisterView";
-import {Nav, Navbar} from "react-bootstrap";
+import OnePostView from "./CustomComponents/OnePostView";
 // import cookie here
 
 class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            CurrentPage: LOGIN, // Posts: 1,
+            CurrentPage: POSTS,
             status: {
                 success: null,
                 msg: ""
             },
-            user: null
+            user: null,
+            id: null,
         };
         this.updateStateApp = this.updateStateApp.bind(this);
     }
@@ -34,7 +36,9 @@ class App extends Component {
             case ABOUT:
                 return <AboutView/>
             case POSTS:
-                return <PostsView appState={this.state} />
+                return <PostsView changeState={this.updateStateApp} />
+            case POST:
+                return <OnePostView changeState={this.updateStateApp} id={this.state.id} />
             case LOGIN:
                 return <LoginView updateState={this.updateStateApp} />
             case REGISTER:
@@ -45,7 +49,7 @@ class App extends Component {
     };
 
     SetView = (obj) => {
-        this.setState({CurrentPage: obj.page /*, Posts: obj.id || 0 */});
+        this.setState({CurrentPage: obj.page });
     };
 
 
