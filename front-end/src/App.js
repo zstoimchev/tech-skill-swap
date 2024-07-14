@@ -12,17 +12,17 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            CurrentPage: HOME, // Posts: 1,
+            CurrentPage: LOGIN, // Posts: 1,
             status: {
                 success: null,
                 msg: ""
             },
             user: null
         };
-        this.updateState = this.updateState.bind(this);
+        this.updateStateApp = this.updateStateApp.bind(this);
     }
 
-    updateState(newState) {
+    updateStateApp(newState) {
         this.setState(newState);
     }
 
@@ -36,7 +36,7 @@ class App extends Component {
             case POSTS:
                 return <PostsView appState={this.state} />
             case LOGIN:
-                return <LoginView appState={this.state} updateState={this.updateState} />
+                return <LoginView updateState={this.updateStateApp} />
             case REGISTER:
                 return <RegisterView/>
             default:
@@ -47,6 +47,31 @@ class App extends Component {
     SetView = (obj) => {
         this.setState({CurrentPage: obj.page /*, Posts: obj.id || 0 */});
     };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     render() {
         return (<div id="APP" className="container">
