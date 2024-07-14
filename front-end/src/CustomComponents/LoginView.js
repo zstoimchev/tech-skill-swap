@@ -1,67 +1,68 @@
-import React from "react";
-import axios from "axios";
-import {API_URL} from "../Utils/Configuration";
-import {Cookies} from "react-cookie";
+import React from "react"
+import axios from "axios"
+import {API_URL} from "../Utils/Configuration"
 
-const cookies = new Cookies();
 
 class LoginView extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
         this.state = {
-            user_input: {
+            userInput: {
                 username: "", password: "", remember_me: false
-            }, user: null, status: {
+            }, status: {
                 success: null, msg: ""
-            }
+            }, user: null, loggedIn: false
         }
     }
 
-    QGetTextFromField(e) {
+    // GetTextFromField = (e) => {
+    //     this.setState(prevState => ({
+    //         user: {...prevState.user, [e.target.name]: e.target.value}
+    //     }))
+    // }
+
+    GetTextFromField(e) {
         // eslint-disable-next-line react/no-direct-mutation-state
-        this.state.user_input[e.target.name] = e.target.value;
-        this.setState({user_input: this.state.user_input});
+        this.state.userInput[e.target.name] = e.target.value
+        this.setState({userInput: this.state.userInput})
     }
 
-    PostLogin = () => {
-        console.log(this.state)
-        // TODO: you should validate the data before sending it to the server,
-        if (this.state.user_input.username === "" || this.state.user_input.password === "") {
-            // eslint-disable-next-line react/no-direct-mutation-state
-            this.setState(this.state.status = {success: false, msg: "Missing input filed"})
+
+    Login = () => {
+        // TODO: validate the data before sending it to the server
+        if (this.state.userInput.username === "" || this.state.userInput.password === "") {
+            this.setState({status: {success: false, msg: "Missing input filed"}})
             return
         }
 
         axios.post(API_URL + '/users/login', {
-            username: this.state.user_input.username, password: this.state.user_input.password
+            username: this.state.userInput.username, password: this.state.userInput.password
+        }, {
+            withCredentials: true
+        }).then(response => {
+            console.log("Sent to server...")
+            if (response.status === 200) {
+                this.setState({
+                    status: response.data,
+                    loggedIn: true,
+                    user: this.state.userInput.username,
+                    userInput: {password: ""}
+                })
+                this.props.updateState({user: this.state.userInput.username})
+
+                localStorage.setItem('token', response.data.token);
+                console.log("JWT token set in local storage successfully")
+            } else {
+                console.log("Something is really wrong, DEBUG!")
+            }
+        }).catch(err => {
+            this.setState({status: {success: false, msg: "Username or Password does not match"}})
+            console.log(err)
+
         })
-            .then(response => {
-                console.log("Sent to server...")
-                // console.log(this.state.user_input)
-                // console.log(response.status)
-                if (response.status === 200) {
-                    // eslint-disable-next-line react/no-direct-mutation-state
-                    this.setState(this.state.status = response.data.status)
-                    // eslint-disable-next-line react/no-direct-mutation-state
-                    this.setState(this.state.user = response.data.user)
-
-                    cookies.set('sessionId', response.data.user.sessionId, { path: '/' });
-                    if (response.data.logged_in) {
-                        this.setState({ logged_in: true });
-                    }
-
-                } else {
-                    console.log("Something is really wrong, DEBUG!")
-                }
-
-            })
-            .catch(err => {
-                console.log(err)
-            })
     }
+
     render() {
-        // Get the cookie here
-        const sessionId = cookies.get('sessionId');
 
         return (<div className="card"
                      style={{
@@ -75,14 +76,14 @@ class LoginView extends React.Component {
             <form style={{margin: "20px"}}>
                 <div className="mb-3">
                     <label className="form-label">Username</label>
-                    <input name="username" onChange={(e) => this.QGetTextFromField(e)}
+                    <input name="username" onChange={(e) => this.GetTextFromField(e)}
                            type="text"
                            className="form-control"
                            id="exampleInputEmail1"/>
                 </div>
                 <div className="mb-3">
                     <label className="form-label">Password</label>
-                    <input name="password" onChange={(e) => this.QGetTextFromField(e)}
+                    <input name="password" onChange={(e) => this.GetTextFromField(e)}
                            type="password"
                            className="form-control"
                            id="exampleInputPassword1"/>
@@ -91,9 +92,10 @@ class LoginView extends React.Component {
                     <input className="form-check-input" type="checkbox" id="inlineCheckbox1" value="keep_logged_in"/>
                     <label className="form-check-label" htmlFor="inlineCheckbox1">Keep me logged in</label>
                 </div>
+
             </form>
 
-            <button style={{margin: "10px"}} onClick={() => this.PostLogin()}
+            <button style={{margin: "10px"}} onClick={() => this.Login()}
                     className="btn btn-primary bt">Log in
             </button>
 
