@@ -43,4 +43,9 @@ funct.verifyNameSurname = function(name, surname) {
     return regex.test(name) && regex.test(surname)
 }
 
+funct.verifyId = function(id) {
+    const regex = /^[0-9]+$/
+    return regex.test(id)
+}
+
 module.exports = funct
