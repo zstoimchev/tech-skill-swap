@@ -13,13 +13,14 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            CurrentPage: POSTS,
+            CurrentPage: REGISTER,
             status: {
                 success: null,
                 msg: ""
             },
             user: null,
             id: null,
+            loggedIn: false,
         };
         this.updateStateApp = this.updateStateApp.bind(this);
     }
