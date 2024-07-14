@@ -1,7 +1,7 @@
 const express = require('express')
 const cors = require("cors")
-const session = require('express-session')
-const cookieParser = require("cookie-parser");
+// const session = require('express-session')
+// const cookieParser = require("cookie-parser");
 
 
 // TODO: manage the packages, everything is everywhere
@@ -11,26 +11,12 @@ require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 8127
 
-app.use(cookieParser());
+// app.use(cookieParser());
 
-let sess = {
-    secret: 'our litle secrett',
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        secure: false,
-        sameSite: 'none',
-        httpOnly: true
-    },
-    name: "app",
-    sameSite: 'none',
-    //     proxy: true,
-
-}
 
 // configurations
 app.use(express.json());
-app.use(session(sess))
+// app.use(session(sess))
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
     methods: ["GET", "POST"],
