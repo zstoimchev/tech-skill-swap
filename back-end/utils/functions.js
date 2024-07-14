@@ -28,16 +28,19 @@ funct.verifyEmail = function (email) {
 }
 
 funct.verifyPassStrength = function(pass) {
-    // TODO: implement a function that checks if given password is of the required length, contains special chars, caps, unmbers, etc.
-    // minimum 8 characters, I want it to be secure.
-    if (pass.length < 8)
-        return false;
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/
+    return regex.test(pass)
     
 }
 
 funct.verifyUsername = function(username) {
-    const regex = /^[a-zA-Z0-9_-]{4,16}$/
+    const regex = /^[a-zA-Z0-9._-]{4,16}$/
     return regex.test(username)
+}
+
+funct.verifyNameSurname = function(name, surname) {
+    const regex = /^[a-zA-Z0-9-']{4,16}$/
+    return regex.test(name) && regex.test(surname)
 }
 
 module.exports = funct
