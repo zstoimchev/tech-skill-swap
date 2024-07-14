@@ -35,4 +35,9 @@ funct.verifyPassStrength = function(pass) {
     
 }
 
+funct.verifyUsername = function(username) {
+    const regex = /^[a-zA-Z0-9_-]{4,16}$/
+    return regex.test(username)
+}
+
 module.exports = funct
