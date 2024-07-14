@@ -1,8 +1,8 @@
-import React from "react";
-// import PropTypes from 'prop-types';
+import React from "react"
+import PropTypes from 'prop-types'
 import axios from 'axios'
-import {API_URL} from "../Utils/Configuration";
-import {POSTS} from "../Utils/Constants";
+import {API_URL} from "../Utils/Configuration"
+import {POSTS} from "../Utils/Constants"
 
 class OnePostView extends React.Component {
     constructor(props) {
@@ -51,9 +51,9 @@ class OnePostView extends React.Component {
     }
 }
 
-// SingleNovicaView.propTypes = {
-//     QIDFromChild: PropTypes.func.isRequired,
-//     data: PropTypes.number.isRequired
-// }
+OnePostView.propTypes = {
+    changeState: PropTypes.func.isRequired,
+    id: PropTypes.number.isRequired
+}
 
 export default OnePostView
