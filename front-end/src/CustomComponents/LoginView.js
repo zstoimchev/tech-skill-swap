@@ -48,8 +48,7 @@ class LoginView extends React.Component {
                     user: this.state.userInput.username,
                     userInput: {password: ""}
                 })
-                this.props.updateState({user: this.state.userInput.username})
-
+                this.props.updateState({user: this.state.userInput.username, loggedIn: true})
                 localStorage.setItem('token', response.data.token);
                 console.log("JWT token set in local storage successfully")
             } else {
