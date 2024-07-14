@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import {API_URL} from "../Utils/Configuration";
+import {POST} from "../Utils/Constants";
 
 class PostsView extends React.Component {
     constructor(props) {
@@ -11,18 +12,12 @@ class PostsView extends React.Component {
     }
 
     componentDidMount() {
-        axios.get(API_URL + '/posts', {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        })
+        axios.get(API_URL + '/posts')
             .then(response => {
-                console.log(response.data.arr)
                 if (Array.isArray(response.data.arr)) {
                     this.setState({
                         Posts: response.data.arr
                     });
-                    console.log(this.state.Posts)
                 } else {
                     console.error(response.data.msg);
                 }
@@ -37,21 +32,30 @@ class PostsView extends React.Component {
 
     render() {
         const data = this.state.Posts
-        console.log(data)
-        return (<div className="row row-cols-1 row-cols-md-3 g-4" style={{margin: "10px"}}>
-            {data.length > 0 ? data.map((d) => {
-                return (<div className="col" key={d.id}>
-                    <div className="card">
-                        <div className="card-body">
-                            <h5 className="card-title">{d.title}</h5>
-                            <p className="card-text">{d.body}</p>
-                        </div>
-                    </div>
-                </div>)
-            }) : "error not loading da ti ebam pleme majcino da ti ebam klenceno..."}
+        return (
+            <div className="row row-cols-1 row-cols-md-3 g-4" style={{margin: "10px"}}>
+                {data.length > 0 ?
+                    data.map((d) => {
+                        return (
+                            <div className="col" key={d.id}>
+                                <div className="card">
+                                    <div className="card-body">
+                                        <h5 className="card-title">{d.title}</h5>
+                                        <p className="card-text">{d.body}</p>
+                                    </div>
+                                    <button onClick={() => this.props.changeState({CurrentPage: POST, id: d.id})}
+                                            style={{margin: "10px"}} className="btn btn-primary bt">Read more
+                                    </button>
+                                </div>
+                            </div>
+                        )
+                    })
+                    : "Loading..."}
 
-        </div>)
+            </div>
+        )
     }
+
 }
 
 export default PostsView
