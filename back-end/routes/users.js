@@ -23,9 +23,9 @@ users.post('/login', async (req, res, next) => {
             return res.status(404).json({ success: false, msg: "Username does not exist. Please create new account!" });    // not found
         }
 
-        if (!(UTILS.verifyPassStrength(password))) {
-            return res.status(400).json({ success: false, msg: "Bad password, check password strength!" })
-        }
+        // if (!(UTILS.verifyPassStrength(password))) {
+        //     return res.status(400).json({ success: false, msg: "Bad password, check password strength!" })
+        // }
 
         const storedHashedPassword = queryResult[0].password;
         const isPasswordMatch = await UTILS.comparePassword(password, storedHashedPassword);
@@ -72,6 +72,7 @@ users.post('/register', async (req, res, next) => {
     // TODO: if user is already logged it, new user cannot be added, but for that sessions are needed
 
     try {
+        console.log(req.body)
         const { name, surname, username, email, password, password2 } = req.body;
         // TODO: verify all user data, email, username and password are checked, repeat for name and surname to allow only characters, maybe numbers
 
@@ -84,7 +85,7 @@ users.post('/register', async (req, res, next) => {
         }
         const queryResultEmail = await DB.authEmail(email);
         if (queryResultEmail.length != 0) {
-            return res.json({ success: false, msg: "User with that E-mail already exists!" });
+            return res.status(400).json({ success: false, msg: "User with that E-mail already exists!" });
         }
 
         if (!(UTILS.verifyUsername(username))) {
@@ -92,7 +93,7 @@ users.post('/register', async (req, res, next) => {
         }
         const queryResultUsername = await DB.authUsername(username);
         if (queryResultUsername.length > 0) {
-            return res.json({ success: false, msg: "User with that Username already exists!" });
+            return res.status(400).json({ success: false, msg: "User with that Username already exists!" });
         }
 
         if (!(UTILS.verifyNameSurname(name, surname))) {
@@ -109,7 +110,7 @@ users.post('/register', async (req, res, next) => {
         const hashedPassword = await UTILS.hashPassword(password);
         if (!hashedPassword) {
             console.log("Error hashing password!");
-            return res.status(500).json({ success: false, msg: "Internal server error!" });
+            return res.status(500).json({ success: false, msg: "Internal server error while processing password." });
         }
 
         const queryResult = await DB.addUser(name, surname, username, email, hashedPassword);
