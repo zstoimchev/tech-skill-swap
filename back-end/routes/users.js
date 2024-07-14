@@ -2,8 +2,6 @@ const express = require("express")
 const users = express.Router()
 const DB = require('../DB/dbConn.js')
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
-const saltRounds = 10
 const UTILS = require('../utils/functions.js')
 
 
@@ -23,6 +21,10 @@ users.post('/login', async (req, res, next) => {
         const queryResult = await DB.authUsername(username);
         if (queryResult.length <= 0) {
             return res.status(404).json({ success: false, msg: "Username does not exist. Please create new account!" });    // not found
+        }
+
+        if (!(UTILS.verifyPassStrength(password))) {
+            return res.status(400).json({ success: false, msg: "Bad password, check password strength!" })
         }
 
         const storedHashedPassword = queryResult[0].password;
@@ -63,27 +65,45 @@ users.post('/logout', (req, res) => {
     });
 })
 
-users.get('/session', async (req, res, next) => {
-    try {
-        res.json(req.session)
-    } catch (error) {
-        res.sendStatus(500)
-    }
-})
 
+// TODO: when registering, verify the user with email confirmation???
 users.post('/register', async (req, res, next) => {
-    // TODO: when registering, verify the user with email confirmation???
-    try {
-        // TODO: if user is already logged it, new user cannot be added, but for that sessions are needed
 
+    // TODO: if user is already logged it, new user cannot be added, but for that sessions are needed
+
+    try {
         const { name, surname, username, email, password, password2 } = req.body;
+        // TODO: verify all user data, email, username and password are checked, repeat for name and surname to allow only characters, maybe numbers
 
         if (!(name && surname && username && email && password && password2)) {
-            return res.json({ success: false, msg: "Input field missing! Please fill in all the fields." });
+            return res.status(400).json({ success: false, msg: "Input field missing! Please fill in all the fields." });
+        }
+
+        if (!(UTILS.verifyEmail(email))) {
+            return res.status(400).json({ success: false, msg: "Bad email, contains disallowed characters!" })
+        }
+        const queryResultEmail = await DB.authEmail(email);
+        if (queryResultEmail.length != 0) {
+            return res.json({ success: false, msg: "User with that E-mail already exists!" });
+        }
+
+        if (!(UTILS.verifyUsername(username))) {
+            return res.status(400).json({ success: false, msg: "Bad username, contains disallowed characters!" })
+        }
+        const queryResultUsername = await DB.authUsername(username);
+        if (queryResultUsername.length > 0) {
+            return res.json({ success: false, msg: "User with that Username already exists!" });
+        }
+
+        if (!(UTILS.verifyNameSurname(name, surname))) {
+            return res.status(400).json({ success: false, msg: "Bad name/surname, contains disallowed characters!" })
         }
 
         if (password !== password2) {
-            return res.json({ success: false, msg: "Passwords do not match!" });
+            return res.status(401).json({ success: false, msg: "Passwords do not match!" });
+        }
+        if (!(UTILS.verifyPassStrength(password))) {
+            return res.status(400).json({ success: false, msg: "Bad password, check password strength!" })
         }
 
         const hashedPassword = await UTILS.hashPassword(password);
@@ -92,27 +112,12 @@ users.post('/register', async (req, res, next) => {
             return res.status(500).json({ success: false, msg: "Internal server error!" });
         }
 
-        // TODO: check if email is really an email, consists of username [at] provider [dot] domain
-
-        // TODO: validate ALL user input before sending to DB to prevent SQL injection
-
-        const queryResultUsername = await DB.authUsername(username);
-        const queryResultEmail = await DB.authEmail(email);
-
-        if (queryResultEmail.length != 0) {
-            return res.json({ success: false, msg: "User with that E-mail already exists!" });
-        }
-
-        if (queryResultUsername.length > 0) {
-            return res.json({ success: false, msg: "User with that Username already exists!" });
-        }
-
         const queryResult = await DB.addUser(name, surname, username, email, hashedPassword);
         if (!(queryResult.affectedRows)) {
-            return res.json({ success: false, msg: "Error registering new user..." });
+            return res.status(500).json({ success: false, msg: "Error registering new user..." });
         }
 
-        return res.json({ success: true, msg: "New user successfully registered." });
+        return res.status(200).json({ success: true, msg: "New user successfully registered." });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ success: false, msg: "Internal server error!" });
