@@ -2,7 +2,7 @@ import React from "react"
 import PropTypes from 'prop-types'
 import axios from 'axios'
 import {API_URL} from "../Utils/Configuration"
-import {POSTS} from "../Utils/Constants"
+import {LOGIN, POSTS} from "../Utils/Constants"
 
 class OnePostView extends React.Component {
     constructor(props) {
@@ -29,6 +29,7 @@ class OnePostView extends React.Component {
             })
             .catch(error => {
                 console.error("Error fetching post data: ", error);
+                this.props.changeState({CurrentPage: LOGIN})
             })
 
     }
@@ -52,8 +53,7 @@ class OnePostView extends React.Component {
 }
 
 OnePostView.propTypes = {
-    changeState: PropTypes.func.isRequired,
-    id: PropTypes.number.isRequired
+    changeState: PropTypes.func.isRequired, id: PropTypes.number.isRequired
 }
 
 export default OnePostView
