@@ -42,19 +42,16 @@ posts.post('/add', upload.single('file'), async (req, res) => {
         file = req.file.filename
     }
     
+    if (!(title && body && user_id)){
+        return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" });
+    }
+
     // TODO: verify user input before sending to DB
     const queryResult = await DB.addPost(title, body, file, user_id);
     if (!(queryResult.affectedRows)) {
-        return res.status(500).json({ success: false, msg: "Error registering new user..." });
+        return res.status(500).json({ success: false, msg: "Error processing new post..." });
     }
-    return res.status(200).json({ success: true, msg: "New post succesfully added" });
-
-
-    if (!file) {
-        res.send({ status: { success: false, msg: "Could not uplpad" } });
-    } else {
-        res.send({ status: { success: true, msg: "File upladed" } });
-    }
+    return res.status(200).json({ success: true, msg: "New post succesfully added!" });
 })
 
 posts.get('/', async (req, res, next) => {
