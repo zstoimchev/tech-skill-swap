@@ -1,7 +1,7 @@
 import React from "react"
-import { useNavigate, useParams } from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 import axios from "axios"
-import { API_URL } from "../Utils/Configuration"
+import {API_URL} from "../Utils/Configuration"
 
 
 class PasswordResetRouterView extends React.Component {
@@ -9,41 +9,55 @@ class PasswordResetRouterView extends React.Component {
         super(props)
         this.state = {
             userInput: {
-                username: "", password: "", remember_me: false
-            },
-            status: {
+                password: "", password2: "",
+            }, status: {
                 success: null, msg: ""
-            },
-            user: null,
-            loggedIn: false,
-            param: props.param
+            }, user: null, loggedIn: false, param: props.param
         }
+        this.GetTextFromField = this.GetTextFromField.bind(this);
+
+    }
+
+    GetTextFromField(e) {
+        this.setState(prevState => ({
+            userInput: {
+                ...prevState.userInput, [e.target.name]: e.target.value
+            }
+        }));
     }
 
     componentDidMount() {
-        const { param } = this.props;
-        console.log("Param from URL:", param);
-        console.log(this.state)
+        const {param} = this.props
+        const cleanedParam = param.substring(1);
 
-        // axios.get(API_URL + '/password/reset/:token')
-        //     .then(response => {
-        //         if (Array.isArray(response.data.arr)) {
-        //             this.setState({
-        //                 Posts: response.data.arr
-        //             });
-        //         } else {
-        //             console.error(response.data.msg);
-        //         }
-        //     })
-        //     .catch(error => {
-        //
-        //         console.log(error)
-        //     });
+        axios.get(API_URL + '/password/reset/' + cleanedParam)
+            .then(response => {
+                console.log("succeeded")
+            })
+            .catch(error => {
+                console.log("not so much")
+                console.log(error.response.data)
+                this.props.navigate('/')
+            });
     }
 
     Submit = () => {
-        // Navigate using the navigate prop
-        this.props.navigate('/');
+        const {param} = this.props
+        const cleanedParam = param.substring(1);
+
+        axios.post(API_URL + '/password/reset/' + cleanedParam, {
+            pw1: this.state.userInput.password, pw2: this.state.userInput.password2,
+        })
+            .then(response => {
+                this.setState({status: response.data})
+                console.log("succeeded")
+            })
+            .catch(error => {
+                this.setState({status: error.response.data})
+                console.log("not so much")
+                console.log(error.response.data)
+                // this.props.navigate('/')
+            });
     }
 
     render() {
@@ -62,14 +76,14 @@ class PasswordResetRouterView extends React.Component {
                 <div className="mb-3">
                     <label className="form-label">Password</label>
                     <input name="password" onChange={(e) => this.GetTextFromField(e)}
-                           type="text"
+                           type="password"
                            className="form-control"
                            id="password"/>
                 </div>
                 <div className="mb-3">
                     <label className="form-label">Repeat password</label>
                     <input name="password2" onChange={(e) => this.GetTextFromField(e)}
-                           type="password2"
+                           type="password"
                            className="form-control"
                            id="exampleInputPassword1"/>
                 </div>
@@ -91,7 +105,7 @@ class PasswordResetRouterView extends React.Component {
 // used to go back to root page
 function PasswordResetRouterViewWithNavigation(props) {
     const navigate = useNavigate()
-    const { param } = useParams()
+    const {param} = useParams()
     return <PasswordResetRouterView {...props} navigate={navigate} param={param}/>
 }
 
