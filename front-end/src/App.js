@@ -13,11 +13,20 @@ import AddPostView from "./CustomComponents/AddPostView"
 
 class App extends Component {
     constructor(props) {
+        const token = localStorage.getItem('token')
+        const user = localStorage.getItem('user')
+        const loggedIn = localStorage.getItem('loggedIn')
+
         super(props);
         this.state = {
-            CurrentPage: ADDPOST, status: {
-                success: null, msg: ""
-            }, user: null, id: null, loggedIn: false,
+            CurrentPage: ADDPOST,
+            status: {
+                success: null,
+                msg: ""
+            },
+            user: null,
+            id: null,
+            loggedIn: !!(token && user && loggedIn),
         };
         this.updateStateApp = this.updateStateApp.bind(this);
     }
