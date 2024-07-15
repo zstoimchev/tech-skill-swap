@@ -17,29 +17,24 @@ class App extends Component {
         const user = localStorage.getItem('user')
         const loggedIn = localStorage.getItem('loggedIn')
 
-        super(props);
+        super(props)
         this.state = {
-            CurrentPage: ADDPOST,
-            status: {
-                success: null,
-                msg: ""
-            },
-            user: null,
-            id: null,
-            loggedIn: !!(token && user && loggedIn),
-        };
-        this.updateStateApp = this.updateStateApp.bind(this);
+            CurrentPage: HOME, status: {
+                success: null, msg: ""
+            }, user: null, id: null, loggedIn: !!(token && user && loggedIn),
+        }
+        this.updateStateApp = this.updateStateApp.bind(this)
     }
 
     updateStateApp(newState) {
-        this.setState(newState);
+        this.setState(newState)
     }
 
     GetView(state) {
-        const page = state.CurrentPage;
+        const page = state.CurrentPage
         switch (page) {
             case HOME:
-                return <HomeView/>;
+                return <HomeView/>
             case ABOUT:
                 return <AboutView/>
             case POSTS:
@@ -53,13 +48,20 @@ class App extends Component {
             case REGISTER:
                 return <RegisterView/>
             default:
-                return <HomeView/>;
+                return <HomeView/>
         }
-    };
+    }
 
     SetView = (obj) => {
-        this.setState({CurrentPage: obj.page});
-    };
+        this.setState({CurrentPage: obj.page})
+    }
+
+    Logout() {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        localStorage.removeItem('loggedIn')
+        this.setState({CurrentPage: LOGIN, status: {success: null, msg: ""}, user: null, id: null})
+    }
 
 
     render() {
@@ -90,7 +92,7 @@ class App extends Component {
                                         onClick={this.SetView.bind(this, {page: ADDPOST})}
                                         href="#addpost">Add New Post</Nav.Link>
                                         <Nav.Link
-                                            onClick={this.SetView.bind(this, {page: LOGOUT})}
+                                            onClick={() => this.Logout()}
                                             href="#logout">Logout</Nav.Link>
                                     </>)
 
@@ -112,8 +114,8 @@ class App extends Component {
             <div id="viewer" className="row container">
                 {this.GetView(this.state)}
             </div>
-        </div>);
+        </div>)
     }
 }
 
-export default App;
+export default App

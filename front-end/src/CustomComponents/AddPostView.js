@@ -39,8 +39,12 @@ class AddPostView extends React.Component {
         data.append('user_id', 1)
         data.append('file', this.state.post.img)
 
+        const token = localStorage.getItem("token")
+
         let api = axios.create({
-            timeout: 20000, withCredentials: true
+            timeout: 20000, withCredentials: true, headers: {
+                'Authorization': `Bearer ${token}`
+            },
         })
 
         api.post(API_URL + '/posts/add', data)

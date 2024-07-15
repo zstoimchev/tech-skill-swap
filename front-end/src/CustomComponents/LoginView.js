@@ -1,6 +1,7 @@
 import React from "react"
 import axios from "axios"
 import {API_URL} from "../Utils/Configuration"
+import {POSTS} from "../Utils/Constants";
 
 
 class LoginView extends React.Component {
@@ -48,10 +49,10 @@ class LoginView extends React.Component {
                     user: this.state.userInput.username,
                     userInput: {password: ""}
                 })
-                this.props.updateState({user: this.state.userInput.username, loggedIn: true})
-                localStorage.setItem('token', response.data.token);
+                this.props.updateState({user: this.state.userInput.username, loggedIn: true, CurrentPage: POSTS})
+                localStorage.setItem('token', response.data.token)
                 localStorage.setItem('loggedIn', 'true')
-                localStorage.setItem('user', this.state.userInput.username);
+                localStorage.setItem('user', this.state.userInput.username)
             } else {
                 console.log("Something is really wrong, DEBUG!")
             }
