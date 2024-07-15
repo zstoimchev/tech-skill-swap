@@ -38,7 +38,7 @@ posts.post('/add', upload.single('file'), async (req, res) => {
 
     const { title, body, user_id } = req.body
     let file = ""
-    if (req.file !== null) {
+    if (req.file) {
         file = req.file.filename
     }
     
