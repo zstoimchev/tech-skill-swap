@@ -71,6 +71,7 @@ class App extends Component {
         this.setState({CurrentPage: LOGIN, status: {success: null, msg: ""}, user: null, id: null})
     }
 
+    
     render() {
         return (<div id="APP" className="container">
             <div id="menu" className="row">
