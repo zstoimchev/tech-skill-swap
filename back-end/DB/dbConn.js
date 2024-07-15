@@ -91,4 +91,15 @@ dataPool.onePost = (id) => {
     })
 }
 
+dataPool.addPost = (title, body, img, user_id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`INSERT INTO Post (title,body,image,user_id) VALUES (?,?,?,?)`,
+            [title, body, img, user_id],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    })
+}
+
 module.exports = dataPool
