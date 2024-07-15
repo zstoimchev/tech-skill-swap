@@ -10,6 +10,11 @@ import OnePostView from "./CustomComponents/OnePostView"
 import AddPostView from "./CustomComponents/AddPostView"
 import ResetPasswordView from "./CustomComponents/ResetPasswordView";
 
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import PasswordResetRouterView from "./CustomComponents/PasswordResetRouterView";
+import {useNavigate} from 'react-router-dom';
+
+
 // import cookie here
 
 class App extends Component {
@@ -66,7 +71,6 @@ class App extends Component {
         this.setState({CurrentPage: LOGIN, status: {success: null, msg: ""}, user: null, id: null})
     }
 
-
     render() {
         return (<div id="APP" className="container">
             <div id="menu" className="row">
@@ -114,11 +118,29 @@ class App extends Component {
                 </Navbar>
 
             </div>
+
             <div id="viewer" className="row container">
-                {this.GetView(this.state)}
+                {/*{this.GetView(this.state)}*/}
+                <Router>
+                    <Routes>
+                        <Route path="/" element={this.GetView(this.state)}/>
+                        <Route path="/password/reset/:param" element={<PasswordResetRouterView/>}/>
+                        <Route path="*" element={<DefaultRoute/>}/>
+                    </Routes>
+                </Router>
             </div>
         </div>)
     }
+}
+
+// used to go back to root page
+function DefaultRoute() {
+    const navigate = useNavigate();
+    React.useEffect(() => {
+        navigate('/');
+    }, [navigate]);
+
+    return null;
 }
 
 export default App
