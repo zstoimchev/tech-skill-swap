@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {Nav, Navbar} from "react-bootstrap"
-import {ABOUT, HOME, POSTS, POST, LOGIN, REGISTER, LOGOUT, ADDPOST} from "./Utils/Constants"
+import {ABOUT, HOME, POSTS, POST, LOGIN, REGISTER, ADDPOST, RESETPW} from "./Utils/Constants"
 import HomeView from "./CustomComponents/HomeView"
 import AboutView from "./CustomComponents/AboutView"
 import PostsView from "./CustomComponents/PostsView"
@@ -8,6 +8,7 @@ import LoginView from "./CustomComponents/LoginView"
 import RegisterView from "./CustomComponents/RegisterView"
 import OnePostView from "./CustomComponents/OnePostView"
 import AddPostView from "./CustomComponents/AddPostView"
+import ResetPasswordView from "./CustomComponents/ResetPasswordView";
 
 // import cookie here
 
@@ -47,6 +48,8 @@ class App extends Component {
                 return <LoginView updateState={this.updateStateApp}/>
             case REGISTER:
                 return <RegisterView/>
+            case RESETPW:
+                return <ResetPasswordView/>
             default:
                 return <HomeView/>
         }

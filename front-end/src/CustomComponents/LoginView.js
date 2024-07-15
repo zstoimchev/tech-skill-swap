@@ -1,8 +1,8 @@
 import React from "react"
 import axios from "axios"
 import {API_URL} from "../Utils/Configuration"
-import {POSTS} from "../Utils/Constants";
-
+import {POSTS, RESETPW} from "../Utils/Constants";
+import './style.css'
 
 class LoginView extends React.Component {
     constructor(props) {
@@ -89,11 +89,12 @@ class LoginView extends React.Component {
                            className="form-control"
                            id="exampleInputPassword1"/>
                 </div>
+                <p className={"form-for-reset-pw"} onClick={() => this.props.updateState({CurrentPage: RESETPW})}>Forgot
+                    your password? <span id={"span-form-reset"}>Click here</span></p>
                 <div className="form-check form-check-inline">
                     <input className="form-check-input" type="checkbox" id="inlineCheckbox1" value="keep_logged_in"/>
                     <label className="form-check-label" htmlFor="inlineCheckbox1">Keep me logged in</label>
                 </div>
-
             </form>
 
             <button style={{margin: "10px"}} onClick={() => this.Login()}

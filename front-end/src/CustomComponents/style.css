@@ -1,0 +1,13 @@
+.form-for-reset-pw {
+    /*color: #007bff;*/
+    cursor: pointer;
+    /*text-decoration: underline;*/
+}
+
+.forgot-password:hover {
+    color: #0056b3; /* Darker blue color on hover */
+}
+
+#span-form-reset{
+    color: #0056b3; /* Darker blue color on hover */
+}
