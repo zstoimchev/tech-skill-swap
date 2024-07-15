@@ -28,7 +28,7 @@ class OnePostView extends React.Component {
                 }
             })
             .catch(error => {
-                console.error("Error fetching post data: ", error);
+                console.error(error.response.data);
                 this.props.changeState({CurrentPage: LOGIN})
             })
 
