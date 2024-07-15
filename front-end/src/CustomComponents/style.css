@@ -11,3 +11,8 @@
 #span-form-reset{
     color: #0056b3; /* Darker blue color on hover */
 }
+
+#font-weight-paragraph {
+    font-weight: bold;
+    /*color: red;*/
+}
