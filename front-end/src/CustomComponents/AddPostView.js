@@ -16,7 +16,13 @@ class AddPostView extends React.Component {
 
     SetValueFromUserInput = (e) => {
         this.setState(prevState => ({
-            post: {...prevState.user, [e.target.id]: e.target.value}
+            post: {...prevState.post, [e.target.name]: e.target.value}
+        }))
+    }
+
+    SetFileFromUserInput = (e) => {
+        this.setState(prevState => ({
+            post: {...prevState.post, img: e.target.files[0]}
         }))
     }
 
@@ -28,19 +34,19 @@ class AddPostView extends React.Component {
         }
 
         const data = new FormData();
-        data.append('image', this.state.post.img)
         data.append('title', this.state.post.title)
-        data.append('text', this.state.post.body)
+        data.append('body', this.state.post.body)
+        data.append('user_id', 1)
+        data.append('file', this.state.post.img)
 
-        let req = axios.create({
+        let api = axios.create({
             timeout: 20000, withCredentials: true
-        });
+        })
 
-        req.post(API_URL + '/novice', data)
+        api.post(API_URL + '/posts/add', data)
             .then(response => {
-                /// TODO: You should indicate if the element was added, or if not show the error
-                this.setState({status: response.data})
                 console.log("Sent to server...")
+                this.setState({status: response.data})
             })
             .catch(err => {
                 console.log(err)
@@ -59,23 +65,24 @@ class AddPostView extends React.Component {
                 <input name="title" type="text"
                        onChange={this.SetValueFromUserInput.bind(this)}
                        className="form-control"
-                       placeholder="Title..."/>
+                       placeholder="Title"/>
             </div>
 
             <div className="mb-3"
                  style={{margin: "10px"}}>
                 <label className="form-label">Body</label>
-                <input name="slug" type="text"
+                <input name="body" type="text"
                        onChange={this.SetValueFromUserInput.bind(this)}
                        className="form-control"
-                       placeholder="Slug..."/>
+                       placeholder="Briefly describe your problem..."/>
             </div>
 
 
             <div className="mb-3">
-                <label for="formFile" class="form-label">Select related image describing your problem (optional)</label>
-                <input class="form-control" type="file" id="file" name="file"
-                       onChange={this.SetValueFromUserInput.bind(this)}/>
+                <label form="file" className="form-label">Select related image describing your problem
+                    (optional)</label>
+                <input className="form-control" type="file" id="file" name="file"
+                       onChange={this.SetFileFromUserInput.bind(this)}/>
             </div>
 
 
