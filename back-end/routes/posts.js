@@ -5,6 +5,57 @@ const jwt = require('jsonwebtoken')
 const util = require('util')
 const jwtVerify = util.promisify(jwt.verify)
 const UTILS = require('../utils/functions.js')
+const multer = require('multer')
+
+const storage = multer.diskStorage({
+    destination: (req, file, callBack) => {
+        callBack(null, 'uploads')
+    },
+    filename: (req, file, callBack) => {
+        // cb(null, Date.now() + path.extname(file.originalname)) // Appends the file extension
+        callBack(null, Date.now() + `${file.originalname}`)
+    }
+})
+
+const upload = multer({ storage: storage });
+
+posts.post('/add', upload.single('file'), async (req, res) => {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+
+    if (token == null) {
+        console.log("No token")
+        return res.status(401).json({ success: false, msg: "No JWT token found. Please login first." })
+    }
+
+    try {
+        const user = await jwtVerify(token, process.env.JWT_TOKEN_SECRET);
+        req.user = user;
+    } catch (err) {
+        console.log("Invalid token")
+        return res.status(403).json({ success: false, msg: "JWT token expired! Please log in again." })
+    }
+
+    const { title, body, user_id } = req.body
+    let file = ""
+    if (req.file !== null) {
+        file = req.file.filename
+    }
+    
+    // TODO: verify user input before sending to DB
+    const queryResult = await DB.addPost(title, body, file, user_id);
+    if (!(queryResult.affectedRows)) {
+        return res.status(500).json({ success: false, msg: "Error registering new user..." });
+    }
+    return res.status(200).json({ success: true, msg: "New post succesfully added" });
+
+
+    if (!file) {
+        res.send({ status: { success: false, msg: "Could not uplpad" } });
+    } else {
+        res.send({ status: { success: true, msg: "File upladed" } });
+    }
+})
 
 posts.get('/', async (req, res, next) => {
     try {
@@ -49,5 +100,6 @@ posts.get('/:id', async (req, res, next) => {
         // next()
     }
 })
+
 
 module.exports = posts
