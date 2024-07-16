@@ -64,55 +64,64 @@ reset.post('/reset', async (req, res) => {
 })
 
 reset.get('/reset/:token', async (req, res) => {
-    if (!req.params.token) {
-        return res.json({ success: false, msg: "No password-reset token provided!" })
-    }
-
-    const token = req.params.token
-    const secretKey = process.env.JWT_SECRET
-
     try {
-        const decoded = jwt.verify(token, secretKey)
-        const email = decoded.email
-
-        const user = await DB.authEmail(email)
-        if (!user || user.length != 1) {
-            return res.status(404).json({ success: false, msg: "No such user found!" })
+        if (!req.params.token) {
+            return res.json({ success: false, msg: "No password-reset token provided!" })
         }
-        return res.status(200).json({ success: true, msg: "User found! Proceed to password reset." })
-    } catch (err) {
-        return res.status(401).json({ success: false, msg: "Invalid or expired token!" })
+
+        const token = req.params.token
+        const secretKey = process.env.JWT_SECRET
+
+
+        try {
+            const decoded = jwt.verify(token, secretKey)
+            const email = decoded.email
+
+            const user = await DB.authEmail(email)
+            if (!user || user.length != 1) {
+                return res.status(404).json({ success: false, msg: "No such user found!" })
+            }
+            return res.status(200).json({ success: true, msg: "User found! Proceed to password reset." })
+        } catch (err) {
+            return res.status(401).json({ success: false, msg: "Invalid or expired token!" })
+        }
+    } catch (error) {
+        return res.status(500).json({ success: false, msg: "Internal server error, Please try again" })
     }
 })
 
 reset.post('/reset/:token', async (req, res) => {
-    if (!req.params.token) {
-        return res.json({ success: false, msg: "No password-reset token provided!" })
-    }
-
-    const token = req.params.token
-    const secretKey = process.env.JWT_SECRET
-
     try {
-        const decoded = jwt.verify(token, secretKey)
-        const email = decoded.email
-
-        const { pw1, pw2 } = req.body
-        if (pw1 !== pw2) {
-            return res.status(401).json({ success: false, msg: "Passwords do not match!" })
+        if (!req.params.token) {
+            return res.json({ success: false, msg: "No password-reset token provided!" })
         }
 
-        const hashedPassword = await UTILS.hashPassword(pw1)
-        const queryResult = await DB.changePass(hashedPassword, email)
+        const token = req.params.token
+        const secretKey = process.env.JWT_SECRET
 
-        if (!(queryResult.affectedRows)) {
-            return res.status(500).json({ success: false, msg: "No password was changed." })
+        try {
+            const decoded = jwt.verify(token, secretKey)
+            const email = decoded.email
+
+            const { pw1, pw2 } = req.body
+            if (pw1 !== pw2) {
+                return res.status(401).json({ success: false, msg: "Passwords do not match!" })
+            }
+
+            const hashedPassword = await UTILS.hashPassword(pw1)
+            const queryResult = await DB.changePass(hashedPassword, email)
+
+            if (!(queryResult.affectedRows)) {
+                return res.status(500).json({ success: false, msg: "No password was changed." })
+            }
+
+            return res.status(200).json({ success: true, msg: "Password successfully changed!" })
+        } catch (err) {
+            console.log(err)
+            return res.status(500).json({ success: false, msg: "Error processing the token!" })
         }
-
-        return res.status(200).json({ success: true, msg: "Password successfully changed!" })
-    } catch (err) {
-        console.log(err)
-        return res.status(500).json({ success: false, msg: "Error processing the token!" })
+    } catch (error) {
+        return res.status(500).json({ success: false, msg: "Inernal server error. Try again" })
     }
 })
 
