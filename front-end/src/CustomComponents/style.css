@@ -14,5 +14,6 @@
 
 #font-weight-paragraph {
     font-weight: bold;
+    cursor: pointer;
     /*color: red;*/
 }

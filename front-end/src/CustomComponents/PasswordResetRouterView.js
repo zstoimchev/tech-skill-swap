@@ -93,8 +93,13 @@ class PasswordResetRouterView extends React.Component {
                     className="btn btn-primary bt">Submit
             </button>
 
-            {this.state.status.success ?
-                <p className="alert alert-success" role="alert">{this.state.status.msg}</p> : null}
+            {/*{this.state.status.success ?*/}
+            {/*    <p className="alert alert-success" role="alert">{this.state.status.msg}</p> : null}*/}
+            {this.state.status.success ? (<> <p className="alert alert-success" role="alert">{this.state.status.msg}</p>
+                <p>Your password was changed successfully! You can now close this window, or
+                    <span id={"font-weight-paragraph"} onClick={() => this.props.navigate('/')}> click here to go back to login</span>.
+                </p> </>) : null}
+
             {!this.state.status.success && this.state.status.msg !== "" ?
                 <p className="alert alert-danger" role="alert">{this.state.status.msg}</p> : null}
 
