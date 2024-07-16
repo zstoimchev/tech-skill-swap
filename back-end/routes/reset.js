@@ -45,10 +45,21 @@ reset.post('/reset', async (req, res) => {
             from: process.env.MY_EMAIL,
             to: email,
             subject: 'Password Reset - Tech Skill-Swap',
-            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
-               Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n
-               http://localhost:3000/reset/${token}\n\n
-               If you did not request this, please ignore this email and your password will remain unchanged.\n`
+            // text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+            //    Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n
+            //    http://localhost:3000/reset/${token}\n\n
+            //    If you did not request this, please ignore this email and your password will remain unchanged.\n`
+            html: `
+                <p>You are receiving this because you (or someone else) have requested the reset of 
+                the password for your account.</p>
+                
+                <p>Please click on the following link, or paste this into your browser to complete 
+                the process within one hour of receiving it:</p>
+                
+                <a href="http://localhost:3000/password/reset/:${token}">Reset Password</a>
+
+                <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+                `
         }
 
         transporter.sendMail(mailOptions, (err, response) => {
