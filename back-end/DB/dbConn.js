@@ -38,6 +38,15 @@ dataPool.authEmail = (email) => {
     })
 }
 
+dataPool.getIdByEmail = (email) => {
+    return new Promise((resolve, reject) => {
+        conn.query('SELECT id FROM User WHERE email = ?', email, (err, res, fields) => {
+            if (err) { return reject(err) }
+            return resolve(res)
+        })
+    })
+}
+
 dataPool.addUser = (name, surname, username, email, password) => {
     return new Promise((resolve, reject) => {
         conn.query(`INSERT INTO User (name,surname, username,email,password) VALUES (?,?,?,?,?)`,
@@ -95,6 +104,42 @@ dataPool.addPost = (title, body, img, user_id) => {
     return new Promise((resolve, reject) => {
         conn.query(`INSERT INTO Post (title,body,image,user_id) VALUES (?,?,?,?)`,
             [title, body, img, user_id],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    })
+}
+
+
+
+
+dataPool.addRole = (table, id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`INSERT INTO ${table} (user_id) VALUES (?)`,
+            [id],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    })
+}
+
+dataPool.addRoleDataSeeker = (id, interests, about) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE Seeker SET interests = ?, about = ? WHERE user_id = ?`,
+            [interests, about, id],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    })
+}
+
+dataPool.addRoleDataHelper = (id, skills, about) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE Helper SET skills = ?, about = ? WHERE user_id = ?`,
+            [skills, about, id],
             (err, res) => {
                 if (err) { return reject(err) }
                 return resolve(res)

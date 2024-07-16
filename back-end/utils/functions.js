@@ -48,4 +48,8 @@ funct.verifyId = function(id) {
     return regex.test(id)
 }
 
+funct.verifyRole = function(role) {
+    return role === "Helper" || role === "Seeker" || role === "both"
+}
+
 module.exports = funct
