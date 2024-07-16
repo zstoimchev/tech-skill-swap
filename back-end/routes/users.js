@@ -15,7 +15,7 @@ users.post('/login', async (req, res, next) => {
         }
 
         if (!(UTILS.verifyUsername(username))) {
-            return res.status(400).son({ success: false, msg: "Bad username, contains disallowed characters!" })
+            return res.status(400).json({ success: false, msg: "Bad username, contains disallowed characters!" })
         }
 
         const queryResult = await DB.authUsername(username);
