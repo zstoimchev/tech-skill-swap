@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import axios from 'axios'
 import {API_URL} from "../Utils/Configuration";
+import {USERINFO} from "../Utils/Constants";
 
 
 class RegisterView extends Component {
@@ -10,7 +11,7 @@ class RegisterView extends Component {
             status: {
                 success: null, msg: ""
             }, user: {
-                name: "", surname: "", email: "", username: "", password: "", password2: "",
+                name: "", surname: "", email: "", username: "", password: "", password2: "", role: "",
             }
         }
     }
@@ -31,11 +32,13 @@ class RegisterView extends Component {
                 email: this.state.user.email,
                 password: this.state.user.password,
                 password2: this.state.user.password2,
+                role: this.state.user.role,
             })
             .then(response => {
                 this.setState({status: response.data})
                 // TODO: implement encryption for the password and handle bad responses
                 console.log("Sent to server...")
+                this.props.changeState({user: this.state.user.email, role: this.state.user.role})
             })
             .catch(err => {
                 this.setState({status: err.response.data})
@@ -56,7 +59,7 @@ class RegisterView extends Component {
                      }}>
             <form style={{margin: "20px"}}>
 
-                <div className="row">
+                <div className="row mb-3">
                     <div className="col">
                         {/*<input type="text" className="form-control" placeholder="First name"/>*/}
                         <label htmlFor="name">First Name</label>
@@ -72,19 +75,31 @@ class RegisterView extends Component {
                     </div>
                 </div>
 
-                <div className="form-group">
+                <div className="mb-3">
                     <label htmlFor="email">E-mail</label>
                     <input onChange={this.SetValueFromUserInput} type="email" className="form-control" id="email"
                            placeholder="E-mail"/>
                 </div>
 
-                <div className="form-group">
+                <div className="mb-3">
                     <label htmlFor="username">Username</label>
                     <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="username"
                            placeholder="Username"/>
                 </div>
 
-                <div className="form-group">
+
+                <div className="mb-3">
+                    <label htmlFor="dropdown">What is your role?</label>
+                    <select onChange={this.SetValueFromUserInput} className="form-control" id="role">
+                        <option value="">Select an option</option>
+                        <option value="Helper">I want to help people</option>
+                        <option value="Seeker">I want to ask for help</option>
+                        <option value="both">I want to do both</option>
+                    </select>
+                </div>
+
+
+                <div className="mb-3">
                     <label htmlFor="password">Password</label>
                     <input onChange={this.SetValueFromUserInput} type="password" className="form-control" id="password"
                            placeholder="Password"/>
@@ -104,10 +119,12 @@ class RegisterView extends Component {
             </button>
 
             {this.state.status.success ?
-                <p className="alert alert-success" role="alert">{this.state.status.msg}</p> : null}
+                (<><p className="alert alert-success" role="alert">{this.state.status.msg}</p>
+                </>) : null}
             {!this.state.status.success && this.state.status.msg !== "" ?
                 <p className="alert alert-danger" role="alert">{this.state.status.msg}</p> : null}
-
+            <p onClick={() => this.props.changeState({CurrentPage: USERINFO})}>Click here to complete your
+                profile</p>
         </div>)
     }
 }

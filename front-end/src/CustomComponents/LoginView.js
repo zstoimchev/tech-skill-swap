@@ -80,14 +80,14 @@ class LoginView extends React.Component {
                     <input name="username" onChange={(e) => this.GetTextFromField(e)}
                            type="text"
                            className="form-control"
-                           id="exampleInputEmail1"/>
+                           id="email"/>
                 </div>
                 <div className="mb-3">
                     <label className="form-label">Password</label>
                     <input name="password" onChange={(e) => this.GetTextFromField(e)}
                            type="password"
                            className="form-control"
-                           id="exampleInputPassword1"/>
+                           id="password"/>
                 </div>
                 <p className={"form-for-reset-pw"} onClick={() => this.props.updateState({CurrentPage: RESETPW})}>Forgot
                     your password? <span id={"span-form-reset"}>Click here</span></p>
@@ -100,6 +100,10 @@ class LoginView extends React.Component {
             <button style={{margin: "10px"}} onClick={() => this.Login()}
                     className="btn btn-primary bt">Log in
             </button>
+
+            {/*// TODO: style these 2 paragraphs and add hyperlink to the related pages*/}
+            <p>New around here? Sign up</p>
+            <p>Forgot your password?</p>
 
             {this.state.status.success ?
                 <p className="alert alert-success" role="alert">{this.state.status.msg}</p> : null}
