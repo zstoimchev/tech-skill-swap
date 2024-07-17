@@ -41,8 +41,8 @@ posts.post('/add', upload.single('file'), async (req, res) => {
     if (req.file) {
         file = req.file.filename
     }
-    
-    if (!(title && body && user_id)){
+
+    if (!(title && body && user_id)) {
         return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" });
     }
 
@@ -56,7 +56,7 @@ posts.post('/add', upload.single('file'), async (req, res) => {
 
 posts.get('/', async (req, res, next) => {
     try {
-        const queryResult = await DB.allPosts()
+        const queryResult = await DB.allPostsJ()
         return res.status(200).json({ arr: queryResult, success: true, msg: "All posts fetches." })
     }
     catch (err) {
@@ -95,6 +95,41 @@ posts.get('/:id', async (req, res, next) => {
         console.log(err)
         return res.status(500).json({ success: false, msg: "omething happened. Internal server error" })
         // next()
+    }
+})
+
+posts.post('/comment', async (req, res) => {
+    try {
+        const { user, post_id, content } = req.body
+        if (!UTILS.verifyUsername(user)) {
+            return res.status(404).json({ success: false, msg: "No such user found! Please register first." })
+        }
+        // verify post_id is indeed a number
+        const id = await DB.getIdByUsername(user)
+        if (!id) {
+            return res.status(404).json({ success: false, msg: "No such user found!" })
+        }
+
+        // verify content of the content
+        const queryResult = await DB.addComment(id[0].id, post_id, content)
+        if (!queryResult.affectedRows) {
+            return res.status(500).json({ success: false, msg: "Error saving comment to DB..." })
+        }
+        return res.status(200).json({ success: true, msg: "Comment succesfully saved in DB!" })
+    } catch (err) {
+        return res.status(500).json({ success: false, msg: "Internal server error..." })
+    }
+})
+
+posts.get('/comment/:id', async (req, res) => {
+    try {
+        const queryResult = await DB.getCommentById(req.params.id)
+        console.log(queryResult)
+        return res.status(200).json({ arr: queryResult, success: true, msg: "Comments succesfully fetched." })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({ success: false, msg: "Something happened. Internal server error" })
     }
 })
 

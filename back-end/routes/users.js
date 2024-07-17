@@ -184,6 +184,12 @@ users.post('/complete-profile', async (req, res, next) => {
     }
 })
 
+users.get('/post-w-user', async (req, res) => {
+    const q = await DB.allPostsJ()
+    return res.json(q)
+})
+
+
 // Some way of logging, keeping logs of what is going on, like which user logs in registers logs out at what time etc.
 
 module.exports = users
