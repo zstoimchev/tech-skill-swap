@@ -37,6 +37,14 @@ app.use('/password', reset)
 // and then app uses that build directory, and sends file index.html in the root page?
 
 
-app.get("/", (req, res) => { res.send("Tech Skill-Swap - HOME page. Welcome!") })
+// app.get("/", (req, res) => { res.send("Tech Skill-Swap - HOME page. Welcome!") })
+const path = require('path')
+console.log(__dirname)
+app.use(express.static(path.join(__dirname, "build")))
+app.use(express.static(path.join(__dirname, "uploads")))
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "build", "index.html")) 
+})
 
 app.listen(port, () => { console.log(`Server is running on port: ${port}`) })

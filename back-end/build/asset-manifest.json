@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.6373eca0.css",
+    "main.js": "/static/js/main.e0179a61.js",
+    "static/js/453.f7be5b23.chunk.js": "/static/js/453.f7be5b23.chunk.js",
+    "static/media/fixing_laptop.jpg": "/static/media/fixing_laptop.12e2a7f76eb44e0bd39d.jpg",
+    "index.html": "/index.html",
+    "main.6373eca0.css.map": "/static/css/main.6373eca0.css.map",
+    "main.e0179a61.js.map": "/static/js/main.e0179a61.js.map",
+    "453.f7be5b23.chunk.js.map": "/static/js/453.f7be5b23.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6373eca0.css",
+    "static/js/main.e0179a61.js"
+  ]
+}
