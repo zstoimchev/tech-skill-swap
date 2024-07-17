@@ -47,6 +47,15 @@ dataPool.getIdByEmail = (email) => {
     })
 }
 
+dataPool.getIdByUsername = (username) => {
+    return new Promise((resolve, reject) => {
+        conn.query('SELECT id FROM User WHERE username = ?', username, (err, res, fields) => {
+            if (err) { return reject(err) }
+            return resolve(res)
+        })
+    })
+}
+
 dataPool.addUser = (name, surname, username, email, password) => {
     return new Promise((resolve, reject) => {
         conn.query(`INSERT INTO User (name,surname, username,email,password) VALUES (?,?,?,?,?)`,
@@ -85,6 +94,20 @@ dataPool.changePass = async (pw, email) => {
 dataPool.allPosts = () => {
     return new Promise((resolve, reject) => {
         conn.query('SELECT * FROM Post', (err, res) => {
+            if (err) { return reject(err); }
+            return resolve(res);
+        })
+    })
+}
+
+dataPool.allPostsJ = () => {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT Post.*, User.name, User.surname
+            FROM Post
+            JOIN User ON Post.user_id = User.id
+        `;
+        conn.query(query, (err, res) => {
             if (err) { return reject(err); }
             return resolve(res);
         })
@@ -146,5 +169,26 @@ dataPool.addRoleDataHelper = (id, skills, about) => {
             })
     })
 }
+
+dataPool.addComment = (user_id, post_id, content) => {
+    return new Promise((resolve, reject) => {
+        conn.query('Insert into Comment (user_id, post_id, content) VALUES (?,?,?)',
+            [user_id, post_id, content],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    })
+}
+
+dataPool.getCommentById = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query('SELECT Comment.*, User.username FROM Comment JOIN User ON Comment.user_id = User.id WHERE Comment.post_id = ?', id, (err, res, fields) => {
+            if (err) { return reject(err) }
+            return resolve(res)
+        })
+    })
+}
+
 
 module.exports = dataPool
