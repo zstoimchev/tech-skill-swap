@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {Nav, Navbar} from "react-bootstrap"
-import {ABOUT, HOME, POSTS, POST, LOGIN, REGISTER, ADDPOST, RESETPW, USERINFO} from "./Utils/Constants"
+import {ABOUT, HOME, POSTS, POST, LOGIN, REGISTER, ADDPOST, RESETPW, USERINFO, PROFILE} from "./Utils/Constants"
 import HomeView from "./CustomComponents/HomeView"
 import AboutView from "./CustomComponents/AboutView"
 import PostsView from "./CustomComponents/PostsView"
@@ -14,6 +14,7 @@ import UserInfoSetupView from "./CustomComponents/UserInfoSetupView"
 
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 import {useNavigate} from 'react-router-dom';
+import ProfileView from "./CustomComponents/ProfileView";
 
 
 // import cookie here
@@ -58,6 +59,8 @@ class App extends Component {
                 return <ResetPasswordView/>
             case USERINFO:
                 return <UserInfoSetupView getUserInfo={this.state}/>
+            case PROFILE:
+                return <ProfileView/>
             default:
                 return <HomeView/>
         }
