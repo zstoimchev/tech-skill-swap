@@ -10,7 +10,7 @@ class UserInfoSetupView extends Component {
             status: {
                 success: null, msg: ""
             }, user: {
-                interests: "", skills: "", about: "", role: "Seeker", email: ""
+                interests: "", skills: "", about: "", role: "", email: ""
             }
         }
     }
@@ -56,20 +56,16 @@ class UserInfoSetupView extends Component {
             <h5 className="card-title">Tell us something more about yourself</h5>
             <form style={{margin: "20px"}}>
 
-                {this.state.role === "Seeker" ? <div className="mb-3">
+                {this.state.user.role === "Seeker" || this.state.user.role === "both" ? <div className="mb-3">
                     <label htmlFor="interests">Interests</label>
                     <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="interests"
                            placeholder="List what you are interested in..."/>
-                </div> : <div className="mb-3">
+                </div> : null}
+
+                {this.state.user.role === "Helper" || this.state.user.role === "both" ? <div className="mb-3">
                     <label htmlFor="skills">Skills</label>
                     <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="skills"
                            placeholder="List skills you can offer..."/>
-                </div>}
-
-                {this.state.role === "both" ? <div className="mb-3">
-                    <label htmlFor="interests">Interests</label>
-                    <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="interests"
-                           placeholder="List what you are interested in..."/>
                 </div> : null}
 
                 <div className="mb-3">

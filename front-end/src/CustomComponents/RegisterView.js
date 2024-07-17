@@ -113,18 +113,25 @@ class RegisterView extends Component {
 
 
             </form>
-            <button style={{margin: "10px"}}
-                    onClick={() => this.Register()}
-                    className="btn btn-primary bt">Submit
-            </button>
 
-            {this.state.status.success ?
-                (<><p className="alert alert-success" role="alert">{this.state.status.msg}</p>
-                </>) : null}
+            {this.state.status.success ? (<>
+                <button style={{margin: "10px"}}
+                        onClick={() => this.props.changeState({CurrentPage: USERINFO})}
+                        className="btn btn-primary bt">Complete your profile
+                </button>
+            </>) : <button style={{margin: "10px"}}
+                           onClick={() => this.Register()}
+                           className="btn btn-primary bt">Submit
+            </button>}
+
+
+            {this.state.status.success ? (<><p className="alert alert-success" role="alert">{this.state.status.msg}</p>
+                <p>Click on the link above to complete your profile.</p>
+            </>) : null}
+
             {!this.state.status.success && this.state.status.msg !== "" ?
                 <p className="alert alert-danger" role="alert">{this.state.status.msg}</p> : null}
-            <p onClick={() => this.props.changeState({CurrentPage: USERINFO})}>Click here to complete your
-                profile</p>
+
         </div>)
     }
 }
