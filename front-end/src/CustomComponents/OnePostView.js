@@ -92,7 +92,7 @@ class OnePostView extends React.Component {
                     <h5 className="card-title">Category: </h5>
                     <p className="card-title">{post.body}</p>
                     {/*<img className="img-fluid" src={API_URL + "/" + post.image} alt={"image"}></img>*/}
-                    <img className="img-fluid my-custom-image" src={API_URL + "/" + post.image} alt={"image"}></img>
+                    <img className="img-fluid my-custom-image" src={API_URL + "/" + post.image} alt={""}></img>
 
                     <button onClick={() => this.props.changeState({CurrentPage: POSTS})}
                             className="btn btn-primary">Return news
