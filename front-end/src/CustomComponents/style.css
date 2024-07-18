@@ -17,3 +17,11 @@
     cursor: pointer;
     /*color: red;*/
 }
+
+.my-custom-image {
+    width: 50%;  /* Adjust this value to change the image size */
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}

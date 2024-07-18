@@ -27,7 +27,7 @@ class App extends Component {
 
         super(props)
         this.state = {
-            CurrentPage: HOME, status: {
+            CurrentPage: POST, status: {
                 success: null, msg: ""
             }, user: null, id: null, loggedIn: !!(token && user && loggedIn),
         }

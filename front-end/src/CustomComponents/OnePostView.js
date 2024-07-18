@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import axios from 'axios'
 import {API_URL} from "../Utils/Configuration"
 import {LOGIN, POST, POSTS} from "../Utils/Constants"
+import './style.css'
 
 class OnePostView extends React.Component {
     constructor(props) {
@@ -88,18 +89,19 @@ class OnePostView extends React.Component {
             {Object.keys(post).length !== 0 ? <div>
                 <h5 className="card-header">{post.title}</h5>
                 <div className="card-body">
-                    <h5 className="card-title">{post.body}</h5>
-                    {/*<img className="img-fluid" src={API_URL+"/"+post.file} alt={""}></img>*/}
-                    <p>Here goes image if existent</p>
+                    <h5 className="card-title">Category: </h5>
+                    <p className="card-title">{post.body}</p>
+                    {/*<img className="img-fluid" src={API_URL + "/" + post.image} alt={"image"}></img>*/}
+                    <img className="img-fluid my-custom-image" src={API_URL + "/" + post.image} alt={"image"}></img>
+
                     <button onClick={() => this.props.changeState({CurrentPage: POSTS})}
                             className="btn btn-primary">Return news
                     </button>
-
                 </div>
 
                 <hr/>
                 <div className="card-body" style={{paddingTop: "0px"}}>
-                    <h5 style={{marginBottom: "10px"}}>Leave a comment:</h5>
+                <h5 style={{marginBottom: "10px"}}>Leave a comment:</h5>
                     <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                         <input id="comment" type="text" className="form-control" placeholder="Enter your comment here"
                                style={{marginRight: "10px", flex: "1"}} onChange={this.SetValueFromUserInput}/>
