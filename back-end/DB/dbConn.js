@@ -114,6 +114,16 @@ dataPool.allPostsJ = () => {
     })
 }
 
+dataPool.getAllPostsByUserId = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query('SELECT * FROM Post WHERE user_id = ?', id, (err, res) => {
+            if (err) { return reject(err); }
+            return resolve(res);
+        })
+    })
+}
+
+
 dataPool.onePost = (id) => {
     return new Promise((resolve, reject) => {
         conn.query('SELECT * FROM Post WHERE id = ?', id, (err, res, fields) => {

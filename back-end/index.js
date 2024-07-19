@@ -29,9 +29,11 @@ app.use(cors({
 const users = require("./routes/users")
 const posts = require("./routes/posts")
 const reset = require("./routes/reset")
+const profile = require("./routes/profile")
 app.use('/users', users)
 app.use('/posts', posts)
 app.use('/password', reset)
+app.use('/profile', profile)
 
 // here most probably path needs to be initialized for the brontend build directory
 // and then app uses that build directory, and sends file index.html in the root page?

@@ -124,7 +124,6 @@ posts.post('/comment', async (req, res) => {
 posts.get('/comment/:id', async (req, res) => {
     try {
         const queryResult = await DB.getCommentById(req.params.id)
-        console.log(queryResult)
         return res.status(200).json({ arr: queryResult, success: true, msg: "Comments succesfully fetched." })
     }
     catch (err) {
