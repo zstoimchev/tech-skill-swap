@@ -5,8 +5,8 @@ class HomeView extends React.Component {
     render() {
         return (<div className="card" style={{margin: "10px"}}>
             <div className="card-body">
-                <h5 className="card-title">Welcome to Tech Skill Swap, a place where you can offer and receive
-                    help!</h5>
+                <h4 className="card-title">Welcome to Tech Skill Swap, a place where you can offer and receive
+                    help!</h4>
                 <p className="card-text">Welcome to Tech Skill Swap, a unique platform designed to foster a community of
                     learning, sharing, and problem-solving.</p>
 

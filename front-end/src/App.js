@@ -27,7 +27,7 @@ class App extends Component {
 
         super(props)
         this.state = {
-            CurrentPage: POST, status: {
+            CurrentPage: PROFILE, status: {
                 success: null, msg: ""
             }, user: null, id: null, loggedIn: !!(token && user && loggedIn),
         }
@@ -105,6 +105,9 @@ class App extends Component {
                                     ? (<> <Nav.Link
                                         onClick={this.SetView.bind(this, {page: ADDPOST})}
                                         href="#addpost">Add New Post</Nav.Link>
+                                        <Nav.Link
+                                        onClick={this.SetView.bind(this, {page: PROFILE, user:this.state.user})}
+                                        href="#profile">Profile</Nav.Link>
                                         <Nav.Link
                                             onClick={() => this.Logout()}
                                             href="#logout">Logout</Nav.Link>
