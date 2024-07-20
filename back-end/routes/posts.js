@@ -1,9 +1,6 @@
 const express = require("express")
 const posts = express.Router()
 const DB = require('../DB/dbConn.js')
-const jwt = require('jsonwebtoken')
-const util = require('util')
-const jwtVerify = util.promisify(jwt.verify)
 const UTILS = require('../utils/functions.js')
 const multer = require('multer')
 
@@ -12,125 +9,117 @@ const storage = multer.diskStorage({
         callBack(null, 'uploads')
     },
     filename: (req, file, callBack) => {
-        // cb(null, Date.now() + path.extname(file.originalname)) // Appends the file extension
         callBack(null, Date.now() + `${file.originalname}`)
     }
 })
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage })
 
-posts.post('/add', upload.single('file'), async (req, res) => {
-    const authHeader = req.headers['authorization']
-    const token = authHeader && authHeader.split(' ')[1]
-
-    if (token == null) {
-        console.log("No token")
-        return res.status(401).json({ success: false, msg: "No JWT token found. Please login first." })
-    }
-
-    try {
-        const user = await jwtVerify(token, process.env.JWT_TOKEN_SECRET);
-        req.user = user;
-    } catch (err) {
-        console.log("Invalid token")
-        return res.status(403).json({ success: false, msg: "JWT token expired! Please log in again." })
-    }
-
-    const { title, body, user_id } = req.body
+posts.post('/add', UTILS.authorizeLogin, upload.single('file'), async (req, res) => {
+    const { title, body, username } = req.body
     let file = ""
     if (req.file) {
         file = req.file.filename
     }
 
-    if (!(title && body && user_id)) {
-        return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" });
+    if (!(title && body && username)) {
+        return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" })
     }
 
     // TODO: verify user input before sending to DB
-    const queryResult = await DB.addPost(title, body, file, user_id);
-    if (!(queryResult.affectedRows)) {
-        return res.status(500).json({ success: false, msg: "Error processing new post..." });
+    try {
+        const queryResult = await DB.addPost(title, body, file, username)
+        if (!(queryResult.affectedRows)) {
+            return res.status(503).json({ success: false, msg: "Error processing new post..." })
+        }
+        return res.status(200).json({ success: true, msg: "New post successfully added!" })
+    } catch (err) {
+        console.error(err)
+        return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
     }
-    return res.status(200).json({ success: true, msg: "New post succesfully added!" });
 })
 
-posts.get('/', async (req, res, next) => {
+posts.get('/', async (req, res) => {
     try {
         const queryResult = await DB.allPostsJ()
-        return res.status(200).json({ arr: queryResult, success: true, msg: "All posts fetches." })
+        return res.status(200).json({ arr: queryResult, success: true, msg: "All posts fetched successfully." })
     }
     catch (err) {
-        console.log(err)
-        return res.status(500).json({ success: false, msg: "Sometging happened!" })
-        // next()
+        console.error(err)
+        return res.status(503).json({ success: false, msg: "Cannot fetch any post! Try again later." })
     }
 })
 
-posts.get('/:id', async (req, res, next) => {
-    const authHeader = req.headers['authorization']
-    const token = authHeader && authHeader.split(' ')[1]
-
-    if (token == null) {
-        console.log("No token")
-        return res.status(401).json({ success: false, msg: "No JWT token found. Please login first." })
-    }
+posts.get('/:id', UTILS.authorizeLogin, async (req, res) => {
 
     try {
-        const user = await jwtVerify(token, process.env.JWT_TOKEN_SECRET);
-        req.user = user;
-    } catch (err) {
-        console.log("Invalid token")
-        return res.status(403).json({ success: false, msg: "JWT token expired! Please log in again." })
-    }
+        if (!(UTILS.verifyId(req.params.id))) {
+            return res.status(400).json({ success: false, msg: "Bad post ID! Try again." })
+        }
 
-    if (!(UTILS.verifyId(req.params.id))) {
-        return res.status(200).json({ success: false, msg: "Bad ID! Try again." })
-    }
-
-    try {
-        const queryResult = await DB.onePost(req.params.id)
-        return res.status(200).json({ arr: queryResult[0], success: true, msg: "Post succesfully fetched." })
-    }
-    catch (err) {
-        console.log(err)
-        return res.status(500).json({ success: false, msg: "omething happened. Internal server error" })
-        // next()
+        try {
+            const queryResult = await DB.onePost(req.params.id)
+            if (!queryResult[0]) {
+                return res.status(404).json({ success: false, msg: "No such post found in the DB!" })
+            }
+            return res.status(200).json({ arr: queryResult[0], success: true, msg: "Post successfully fetched." })
+        }
+        catch (err) {
+            console.error(err)
+            return res.status(503).json({ success: false, msg: "Cannot fetch post from the DB. Try again later." })
+        }
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
     }
 })
 
-posts.post('/comment', async (req, res) => {
+posts.post('/comment', UTILS.authorizeLogin, async (req, res) => {
     try {
         const { user, post_id, content } = req.body
         if (!UTILS.verifyUsername(user)) {
             return res.status(404).json({ success: false, msg: "No such user found! Please register first." })
         }
-        // verify post_id is indeed a number
-        const id = await DB.getIdByUsername(user)
-        if (!id) {
-            return res.status(404).json({ success: false, msg: "No such user found!" })
+        try {
+            const id = await DB.getIdByUsername(user)
+            if (!id) {
+                return res.status(404).json({ success: false, msg: "No such user found!" })
+            }
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while processing user..." })
         }
 
-        // verify content of the content
-        const queryResult = await DB.addComment(id[0].id, post_id, content)
-        if (!queryResult.affectedRows) {
-            return res.status(500).json({ success: false, msg: "Error saving comment to DB..." })
+        if (!(UTILS.verifyId(post_id))) {
+            return res.status(400).json({ success: false, msg: "Bad post ID! Try again." })
         }
-        return res.status(200).json({ success: true, msg: "Comment succesfully saved in DB!" })
+
+        // TODO: verify the content from the user
+        try {
+            const queryResult = await DB.addComment(id[0].id, post_id, content)
+            if (!queryResult.affectedRows) {
+                return res.status(503).json({ success: false, msg: "Error saving comment to DB..." })
+            }
+            return res.status(200).json({ success: true, msg: "Comment successfully saved in DB!" })
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error saving comment in DB..." })
+        }
     } catch (err) {
+        console.error(err)
         return res.status(500).json({ success: false, msg: "Internal server error..." })
     }
 })
 
-posts.get('/comment/:id', async (req, res) => {
+posts.get('/comment/:id', UTILS.authorizeLogin, async (req, res) => {
     try {
-        const queryResult = await DB.getCommentById(req.params.id)
-        return res.status(200).json({ arr: queryResult, success: true, msg: "Comments succesfully fetched." })
+        const queryResult = await DB.getCommentsByPostId(req.params.id)
+        return res.status(200).json({ arr: queryResult, success: true, msg: "Comments successfully fetched." })
     }
     catch (err) {
-        console.log(err)
-        return res.status(500).json({ success: false, msg: "Something happened. Internal server error" })
+        console.error(err)
+        return res.status(503).json({ success: false, msg: "Something happened. Internal server error. Cannot fetch comments. Try again later." })
     }
 })
-
 
 module.exports = posts

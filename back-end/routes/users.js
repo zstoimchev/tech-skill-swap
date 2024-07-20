@@ -5,10 +5,8 @@ const jwt = require('jsonwebtoken')
 const UTILS = require('../utils/functions.js')
 
 
-users.post('/login', async (req, res, next) => {
+users.post('/login', UTILS.authorizeLoginForLogin, async (req, res, next) => {
     try {
-        // TODO: if there is already a JWT token, refuse the request
-
         const { username, password } = req.body
         if (!(username && password)) {
             return res.status(400).json({ success: false, msg: "Please enter both Username & Password!" })     // bad request
@@ -18,14 +16,16 @@ users.post('/login', async (req, res, next) => {
             return res.status(400).json({ success: false, msg: "Bad username, contains disallowed characters!" })
         }
 
-        const queryResult = await DB.authUsername(username)
-        if (queryResult.length <= 0) {
-            return res.status(404).json({ success: false, msg: "Username does not exist. Please create new account!" })    // not found
+        let queryResult = null
+        try {
+            queryResult = await DB.authUsername(username)
+            if (queryResult.length <= 0) {
+                return res.status(404).json({ success: false, msg: "Username does not exist. Please create new account!" })    // not found
+            }
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while processing username... Please try again later." })
         }
-
-        // if (!(UTILS.verifyPassStrength(password))) {
-        //     return res.status(400).json({ success: false, msg: "Bad password, check password strength!" })
-        // }
 
         const storedHashedPassword = queryResult[0].password
         const isPasswordMatch = await UTILS.comparePassword(password, storedHashedPassword)
@@ -35,45 +35,29 @@ users.post('/login', async (req, res, next) => {
         }
 
         // TODO: set up refresh token for the JWT
-
         const secretKey = process.env.JWT_TOKEN_SECRET
         const expiresIn = '1h'
         const token = jwt.sign({ user: username }, secretKey, { expiresIn })
 
-        // not a typical implementation for the server to set the headers
-        // res.setHeader('Authorization', 'Bearer ' + token)
-
         console.log("User successfully logged in!")
-        return res.status(200).json({ success: true, token: token, msg: "User is logged in!" })  // all ok
+        return res.status(200).json({ success: true, token: token, user: queryResult[0].username, msg: "User is logged in!" })  // all ok
     } catch (err) {
         console.error(err)
-        return res.status(500).json({ success: false, msg: `Internal server error! ${err}` })     // internal server error
+        return res.status(500).json({ success: false, msg: `Internal server error! Try again later.` })     // internal server error
     }
-})
-
-users.post('/logout', (req, res) => {
-    if (!(req.session.loggedIn)) {
-        return res.status(200).json({ success: true, msg: "No active session found." })
-    }
-    req.session.destroy(err => {
-        if (err) {
-            console.error(err)
-            return res.status(500).json({ success: false, msg: "Failed to log out. Please try again." })
-        } else {
-            return res.status(200).json({ success: true, msg: "Successfully logged out." })
-        }
-    })
 })
 
 
 // TODO: when registering, verify the user with email confirmation???
-users.post('/register', async (req, res, next) => {
-
-    // TODO: if user is already logged it, new user cannot be added, but for that sessions are needed
-
+// =========================================================================================================================================\
+// How to confirm registration with email? Create JWT with expiration date 15 minutes and email it. When the user oppens the link           |
+// with the token, extract the data. Check if in the DB there is already user with that email or with that address. If there is,            |
+// return error to the frontend that in the meantime someone registered user with that email/username, otherwise save the user to the DB    |
+// =========================================================================================================================================/
+users.post('/register', UTILS.authorizeLoginForLogin, async (req, res) => {
+    // TODO: implement middleware function that will check user input only
     try {
         const { name, surname, username, email, password, password2, role } = req.body
-        // TODO: verify all user data, email, username and password are checked, repeat for name and surname to allow only characters, maybe numbers
 
         if (!(name && surname && username && email && password && password2 && role)) {
             return res.status(400).json({ success: false, msg: "Input field missing! Please fill in all the fields." })
@@ -82,17 +66,9 @@ users.post('/register', async (req, res, next) => {
         if (!(UTILS.verifyEmail(email))) {
             return res.status(400).json({ success: false, msg: "Bad email, contains disallowed characters!" })
         }
-        const queryResultEmail = await DB.authEmail(email)
-        if (queryResultEmail.length != 0) {
-            return res.status(400).json({ success: false, msg: "User with that E-mail already exists!" })
-        }
 
         if (!(UTILS.verifyUsername(username))) {
             return res.status(400).json({ success: false, msg: "Bad username, contains disallowed characters!" })
-        }
-        const queryResultUsername = await DB.authUsername(username)
-        if (queryResultUsername.length > 0) {
-            return res.status(400).json({ success: false, msg: "User with that Username already exists!" })
         }
 
         if (!(UTILS.verifyNameSurname(name, surname))) {
@@ -106,87 +82,77 @@ users.post('/register', async (req, res, next) => {
         if (password !== password2) {
             return res.status(401).json({ success: false, msg: "Passwords do not match!" })
         }
+
+        try {
+            const queryResultEmail = await DB.authEmail(email)
+            if (queryResultEmail.length != 0) {
+                return res.status(400).json({ success: false, msg: "User with that E-mail already exists!" })
+            }
+            const queryResultUsername = await DB.authUsername(username)
+            if (queryResultUsername.length > 0) {
+                return res.status(400).json({ success: false, msg: "User with that Username already exists!" })
+            }
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error processing DB. Please try again later" })
+        }
+
         if (!(UTILS.verifyPassStrength(password))) {
             return res.status(400).json({ success: false, msg: "Bad password, check password strength!" })
         }
 
         const hashedPassword = await UTILS.hashPassword(password)
         if (!hashedPassword) {
-            console.log("Error hashing password!")
-            return res.status(500).json({ success: false, msg: "Internal server error while processing password." })
+            return res.status(500).json({ success: false, msg: "Error while processing password. Please try again later." })
         }
 
-        const queryResult = await DB.addUser(name, surname, username, email, hashedPassword)
-        if (!(queryResult.affectedRows)) {
-            return res.status(500).json({ success: false, msg: "Error registering new user..." })
+        try {
+            const queryResult = await DB.addUser(name, surname, username, email, hashedPassword)
+            if (!(queryResult.affectedRows)) {
+                return res.status(500).json({ success: false, msg: "Error registering new user..." })
+            }
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while saving user in DB... Please try again later." })
         }
 
-        const userr_idd = await DB.getIdByEmail(email)
-        if (!userr_idd) {
-            return res.status(404).json({ success: false, msg: "No such user found!" })
-        }
-        if (role === "both") {
-            const q1 = await DB.addRole("Helper", userr_idd[0].id)
-            const q2 = await DB.addRole("Seeker", userr_idd[0].id)
-            if (!(q1.affectedRows > 0 && q2.affectedRows > 0)) {
-                return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
+        try {
+            const userr_idd = await DB.getIdByEmail(email)
+            if (!userr_idd) {
+                return res.status(404).json({ success: false, msg: "No such user found!" })
             }
-        } else if (role === "Helper") {
-            const q = await DB.addRole(role, userr_idd[0].id)
-            if (!q.affectedRows) {
-                return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
+            if (role === "both") {
+                const q1 = await DB.addRole("Helper", userr_idd[0].id)
+                const q2 = await DB.addRole("Seeker", userr_idd[0].id)
+                if (!(q1.affectedRows > 0 && q2.affectedRows > 0)) {
+                    return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
+                }
+            } else if (role === "Helper") {
+                const q = await DB.addRole(role, userr_idd[0].id)
+                if (!q.affectedRows) {
+                    return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
+                }
+            } else if (role === "Seeker") {
+                const q = await DB.addRole(role, userr_idd[0].id)
+                if (!q.affectedRows) {
+                    return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
+                }
             }
-        } else if (role === "Seeker") {
-            const q = await DB.addRole(role, userr_idd[0].id)
-            if (!q.affectedRows) {
-                return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
-            }
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "User saved, but failed processing role..." })
         }
 
         return res.status(200).json({ success: true, msg: "New user successfully registered." })
     } catch (err) {
         console.error(err)
-        return res.status(500).json({ success: false, msg: "Internal server error!" })
+        return res.status(500).json({ success: false, msg: "Something happened internally! Please try again later." })
     }
 })
 
-users.post('/complete-profile', async (req, res, next) => {
-    try {
-        const { role, email, interests, skills, about } = req.body
-
-        // TODO: verify user data before sending to server
-
-        const userr_idd = await DB.getIdByEmail(email)
-        if (!userr_idd) {
-            return res.status(404).json({ success: false, msg: "No such user found!" })
-        }
-        if (role === "both") {
-            const q1 = await DB.addRoleDataHelper(userr_idd[0].id, skills, about)
-            const q2 = await DB.addRoleDataSeeker(userr_idd[0].id, interests, about)
-            if (!(q1.affectedRows > 0 && q2.affectedRows > 0)) {
-                return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
-            }
-        } else if (role === "Helper") {
-            const q = await DB.addRoleDataHelper(userr_idd[0].id, skills, about)
-            if (!q.affectedRows) {
-                return res.status(500).json({ success: false, msg: "Failed saving user data in DB" })
-            }
-        } else if (role === "Seeker") {
-            const q = await DB.addRoleDataSeeker(userr_idd[0].id, interests, about)
-            if (!q.affectedRows) {
-                return res.status(500).json({ success: false, msg: "Failed saving user data in DB" })
-            }
-        }
-
-        return res.status(200).json({ success: true, msg: "User role data succsfully set in the DB!" })
-    } catch (err) {
-        return res.status(500).json({ success: false, msg: "Internal server error..." })
-    }
-})
-
-users.get('/post-w-user', async (req, res) => {
-    const q = await DB.allPostsJ()
-    return res.json(q)
+users.get('/auth', UTILS.authorizeLogin, async (req, res) => {
+    // maybe refresh the jwt here? Plenty of time for that, will do when the time comes!
+    return res.status(200).json({ success: true, user: req.user, msg: "User is logged in!" })
 })
 
 
