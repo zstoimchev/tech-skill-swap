@@ -26,9 +26,21 @@ posts.post('/add', UTILS.authorizeLogin, upload.single('file'), async (req, res)
         return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" })
     }
 
+    let user_id = null
+    try {
+        const q = await DB.getIdByUsername(username)
+        if (!q[0]) {
+            return res.status(400).json({ success: false, msg: "No such user found!" })
+        }
+        user_id = q[0].id
+    } catch (error) {
+        console.error(error)
+        return res.status(503).json({ success: false, msg: "Error while checking for user in DB..." })
+    }
+
     // TODO: verify user input before sending to DB
     try {
-        const queryResult = await DB.addPost(title, body, file, username)
+        const queryResult = await DB.addPost(title, body, file, user_id)
         if (!(queryResult.affectedRows)) {
             return res.status(503).json({ success: false, msg: "Error processing new post..." })
         }
