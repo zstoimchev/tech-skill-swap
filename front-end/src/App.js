@@ -27,11 +27,15 @@ class App extends Component {
 
         super(props)
         this.state = {
-            CurrentPage: PROFILE, status: {
+            CurrentPage: HOME, status: {
                 success: null, msg: ""
             }, user: null, id: null, loggedIn: !!(token && user && loggedIn),
         }
         this.updateStateApp = this.updateStateApp.bind(this)
+        console.log("----")
+    }
+
+    componentDidMount() {
     }
 
     updateStateApp(newState) {

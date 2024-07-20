@@ -2,7 +2,7 @@ import React from "react"
 import PropTypes from 'prop-types'
 import axios from 'axios'
 import {API_URL} from "../Utils/Configuration"
-import {LOGIN, POST, POSTS} from "../Utils/Constants"
+import {HOME, LOGIN, POSTS} from "../Utils/Constants"
 import './style.css'
 
 class OnePostView extends React.Component {
@@ -14,17 +14,21 @@ class OnePostView extends React.Component {
             }, status: {
                 success: null, msg: ""
             },
-
         }
-    }
-
-    componentDidMount() {
-        this.setState({id: this.props.id})
-        axios.get(API_URL + "/posts/" + this.props.id, {
+        this.req = axios.create({
+            withCredentials: true,
+            baseURL: API_URL,
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         })
+    }
+
+
+    componentDidMount() {
+        this.setState({id: this.props.id})
+
+        this.req.get('/posts/' + this.props.id)
             .then(response => {
                 if (response.data.success && response.data.arr) {
                     this.setState({
@@ -36,13 +40,18 @@ class OnePostView extends React.Component {
                 }
             })
             .catch(error => {
-                console.error(error.response.data);
-                this.props.changeState({CurrentPage: LOGIN})
+                if (error.response.status === 401 || error.response.status === 403) {
+                    console.error(error.response.data)
+                    console.error(error.response.status)
+                    this.props.changeState({CurrentPage: LOGIN})
+                }
+                console.log(error.response)
+                this.props.changeState({CurrentPage: HOME})
             })
     }
 
     Send() {
-        axios.post(API_URL + "/posts/comment", {
+        this.req.post('/posts/comment', {
             user: this.state.user.username, post_id: this.state.id, content: this.state.user.comment,
         })
             .then(response => {
@@ -52,16 +61,13 @@ class OnePostView extends React.Component {
             })
             .catch(error => {
                 console.error(error.response.data);
+                this.setState({status: error.response.data})
                 // this.props.changeState({CurrentPage: LOGIN})
             })
     }
 
     fetchComments() {
-        axios.get(API_URL + "/posts/comment/" + this.state.id, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        })
+        this.req.get('/posts/comment/' + this.state.id)
             .then(response => {
                 if (response.data.success && response.data.arr) {
                     this.setState({
@@ -72,6 +78,7 @@ class OnePostView extends React.Component {
                 }
             })
             .catch(error => {
+                this.setState({status: error.response.data})
                 console.error(error.response.data);
             })
     }
@@ -91,7 +98,6 @@ class OnePostView extends React.Component {
                 <div className="card-body">
                     <h5 className="card-title">Category: </h5>
                     <p className="card-title">{post.body}</p>
-                    {/*<img className="img-fluid" src={API_URL + "/" + post.image} alt={"image"}></img>*/}
                     <img className="img-fluid my-custom-image" src={API_URL + "/" + post.image} alt={""}></img>
 
                     <button onClick={() => this.props.changeState({CurrentPage: POSTS})}

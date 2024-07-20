@@ -1,7 +1,7 @@
 import React from "react"
 import axios from "axios"
 import {API_URL} from "../Utils/Configuration"
-import {POSTS, RESETPW} from "../Utils/Constants";
+import {LOGIN, POSTS, REGISTER, RESETPW} from "../Utils/Constants";
 import './style.css'
 
 class LoginView extends React.Component {
@@ -14,16 +14,30 @@ class LoginView extends React.Component {
                 success: null, msg: ""
             }, user: null, loggedIn: false
         }
+        this.req = axios.create({
+            withCredentials: true, baseURL: API_URL, headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        })
     }
 
-    // GetTextFromField = (e) => {
-    //     this.setState(prevState => ({
-    //         user: {...prevState.user, [e.target.name]: e.target.value}
-    //     }))
-    // }
+    componentDidMount() {
+        this.req.get('/users/auth').then(response => {
+            if (response.data.success) {
+                this.setState({status: response.data})
+                localStorage.setItem('user', response.data.user)
+                localStorage.setItem('loggedIn', 'true')
+                this.props.updateState({user: response.data.username, loggedIn: true, CurrentPage: POSTS})
+            }
+        }).catch(err => {
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            localStorage.removeItem('loggedIn')
+            this.props.updateState({user: null, loggedIn: false, CurrentPage: LOGIN})
+        })
+    }
 
     GetTextFromField(e) {
-        // eslint-disable-next-line react/no-direct-mutation-state
         this.state.userInput[e.target.name] = e.target.value
         this.setState({userInput: this.state.userInput})
     }
@@ -36,35 +50,28 @@ class LoginView extends React.Component {
             return
         }
 
-        axios.post(API_URL + '/users/login', {
+        this.req.post('/users/login', {
             username: this.state.userInput.username, password: this.state.userInput.password
-        }, {
-            withCredentials: true
         }).then(response => {
             console.log("Sent to server...")
             if (response.status === 200) {
-                this.setState({
-                    status: response.data,
-                    loggedIn: true,
-                    user: this.state.userInput.username,
-                    userInput: {password: ""}
-                })
-                this.props.updateState({user: this.state.userInput.username, loggedIn: true, CurrentPage: POSTS})
+                this.props.updateState({user: response.data.username, loggedIn: true, CurrentPage: POSTS})
                 localStorage.setItem('token', response.data.token)
                 localStorage.setItem('loggedIn', 'true')
                 localStorage.setItem('user', this.state.userInput.username)
             } else {
                 console.log("Something is really wrong, DEBUG!")
             }
+            this.setState({
+                status: response.data, loggedIn: true, user: this.state.userInput.username, userInput: {password: ""}
+            })
         }).catch(err => {
-            this.setState({status: {success: false, msg: "Username or Password does not match"}})
-            console.log(err)
-
+            this.setState({status: err.response.data})
+            console.log(err.response.data)
         })
     }
 
     render() {
-
         return (<div className="card"
                      style={{
                          width: "400px",
@@ -89,8 +96,6 @@ class LoginView extends React.Component {
                            className="form-control"
                            id="password"/>
                 </div>
-                <p className={"form-for-reset-pw"} onClick={() => this.props.updateState({CurrentPage: RESETPW})}>Forgot
-                    your password? <span id={"span-form-reset"}>Click here</span></p>
                 <div className="form-check form-check-inline">
                     <input className="form-check-input" type="checkbox" id="inlineCheckbox1" value="keep_logged_in"/>
                     <label className="form-check-label" htmlFor="inlineCheckbox1">Keep me logged in</label>
@@ -101,9 +106,13 @@ class LoginView extends React.Component {
                     className="btn btn-primary bt">Log in
             </button>
 
-            {/*// TODO: style these 2 paragraphs and add hyperlink to the related pages*/}
-            <p>New around here? Sign up</p>
-            <p>Forgot your password?</p>
+            <div className={"card-body"}>
+                <p className={"form-for-reset-pw"} onClick={() => this.props.updateState({CurrentPage: REGISTER})}>New
+                    around here? <b>Sign up</b></p>
+                <p className={"form-for-reset-pw"} onClick={() => this.props.updateState({CurrentPage: RESETPW})}>Forgot
+                    your password? <b>Click here</b>.</p>
+            </div>
+
 
             {this.state.status.success ?
                 <p className="alert alert-success" role="alert">{this.state.status.msg}</p> : null}
