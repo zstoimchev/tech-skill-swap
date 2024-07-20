@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import axios from 'axios'
 import {API_URL} from "../Utils/Configuration";
-import {USERINFO} from "../Utils/Constants";
+import {LOGIN, REGISTER, RESETPW, USERINFO} from "../Utils/Constants";
 
 
 class RegisterView extends Component {
@@ -78,13 +78,13 @@ class RegisterView extends Component {
                 <div className="mb-3">
                     <label htmlFor="email">E-mail</label>
                     <input onChange={this.SetValueFromUserInput} type="email" className="form-control" id="email"
-                           placeholder="E-mail"/>
+                           placeholder="username [at] provider [dot] domain"/>
                 </div>
 
                 <div className="mb-3">
                     <label htmlFor="username">Username</label>
                     <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="username"
-                           placeholder="Username"/>
+                           placeholder="@username"/>
                 </div>
 
 
@@ -102,13 +102,16 @@ class RegisterView extends Component {
                 <div className="mb-3">
                     <label htmlFor="password">Password</label>
                     <input onChange={this.SetValueFromUserInput} type="password" className="form-control" id="password"
-                           placeholder="Password"/>
+                           placeholder="********"/>
+                    <div style={{fontSize: "0.8rem", color: "gray", marginTop: "5px"}}>
+                        Password Rules: Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character.
+                    </div>
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="password2">Repeat password</label>
                     <input onChange={this.SetValueFromUserInput} type="password" className="form-control" id="password2"
-                           placeholder="Repeat password"/>
+                           placeholder="********"/>
                 </div>
 
 
@@ -123,6 +126,12 @@ class RegisterView extends Component {
                            onClick={() => this.Register()}
                            className="btn btn-primary bt">Submit
             </button>}
+
+            <div className={"card-body"}>
+                <p className={"form-for-reset-pw"}
+                   onClick={() => this.props.changeState({CurrentPage: LOGIN})}>Already have an account? <b>Log
+                    in</b></p>
+            </div>
 
 
             {this.state.status.success ? (<><p className="alert alert-success" role="alert">{this.state.status.msg}</p>

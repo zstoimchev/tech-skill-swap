@@ -1,7 +1,7 @@
 import React from "react"
 import axios from "axios"
 import {API_URL} from "../Utils/Configuration"
-import {LOGIN, POSTS, REGISTER, RESETPW} from "../Utils/Constants";
+import {POSTS, REGISTER, RESETPW} from "../Utils/Constants";
 import './style.css'
 
 class LoginView extends React.Component {
@@ -110,7 +110,7 @@ class LoginView extends React.Component {
                 <p className={"form-for-reset-pw"} onClick={() => this.props.updateState({CurrentPage: REGISTER})}>New
                     around here? <b>Sign up</b></p>
                 <p className={"form-for-reset-pw"} onClick={() => this.props.updateState({CurrentPage: RESETPW})}>Forgot
-                    your password? <b>Click here</b>.</p>
+                    your password? <b>Click here</b></p>
             </div>
 
 
