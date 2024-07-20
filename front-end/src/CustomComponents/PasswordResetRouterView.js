@@ -27,10 +27,9 @@ class PasswordResetRouterView extends React.Component {
     }
 
     componentDidMount() {
-        const {param} = this.props
-        const cleanedParam = param.substring(1);
+        const param = this.props
 
-        axios.get(API_URL + '/password/reset/' + cleanedParam)
+        axios.get(API_URL + '/password/reset/' + param)
             .then(response => {
                 console.log("succeeded")
             })
