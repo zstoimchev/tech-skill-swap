@@ -15,6 +15,8 @@ import UserInfoSetupView from "./CustomComponents/UserInfoSetupView"
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 import {useNavigate} from 'react-router-dom';
 import ProfileView from "./CustomComponents/ProfileView";
+import axios from "axios";
+import {API_URL} from "./Utils/Configuration";
 
 
 // import cookie here
@@ -32,10 +34,27 @@ class App extends Component {
             }, user: null, id: null, loggedIn: !!(token && user && loggedIn),
         }
         this.updateStateApp = this.updateStateApp.bind(this)
-        console.log("----")
+        this.req = axios.create({
+            withCredentials: true, baseURL: API_URL, headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        })
     }
 
     componentDidMount() {
+        this.req.get('/users/auth').then(response => {
+            if (response.data.success) {
+                this.setState({status: response.data})
+                localStorage.setItem('user', response.data.user)
+                localStorage.setItem('loggedIn', 'true')
+                this.updateStateApp({user: response.data.username, loggedIn: true, CurrentPage: POSTS})
+            }
+        }).catch(err => {
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            localStorage.removeItem('loggedIn')
+            this.updateStateApp({user: null, loggedIn: false, CurrentPage: HOME})
+        })
     }
 
     updateStateApp(newState) {
@@ -138,7 +157,7 @@ class App extends Component {
                 <Router>
                     <Routes>
                         <Route path="/" element={this.GetView(this.state)}/>
-                        <Route path="/password/reset/:param" element={<PasswordResetRouterView/>}/>
+                        <Route path="/password-reset/:param" element={<PasswordResetRouterView/>}/>
                         <Route path="*" element={<DefaultRoute/>}/>
                     </Routes>
                 </Router>
