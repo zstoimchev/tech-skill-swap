@@ -33,8 +33,16 @@ class PostsView extends React.Component {
     render() {
         const data = this.state.Posts
         return (<div>
-            <h1>Here goes some search bar. SEARCH BAR</h1>
+            <h3>Browse the content free of charge</h3>
+
             <div className="row row-cols-1 row-cols-md-3 g-4" style={{margin: "10px"}}>
+
+                <div className="input-group">
+                    <input type="search" className="form-control rounded" placeholder="Search" aria-label="Search"
+                           aria-describedby="search-addon"/>
+                    <button type="button" className="btn btn-outline-primary" data-mdb-ripple-init="">search</button>
+                </div>
+
                 {data.length > 0 ? data.map((d) => {
                     return (<div className="col" key={d.id}>
                         <div className="card">
