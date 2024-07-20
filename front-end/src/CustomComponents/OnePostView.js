@@ -43,10 +43,13 @@ class OnePostView extends React.Component {
                 if (error.response.status === 401 || error.response.status === 403) {
                     console.error(error.response.data)
                     console.error(error.response.status)
+                    // window.location.hash = "login"
                     this.props.changeState({CurrentPage: LOGIN})
+                } else {
+                    console.log(error.response)
+                    // window.location.hash = "home"
+                    this.props.changeState({CurrentPage: HOME})
                 }
-                console.log(error.response)
-                this.props.changeState({CurrentPage: HOME})
             })
     }
 

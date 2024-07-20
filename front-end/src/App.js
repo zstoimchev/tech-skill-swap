@@ -42,19 +42,22 @@ class App extends Component {
     }
 
     componentDidMount() {
-        this.req.get('/users/auth').then(response => {
-            if (response.data.success) {
-                this.setState({status: response.data})
-                localStorage.setItem('user', response.data.user)
-                localStorage.setItem('loggedIn', 'true')
-                this.updateStateApp({user: response.data.username, loggedIn: true, CurrentPage: POSTS})
-            }
-        }).catch(err => {
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-            localStorage.removeItem('loggedIn')
-            this.updateStateApp({user: null, loggedIn: false, CurrentPage: HOME})
-        })
+        // this.req.get('/users/auth').then(response => {
+        //     if (response.data.success) {
+        //         console.log("success")
+        //         this.setState({status: response.data})
+        //         localStorage.setItem('user', response.data.user)
+        //         localStorage.setItem('loggedIn', 'true')
+        //         // this.updateStateApp({user: response.data.username, loggedIn: true, CurrentPage: POSTS})
+        //     }
+        // }).catch(err => {
+        //     console.log("fail")
+        //     localStorage.removeItem('token')
+        //     localStorage.removeItem('user')
+        //     localStorage.removeItem('loggedIn')
+        //     this.updateStateApp({user: null, loggedIn: false, CurrentPage: HOME})
+        // })
+        this.setState({CurrentPage: HOME})
     }
 
     updateStateApp(newState) {
@@ -100,7 +103,7 @@ class App extends Component {
         this.setState({CurrentPage: LOGIN, status: {success: null, msg: ""}, user: null, id: null})
     }
 
-    
+
     render() {
         return (<div id="APP" className="container">
             <div id="menu" className="row">
@@ -109,41 +112,44 @@ class App extends Component {
                     <div className="container-fluid">
                         <Navbar.Brand
                             onClick={this.SetView.bind(this, {page: HOME})}
-                            href="#home">Tech Skill Swap</Navbar.Brand>
+                            href="">Tech Skill Swap</Navbar.Brand>
                         <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="mr-auto">
                                 <Nav.Link
+                                    className={this.state.CurrentPage === HOME ? 'active' : ''}
                                     onClick={this.SetView.bind(this, {page: HOME})}
-                                    href="#home">Home</Nav.Link>
+                                    href="">Home</Nav.Link>
                                 <Nav.Link
+                                    className={this.state.CurrentPage === ABOUT ? 'active' : ''}
                                     onClick={this.SetView.bind(this, {page: ABOUT})}
-                                    href="#about">About</Nav.Link>
+                                    href="">About</Nav.Link>
                                 <Nav.Link
+                                    className={this.state.CurrentPage === POSTS ? 'active' : ''}
                                     onClick={this.SetView.bind(this, {page: POSTS})}
-                                    href="#posts">Posts</Nav.Link>
+                                    href="">Posts</Nav.Link>
 
-                                {this.state.loggedIn && localStorage.getItem('token')
-
-                                    ? (<> <Nav.Link
+                                {this.state.loggedIn && localStorage.getItem('token') ? (<> <Nav.Link
+                                        className={this.state.CurrentPage === ADDPOST ? 'active' : ''}
                                         onClick={this.SetView.bind(this, {page: ADDPOST})}
-                                        href="#addpost">Add New Post</Nav.Link>
+                                        href="">Add New Post</Nav.Link>
                                         <Nav.Link
-                                        onClick={this.SetView.bind(this, {page: PROFILE, user:this.state.user})}
-                                        href="#profile">Profile</Nav.Link>
+                                            className={this.state.CurrentPage === PROFILE ? 'active' : ''}
+                                            onClick={this.SetView.bind(this, {page: PROFILE, user: this.state.user})}>Profile</Nav.Link>
                                         <Nav.Link
                                             onClick={() => this.Logout()}
-                                            href="#logout">Logout</Nav.Link>
+                                            href="">Logout</Nav.Link>
                                     </>)
 
                                     : (<> <Nav.Link
+                                        className={this.state.CurrentPage === REGISTER ? 'active' : ''}
                                         onClick={this.SetView.bind(this, {page: REGISTER})}
-                                        href="#register">Register</Nav.Link>
+                                        href="">Register</Nav.Link>
                                         <Nav.Link
+                                            className={this.state.CurrentPage === LOGIN ? 'active' : ''}
                                             onClick={this.SetView.bind(this, {page: LOGIN})}
-                                            href="#login">Login</Nav.Link>
+                                            href="">Login</Nav.Link>
                                     </>)}
-
 
                             </Nav>
                         </Navbar.Collapse>

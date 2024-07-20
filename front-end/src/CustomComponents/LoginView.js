@@ -22,7 +22,7 @@ class LoginView extends React.Component {
     }
 
     componentDidMount() {
-        this.req.get('/users/auth').then(response => {
+        /* this.req.get('/users/auth').then(response => {
             if (response.data.success) {
                 this.setState({status: response.data})
                 localStorage.setItem('user', response.data.user)
@@ -34,7 +34,7 @@ class LoginView extends React.Component {
             localStorage.removeItem('user')
             localStorage.removeItem('loggedIn')
             this.props.updateState({user: null, loggedIn: false, CurrentPage: LOGIN})
-        })
+        }) */
     }
 
     GetTextFromField(e) {
