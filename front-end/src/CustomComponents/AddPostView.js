@@ -36,7 +36,7 @@ class AddPostView extends React.Component {
         const data = new FormData();
         data.append('title', this.state.post.title)
         data.append('body', this.state.post.body)
-        data.append('user_id', 1)
+        data.append('username', localStorage.getItem('user'))
         data.append('file', this.state.post.img)
 
         const token = localStorage.getItem("token")
