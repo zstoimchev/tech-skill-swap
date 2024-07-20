@@ -45,10 +45,6 @@ reset.post('/reset', async (req, res) => {
             from: process.env.MY_EMAIL,
             to: email,
             subject: 'Password Reset - Tech Skill-Swap',
-            // text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
-            //    Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n
-            //    http://localhost:3000/reset/${token}\n\n
-            //    If you did not request this, please ignore this email and your password will remain unchanged.\n`
             html: `
                 <p>You are receiving this because you (or someone else) have requested the reset of 
                 the password for your account.</p>
@@ -56,7 +52,7 @@ reset.post('/reset', async (req, res) => {
                 <p>Please click on the following link, or paste this into your browser to complete 
                 the process within one hour of receiving it:</p>
                 
-                <a href="http://localhost:3000/password/reset/:${token}">Reset Password</a>
+                <a href="http://88.200.63.148:8127/password-reset/:${token}">Reset Password</a>
 
                 <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
                 `
@@ -80,7 +76,7 @@ reset.get('/reset/:token', async (req, res) => {
             return res.json({ success: false, msg: "No password-reset token provided!" })
         }
 
-        const token = req.params.token
+        const token = req.params.token.substring(1)
         const secretKey = process.env.JWT_SECRET
 
 
