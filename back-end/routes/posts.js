@@ -80,8 +80,10 @@ posts.post('/comment', UTILS.authorizeLogin, async (req, res) => {
         if (!UTILS.verifyUsername(user)) {
             return res.status(404).json({ success: false, msg: "No such user found! Please register first." })
         }
+
+        let id = null
         try {
-            const id = await DB.getIdByUsername(user)
+            id = await DB.getIdByUsername(user)
             if (!id) {
                 return res.status(404).json({ success: false, msg: "No such user found!" })
             }
