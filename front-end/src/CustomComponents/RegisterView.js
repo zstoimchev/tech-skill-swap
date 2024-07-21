@@ -62,7 +62,7 @@ class RegisterView extends Component {
                 <div className="row mb-3">
                     <div className="col">
                         {/*<input type="text" className="form-control" placeholder="First name"/>*/}
-                        <label htmlFor="name">First Name</label>
+                        <label htmlFor="name">First name</label>
                         <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="name"
                                placeholder="Name"/>
                     </div>
@@ -103,15 +103,22 @@ class RegisterView extends Component {
                     <label htmlFor="password">Password</label>
                     <input onChange={this.SetValueFromUserInput} type="password" className="form-control" id="password"
                            placeholder="********"/>
-                    <div style={{fontSize: "0.8rem", color: "gray", marginTop: "5px"}}>
-                        Password Rules: Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character.
-                    </div>
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="password2">Repeat password</label>
                     <input onChange={this.SetValueFromUserInput} type="password" className="form-control" id="password2"
                            placeholder="********"/>
+                </div>
+                <br/>
+                <div style={{fontSize: "0.8rem", color: "gray", marginTop: "5px"}}>
+                    * First/Last name Rules: Minimum 4 characters, no special symbols, numbers are allowed.
+                </div>
+                <div style={{fontSize: "0.8rem", color: "gray", marginTop: "5px"}}>
+                    ** Username Rules: Minimum 4 characters, no special symbols except [. - _ '], can contain numbers
+                </div>
+                <div style={{fontSize: "0.8rem", color: "gray", marginTop: "5px"}}>
+                    *** Password Rules: Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character.
                 </div>
 
 

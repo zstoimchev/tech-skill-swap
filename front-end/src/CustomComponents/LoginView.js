@@ -3,6 +3,7 @@ import axios from "axios"
 import {API_URL} from "../Utils/Configuration"
 import {POSTS, REGISTER, RESETPW} from "../Utils/Constants";
 import './style.css'
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 
 class LoginView extends React.Component {
     constructor(props) {
@@ -87,14 +88,28 @@ class LoginView extends React.Component {
                     <input name="username" onChange={(e) => this.GetTextFromField(e)}
                            type="text"
                            className="form-control"
-                           id="email"/>
+                           id="email"
+                           placeholder="@username"/>
                 </div>
                 <div className="mb-3">
-                    <label className="form-label">Password</label>
+                    <label className="form-label">Password
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={<Tooltip id="password-tooltip">
+                                Password Rules: Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special
+                                character.
+                            </Tooltip>}
+                        >
+                            <button type="button" className="btn btn-info btn-sm" style={{marginLeft: "5px"}}>
+                                i
+                            </button>
+                        </OverlayTrigger>
+                    </label>
                     <input name="password" onChange={(e) => this.GetTextFromField(e)}
                            type="password"
                            className="form-control"
-                           id="password"/>
+                           id="password"
+                           placeholder="********"/>
                 </div>
                 <div className="form-check form-check-inline">
                     <input className="form-check-input" type="checkbox" id="inlineCheckbox1" value="keep_logged_in"/>
