@@ -31,7 +31,7 @@ class HomeView extends React.Component {
                     everyone has something to
                     teach. So why wait? Join us today, post your problem, or offer your skills. Let’s swap skills and
                     make tech less daunting, one problem at a time! </p>
-                <img src={fixing_laptop} alt="your_alternative_text_here"/>
+                <img className={"card-img-bottom"} src={fixing_laptop} alt="your_alternative_text_here"/>
 
             </div>
         </div>)
