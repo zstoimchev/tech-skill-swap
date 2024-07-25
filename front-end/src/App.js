@@ -86,7 +86,7 @@ class App extends Component {
             case USERINFO:
                 return <UserInfoSetupView getUserInfo={this.state}/>
             case PROFILE:
-                return <ProfileView/>
+                return <ProfileView changeState={this.updateStateApp}/>
             default:
                 return <HomeView/>
         }
