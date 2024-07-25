@@ -23,3 +23,8 @@
     margin-left: auto;
     margin-right: auto;
 }
+
+
+.custom-body-padding {
+    padding-top: 20px;
+}

@@ -108,7 +108,7 @@ class App extends Component {
         return (<div id="APP" className="container">
             <div id="menu" className="row">
 
-                <Navbar className="navbar navbar-expand-lg navbar-dark" bg="primary" expand="lg">
+                <Navbar className="fixed-top navbar navbar-expand-lg navbar-dark" bg="primary" expand="lg">
                     <div className="container-fluid">
                         <Navbar.Brand
                             onClick={this.SetView.bind(this, {page: HOME})}
@@ -158,7 +158,7 @@ class App extends Component {
 
             </div>
 
-            <div id="viewer" className="row container">
+            <div id="viewer" className="row container mt-lg-5 custom-body-padding">
                 {/*{this.GetView(this.state)}*/}
                 <Router>
                     <Routes>
