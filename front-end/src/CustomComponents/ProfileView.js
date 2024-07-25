@@ -14,19 +14,19 @@ class ProfileView extends React.Component {
     componentDidMount() {
         axios.get(API_URL + '/profile/' + this.state.username)
             .then(response => {
-                this.setState({Posts: response.data.postsData, User: response.data.userData});
+                this.setState({Posts: response.data.postData, User: response.data.userData});
             })
             .catch(error => {
                 console.error("caught error")
                 console.log(error)
-            });
+            })
     }
 
 
     render() {
         const p = this.state.Posts
         if (this.state.User === null) {
-            return <div>Loading...</div>;  // Or some other placeholder content
+            return <div>Loading...</div>
         }
 
         return (<div className="card" style={{margin: "10px"}}>
