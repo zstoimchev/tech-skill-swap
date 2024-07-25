@@ -27,7 +27,7 @@ class UserInfoSetupView extends Component {
     }
 
     Submit() {
-        axios.post(API_URL + '/users/complete-profile', {
+        axios.post(API_URL + '/profile/complete-profile', {
             role: this.state.user.role,
             email: this.state.user.email,
             skills: this.state.user.skills,
