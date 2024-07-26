@@ -13,8 +13,16 @@ class ProfileView extends React.Component {
             editName: false,
             editEmail: false,
             editUsername: false,
+            editPassword: false,
             userInput: {
-                name: "", surname: "", email: "", username: "", role: "", password: "", password2: "",
+                name: "",
+                surname: "",
+                email: "",
+                username: "",
+                role: "",
+                oldpassword: "",
+                newpassword: "",
+                newpassword2: "",
             },
         }
     }
@@ -142,7 +150,52 @@ class ProfileView extends React.Component {
                 </div>
 
                 {/*CHANGE PASSWORD*/}
-                <h5>Change your password, click here</h5>
+                <div className={"d-flex align-items-center"}>
+                    {!this.state.editPassword ? (<>
+                        {/*<div className="row mb-3">*/}
+                            <h5>Feel like you have weak password? Click here and change it.</h5>
+                            <div className="ms-auto">
+                                <button onClick={() => this.setState({editPassword: true})}
+                                        className={"btn btn-primary btn-sm me-1"}>Change password
+                                </button>
+                            </div>
+
+                        </>
+                        ) : (<>
+                            <div className="row mb-3">
+                                <div className="col">
+                                    <label htmlFor="name">Old password</label>
+                                    <input onChange={this.SetValueFromUserInput} type="password"
+                                           className="form-control"
+                                           id="oldpassword"
+                                           placeholder=""/>
+                                </div>
+                                <div className="col">
+                                    <label htmlFor="surname">New password</label>
+                                    <input onChange={this.SetValueFromUserInput} type="password"
+                                           className="form-control"
+                                           id="newpassword"
+                                           placeholder=""/>
+                                </div>
+                                <div className="col">
+                                    <label htmlFor="surname">Repeat new passvord</label>
+                                    <input onChange={this.SetValueFromUserInput} type="password"
+                                           className="form-control"
+                                           id="newpassword2"
+                                           placeholder=""/>
+                                </div>
+                            </div>
+                            <div className="ms-auto">
+                                <button onClick={this.editPassword}
+                                        className={"btn btn-success btn-sm me-1"}>Submit
+                                </button>
+                                <button onClick={() => this.setState({editPassword: false})}
+                                        className={"btn btn-danger btn-sm ms-auto"}>Cancel
+                                </button>
+                            </div>
+                        </>)}
+                </div>
+
                 <hr/>
 
                 {/*ALL POSTS AUTHORED*/}
