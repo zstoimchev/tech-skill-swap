@@ -109,6 +109,17 @@ dataPool.changeEmail = async (email, username) => {
     }).catch(err => console.log(err))
 }
 
+dataPool.changeUsername = async (username, user) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE User SET username = ? WHERE username = ?`,
+            [username, user],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    }).catch(err => console.log(err))
+}
+
 
 dataPool.allPosts = () => {
     return new Promise((resolve, reject) => {

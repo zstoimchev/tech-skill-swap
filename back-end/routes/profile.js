@@ -128,7 +128,7 @@ profile.post('/change-email', async (req, res) => {
             console.error(error)
             return res.status(503).json({ success: false, msg: "An error occured while processing DB..." })
         }
-        
+
         try {
             const queryResultEmail = await DB.authEmail(email)
             if (queryResultEmail.length != 0) {
@@ -142,12 +142,61 @@ profile.post('/change-email', async (req, res) => {
         try {
             const querr = await DB.changeEmail(email, user)
             if (!querr) {
-                return res.status(503).json({ success: false, msg: "Error while updating name or surname in the DB." })
+                return res.status(503).json({ success: false, msg: "Error while updating email in the DB." })
             }
             return res.status(200).json({ success: true, msg: "Email succesfully changed." })
         } catch (error) {
             console.error(error)
-            return res.status(503).json({ success: false, msg: "Error while altering user row in DB..." })
+            return res.status(503).json({ success: false, msg: "Error while updating user row in DB..." })
+        }
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
+    }
+})
+
+
+profile.post('/change-username', async (req, res) => {
+    try {
+        const { username, user } = req.body
+        if (!(username && user)) {
+            return res.status(400).json({ success: false, msg: "Please enter valid username and log in." })
+        }
+
+        if (!(UTILS.verifyUsername(user) && UTILS.verifyUsername(username))) {
+            return res.status(400).json({ success: false, msg: "Please provide valid username!" })
+        }
+
+        try {
+            const queryResult = await DB.authUsername(user)
+            if (!queryResult) {
+                return res.status(503).json({ success: false, msg: "Cannot find such user in the DB" })
+            }
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "An error occured while processing DB..." })
+        }
+
+        try {
+            const queryResultUsername = await DB.authUsername(username)
+            if (queryResultUsername.length != 0) {
+                return res.status(400).json({ success: false, msg: "User with that Username already exists!" })
+            }
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error processing DB. Please try again later." })
+        }
+
+        try {
+            const querr = await DB.changeUsername(username, user)
+            if (!querr) {
+                return res.status(503).json({ success: false, msg: "Error while updating username in the DB." })
+            }
+            return res.status(200).json({ success: true, msg: "Username succesfully changed. Please logout and log in so the changes take effect." })
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while updating user row in DB..." })
         }
 
     } catch (error) {
