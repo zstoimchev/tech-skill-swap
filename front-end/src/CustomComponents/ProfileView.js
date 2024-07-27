@@ -97,8 +97,26 @@ class ProfileView extends React.Component {
             })
     }
 
-    submitUsername() {
-
+    submitUsername = () => {
+        this.setState(prevState => ({
+            ...prevState, editUsername: false
+        }))
+        axios.post(API_URL + '/profile/change-username', {
+            username: this.state.userInput.username, user: localStorage.getItem("user"),
+        })
+            .then(response => {
+                this.setState({status: response.data, username: this.state.userInput.username}, () => {
+                    localStorage.setItem("user", this.state.userInput.username);
+                    this.setState(prevState => ({
+                        ...prevState, userInput: {...prevState.userInput, username: ""}
+                    }));
+                    this.getUserData()
+                })
+            })
+            .catch(error => {
+                this.setState({status: error.response.data})
+                console.log(error.response.data)
+            })
     }
 
     submitPassword() {
@@ -264,23 +282,23 @@ class ProfileView extends React.Component {
                     </>)}
                 </div>
 
-                {this.state.status.success ? (
-                    <div className="alert alert-success alert-dismissible fade show" role="alert">
-                        {this.state.status.msg}
-                        <button onClick={() => this.setState({status: {success: null, msg: ""}})}
-                                type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                ) : null}
+                <div className={"mt-3"}>
+                    {this.state.status.success ? (
+                        <div className="alert alert-success alert-dismissible fade show" role="alert">
+                            {this.state.status.msg}
+                            <button onClick={() => this.setState({status: {success: null, msg: ""}})}
+                                    type="button" className="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                        </div>) : null}
 
-                {!this.state.status.success && this.state.status.msg !== "" ? (
-                    <div className="alert alert-danger alert-dismissible fade show" role="alert">
-                        {this.state.status.msg}
-                        <button onClick={() => this.setState({status: {success: null, msg: ""}})}
-                                type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                ) : null}
-
-
+                    {!this.state.status.success && this.state.status.msg !== "" ? (
+                        <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                            {this.state.status.msg}
+                            <button onClick={() => this.setState({status: {success: null, msg: ""}})}
+                                    type="button" className="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                        </div>) : null}
+                </div>
                 <hr/>
 
                 {/*ALL POSTS AUTHORED*/}
