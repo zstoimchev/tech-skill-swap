@@ -22,22 +22,6 @@ class LoginView extends React.Component {
         })
     }
 
-    componentDidMount() {
-        /* this.req.get('/users/auth').then(response => {
-            if (response.data.success) {
-                this.setState({status: response.data})
-                localStorage.setItem('user', response.data.user)
-                localStorage.setItem('loggedIn', 'true')
-                this.props.updateState({user: response.data.username, loggedIn: true, CurrentPage: POSTS})
-            }
-        }).catch(err => {
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-            localStorage.removeItem('loggedIn')
-            this.props.updateState({user: null, loggedIn: false, CurrentPage: LOGIN})
-        }) */
-    }
-
     GetTextFromField(e) {
         this.state.userInput[e.target.name] = e.target.value
         this.setState({userInput: this.state.userInput})
@@ -54,7 +38,6 @@ class LoginView extends React.Component {
         this.req.post('/users/login', {
             username: this.state.userInput.username, password: this.state.userInput.password
         }).then(response => {
-            console.log("Sent to server...")
             if (response.status === 200) {
                 this.props.updateState({user: response.data.username, loggedIn: true, CurrentPage: POSTS})
                 localStorage.setItem('token', response.data.token)
@@ -92,19 +75,7 @@ class LoginView extends React.Component {
                            placeholder="@username"/>
                 </div>
                 <div className="mb-3">
-                    <label className="form-label">Password
-                        <OverlayTrigger
-                            placement="right"
-                            overlay={<Tooltip id="password-tooltip">
-                                Password Rules: Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special
-                                character.
-                            </Tooltip>}
-                        >
-                            <button type="button" className="btn btn-info btn-sm" style={{marginLeft: "5px"}}>
-                                i
-                            </button>
-                        </OverlayTrigger>
-                    </label>
+                    <label className="form-label">Password</label>
                     <input name="password" onChange={(e) => this.GetTextFromField(e)}
                            type="password"
                            className="form-control"

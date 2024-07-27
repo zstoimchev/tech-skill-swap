@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import axios from 'axios'
 import {API_URL} from "../Utils/Configuration";
 import {LOGIN, REGISTER, RESETPW, USERINFO} from "../Utils/Constants";
+import {OverlayTrigger, Tooltip} from "react-bootstrap";
 
 
 class RegisterView extends Component {
@@ -82,7 +83,21 @@ class RegisterView extends Component {
                 </div>
 
                 <div className="mb-3">
-                    <label htmlFor="username">Username</label>
+                    <div className={"d-flex align-items-center justify-content-between"}>
+                        <label htmlFor="username">Username</label>
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={<Tooltip id="password-tooltip">
+                                Username Rules: Minimum 4 characters, no special symbols, except ' NaN ', can contain
+                                numbers.
+                            </Tooltip>}
+                        >
+                            <button type="button" className="btn btn-info btn-sm"
+                                    style={{marginLeft: "5px", borderRadius: "40%"}}>
+                                i
+                            </button>
+                        </OverlayTrigger>
+                    </div>
                     <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="username"
                            placeholder="@username"/>
                 </div>
@@ -100,7 +115,21 @@ class RegisterView extends Component {
 
 
                 <div className="mb-3">
-                    <label htmlFor="password">Password</label>
+                    <div className={"d-flex align-items-center justify-content-between"}>
+                        <label htmlFor="password">Password</label>
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={<Tooltip id="password-tooltip">
+                                Password Rules: Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special
+                                character.
+                            </Tooltip>}
+                        >
+                            <button type="button" className="btn btn-info btn-sm"
+                                    style={{marginLeft: "5px", borderRadius: "40%"}}>
+                                i
+                            </button>
+                        </OverlayTrigger>
+                    </div>
                     <input onChange={this.SetValueFromUserInput} type="password" className="form-control" id="password"
                            placeholder="********"/>
                 </div>
@@ -109,16 +138,6 @@ class RegisterView extends Component {
                     <label htmlFor="password2">Repeat password</label>
                     <input onChange={this.SetValueFromUserInput} type="password" className="form-control" id="password2"
                            placeholder="********"/>
-                </div>
-                <br/>
-                <div style={{fontSize: "0.8rem", color: "gray", marginTop: "5px"}}>
-                    * First/Last name Rules: Minimum 4 characters, no special symbols, numbers are allowed.
-                </div>
-                <div style={{fontSize: "0.8rem", color: "gray", marginTop: "5px"}}>
-                    ** Username Rules: Minimum 4 characters, no special symbols except [. - _ '], can contain numbers
-                </div>
-                <div style={{fontSize: "0.8rem", color: "gray", marginTop: "5px"}}>
-                    *** Password Rules: Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character.
                 </div>
 
 
