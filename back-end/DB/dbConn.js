@@ -22,7 +22,7 @@ let dataPool = {}
 
 dataPool.authUsername = (username) => {
     return new Promise((resolve, reject) => {
-        conn.query('SELECT * FROM User WHERE username = ?', username, (err, res, fields) => {
+        conn.query('SELECT * FROM User WHERE username = ?', [username], (err, res, fields) => {
             if (err) { return reject(err) }
             return resolve(res)
         })
@@ -76,7 +76,6 @@ dataPool.allUsers = () => {
     })
 }
 
-
 dataPool.changePass = async (pw, email) => {
     return new Promise((resolve, reject) => {
         conn.query(`UPDATE User SET password = ? WHERE email = ?`,
@@ -88,7 +87,27 @@ dataPool.changePass = async (pw, email) => {
     }).catch(err => console.log(err))
 }
 
+dataPool.changeName = async (name, surname, username) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE User SET name = ?, surname = ? WHERE username = ?`,
+            [name, surname, username],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    }).catch(err => console.log(err))
+}
 
+dataPool.changeEmail = async (email, username) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE User SET email = ? WHERE username = ?`,
+            [email, username],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    }).catch(err => console.log(err))
+}
 
 
 dataPool.allPosts = () => {
