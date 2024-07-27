@@ -24,19 +24,34 @@ class ProfileView extends React.Component {
                 newpassword: "",
                 newpassword2: "",
             },
+            status: {
+                success: null, msg: ""
+            },
         }
     }
 
     SetValueFromUserInput = (event) => {
-        this.setState({
-            [event.target.id]: event.target.value
-        });
+        this.setState(prevState => ({
+            userInput: {
+                ...prevState.userInput, [event.target.id]: event.target.value
+            }
+        }))
     }
 
+    editNameSurname() {
+        this.setState({editName: true, userInput: {name: this.state.User.name, surname: this.state.User.surname}})
+
+    }
+
+
     componentDidMount() {
+        this.getUserData()
+    }
+
+    getUserData() {
         axios.get(API_URL + '/profile/' + this.state.username)
             .then(response => {
-                this.setState({Posts: response.data.postData, User: response.data.userData});
+                this.setState({Posts: response.data.postData, User: response.data.userData})
             })
             .catch(error => {
                 console.error("caught error")
@@ -44,15 +59,57 @@ class ProfileView extends React.Component {
             })
     }
 
-    editNameSurname = () => {
-        // TODO: call the API and save the new name and surname
-        this.setState({editName: !this.state.editName});
+    submitName = () => {
+        this.setState(prevState => ({
+            ...prevState, editName: false, userInput: {
+                ...prevState.userInput, name: "", surname: ""
+            }
+        }))
+        axios.post(API_URL + '/profile/change-name-surname', {
+            name: this.state.userInput.name, surname: this.state.userInput.surname, user: localStorage.getItem("user"),
+        })
+            .then(response => {
+                this.setState({status: response.data})
+                this.getUserData()
+            })
+            .catch(error => {
+                this.setState({status: error.response.data})
+                console.log(error.response.data)
+            })
     }
+
+    submitEmail = () => {
+        this.setState(prevState => ({
+            ...prevState, editEmail: false, userInput: {
+                ...prevState.userInput, email: ""
+            }
+        }))
+        axios.post(API_URL + '/profile/change-email', {
+            email: this.state.userInput.email, user: localStorage.getItem("user"),
+        })
+            .then(response => {
+                this.setState({status: response.data})
+                this.getUserData()
+            })
+            .catch(error => {
+                this.setState({status: error.response.data})
+                console.log(error.response.data)
+            })
+    }
+
+    submitUsername() {
+
+    }
+
+    submitPassword() {
+
+    }
+
 
     render() {
         const p = this.state.Posts
         if (this.state.User === null) {
-            return <div>Loading...</div>
+            return <div>No user logged in! Please log in first.</div>
         }
 
         return (<div className="card" style={{margin: "10px"}}>
@@ -62,7 +119,11 @@ class ProfileView extends React.Component {
                 <div className={"d-flex align-items-center"}>
                     {!this.state.editName ? (<>
                         <h1 className="card-title"><b>{this.state.User.name} {this.state.User.surname}</b></h1>
-                        <button onClick={() => this.setState({editName: !this.state.editName})}
+                        <button onClick={() => this.setState(prevState => ({
+                            ...prevState, editName: true, userInput: {
+                                ...prevState.userInput, name: prevState.User.name, surname: prevState.User.surname
+                            }
+                        }))}
                                 className={"btn btn-primary btn-md ms-auto"}>Edit
                             Name/Surname
                         </button>
@@ -85,7 +146,7 @@ class ProfileView extends React.Component {
                             </div>
                         </div>
                         <div className="ms-auto">
-                            <button onClick={this.editNameSurname}
+                            <button onClick={this.submitName}
                                     className={"btn btn-success btn-md me-1"}>Submit
                             </button>
                             <button onClick={() => this.setState({editName: false})}
@@ -99,7 +160,11 @@ class ProfileView extends React.Component {
                 {/*CHANGE EMAIL*/}
                 <div className={"d-flex align-items-center"}>
                     {!this.state.editEmail ? (<> <h5 className="card-title">E-mail: <b>{this.state.User.email}</b></h5>
-                        <button onClick={() => this.setState({editEmail: !this.state.editEmail})}
+                        <button onClick={() => this.setState(prevState => ({
+                            ...prevState, editEmail: true, userInput: {
+                                ...prevState.userInput, email: prevState.User.email
+                            }
+                        }))}
                                 className={"btn btn-primary btn-sm ms-auto"}>Update E-mail
                         </button>
                     </>) : (<>
@@ -111,7 +176,7 @@ class ProfileView extends React.Component {
                                    defaultValue={this.state.User.email}/>
                         </div>
                         <div className="ms-auto">
-                            <button onClick={this.editEmail}
+                            <button onClick={this.submitEmail}
                                     className={"btn btn-success btn-sm me-1"}>Submit
                             </button>
                             <button onClick={() => this.setState({editEmail: false})}
@@ -125,7 +190,11 @@ class ProfileView extends React.Component {
                 <div className={"d-flex align-items-center"}>
                     {!this.state.editUsername ? (<>
                         <h5 className="card-title">Username: <b>{this.state.User.username}</b></h5>
-                        <button onClick={() => this.setState({editUsername: !this.state.editUsername})}
+                        <button onClick={() => this.setState(prevState => ({
+                            ...prevState, editUsername: true, userInput: {
+                                ...prevState.userInput, username: prevState.User.username
+                            }
+                        }))}
                                 className={"btn btn-primary btn-sm ms-auto"}>Edit username
                         </button>
                     </>) : (<>
@@ -139,7 +208,7 @@ class ProfileView extends React.Component {
                             </div>
                         </div>
                         <div className="ms-auto">
-                            <button onClick={this.editUsername}
+                            <button onClick={this.submitUsername}
                                     className={"btn btn-success btn-sm me-1"}>Submit
                             </button>
                             <button onClick={() => this.setState({editUsername: false})}
@@ -153,48 +222,64 @@ class ProfileView extends React.Component {
                 <div className={"d-flex align-items-center"}>
                     {!this.state.editPassword ? (<>
                         {/*<div className="row mb-3">*/}
-                            <h5>Feel like you have weak password? Click here and change it.</h5>
-                            <div className="ms-auto">
-                                <button onClick={() => this.setState({editPassword: true})}
-                                        className={"btn btn-primary btn-sm me-1"}>Change password
-                                </button>
-                            </div>
+                        <h5>Feel like you have weak password? Click here and change it.</h5>
+                        <div className="ms-auto">
+                            <button onClick={() => this.setState({editPassword: true})}
+                                    className={"btn btn-primary btn-sm me-1"}>Change password
+                            </button>
+                        </div>
 
-                        </>
-                        ) : (<>
-                            <div className="row mb-3">
-                                <div className="col">
-                                    <label htmlFor="name">Old password</label>
-                                    <input onChange={this.SetValueFromUserInput} type="password"
-                                           className="form-control"
-                                           id="oldpassword"
-                                           placeholder=""/>
-                                </div>
-                                <div className="col">
-                                    <label htmlFor="surname">New password</label>
-                                    <input onChange={this.SetValueFromUserInput} type="password"
-                                           className="form-control"
-                                           id="newpassword"
-                                           placeholder=""/>
-                                </div>
-                                <div className="col">
-                                    <label htmlFor="surname">Repeat new passvord</label>
-                                    <input onChange={this.SetValueFromUserInput} type="password"
-                                           className="form-control"
-                                           id="newpassword2"
-                                           placeholder=""/>
-                                </div>
+                    </>) : (<>
+                        <div className="row mb-3">
+                            <div className="col">
+                                <label htmlFor="name">Old password</label>
+                                <input onChange={this.SetValueFromUserInput} type="password"
+                                       className="form-control"
+                                       id="oldpassword"
+                                       placeholder=""/>
                             </div>
-                            <div className="ms-auto">
-                                <button onClick={this.editPassword}
-                                        className={"btn btn-success btn-sm me-1"}>Submit
-                                </button>
-                                <button onClick={() => this.setState({editPassword: false})}
-                                        className={"btn btn-danger btn-sm ms-auto"}>Cancel
-                                </button>
+                            <div className="col">
+                                <label htmlFor="surname">New password</label>
+                                <input onChange={this.SetValueFromUserInput} type="password"
+                                       className="form-control"
+                                       id="newpassword"
+                                       placeholder=""/>
                             </div>
-                        </>)}
+                            <div className="col">
+                                <label htmlFor="surname">Repeat new passvord</label>
+                                <input onChange={this.SetValueFromUserInput} type="password"
+                                       className="form-control"
+                                       id="newpassword2"
+                                       placeholder=""/>
+                            </div>
+                        </div>
+                        <div className="ms-auto">
+                            <button onClick={this.submitPassword}
+                                    className={"btn btn-success btn-sm me-1"}>Submit
+                            </button>
+                            <button onClick={() => this.setState({editPassword: false})}
+                                    className={"btn btn-danger btn-sm ms-auto"}>Cancel
+                            </button>
+                        </div>
+                    </>)}
                 </div>
+
+                {this.state.status.success ? (
+                    <div className="alert alert-success alert-dismissible fade show" role="alert">
+                        {this.state.status.msg}
+                        <button onClick={() => this.setState({status: {success: null, msg: ""}})}
+                                type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                ) : null}
+
+                {!this.state.status.success && this.state.status.msg !== "" ? (
+                    <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                        {this.state.status.msg}
+                        <button onClick={() => this.setState({status: {success: null, msg: ""}})}
+                                type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                ) : null}
+
 
                 <hr/>
 
