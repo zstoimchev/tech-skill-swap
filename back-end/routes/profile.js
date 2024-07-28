@@ -4,7 +4,7 @@ const DB = require('../DB/dbConn.js')
 const UTILS = require('../utils/functions.js')
 
 
-profile.get('/:username', async (req, res) => {
+profile.get('/:username', UTILS.authorizeLogin, async (req, res) => {
     try {
         const username = req.params.username
 
@@ -194,6 +194,52 @@ profile.post('/change-username', async (req, res) => {
                 return res.status(503).json({ success: false, msg: "Error while updating username in the DB." })
             }
             return res.status(200).json({ success: true, msg: "Username succesfully changed. Please logout and log in so the changes take effect." })
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while updating user row in DB..." })
+        }
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
+    }
+})
+
+
+profile.post('/change-password', async (req, res) => {
+    try {
+        const { oldpassword, newpassword, newpassword2, user } = req.body
+
+        if (!(UTILS.verifyPassStrength(newpassword) && UTILS.verifyPassStrength(newpassword2) && UTILS.verifyUsername(user))) {
+            return res.status(400).json({ success: false, msg: "Please provide valid password! Check password strength." })
+        }
+
+        let userData = null
+        try {
+            userData = await DB.authUsername(user)
+            if (!userData) {
+                return res.status(404).json({ success: false, msg: "Cannot find such user in the DB" })
+            }
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "An error occured while processing DB..." })
+        }
+
+        if (!(UTILS.comparePassword(oldpassword, userData[0].password))) {
+            return res.status(400).json("Old password does not match!")
+        }
+
+        if (newpassword !== newpassword2) {
+            return res.status(400).json({ success: false, msg: "New password does not match!" })
+        }
+
+        const newPW = await UTILS.hashPassword(newpassword)
+        try {
+            const querr = await DB.changePass(newPW, userData[0].email)
+            if (!querr) {
+                return res.status(503).json({ success: false, msg: "Error while updating password in the DB." })
+            }
+            return res.status(200).json({ success: true, msg: "Password succesfully changed." })
         } catch (error) {
             console.error(error)
             return res.status(503).json({ success: false, msg: "Error while updating user row in DB..." })
