@@ -3,7 +3,6 @@ import axios from "axios"
 import {API_URL} from "../Utils/Configuration"
 import {POSTS, REGISTER, RESETPW} from "../Utils/Constants";
 import './style.css'
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 
 class LoginView extends React.Component {
     constructor(props) {
@@ -20,6 +19,12 @@ class LoginView extends React.Component {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         })
+    }
+
+    componentDidMount() {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        localStorage.removeItem('loggedIn')
     }
 
     GetTextFromField(e) {
