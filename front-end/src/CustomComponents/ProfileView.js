@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import {API_URL} from "../Utils/Configuration";
-import {POST} from "../Utils/Constants";
+import {HOME, LOGIN, POST} from "../Utils/Constants";
 
 class ProfileView extends React.Component {
     constructor(props) {
@@ -28,6 +28,11 @@ class ProfileView extends React.Component {
                 success: null, msg: ""
             },
         }
+        this.req = axios.create({
+            withCredentials: true, baseURL: API_URL, headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        })
     }
 
     SetValueFromUserInput = (event) => {
@@ -38,24 +43,14 @@ class ProfileView extends React.Component {
         }))
     }
 
-    editNameSurname() {
-        this.setState({editName: true, userInput: {name: this.state.User.name, surname: this.state.User.surname}})
-
-    }
-
-
-    componentDidMount() {
-        this.getUserData()
-    }
-
     getUserData() {
-        axios.get(API_URL + '/profile/' + this.state.username)
+        this.req.get('/profile/' + this.state.username)
             .then(response => {
                 this.setState({Posts: response.data.postData, User: response.data.userData})
             })
             .catch(error => {
-                console.error("caught error")
-                console.log(error)
+                console.error(error.response.status, error.response.data)
+                this.props.changeState({CurrentPage: LOGIN})
             })
     }
 
@@ -65,7 +60,7 @@ class ProfileView extends React.Component {
                 ...prevState.userInput, name: "", surname: ""
             }
         }))
-        axios.post(API_URL + '/profile/change-name-surname', {
+        this.req.post('/profile/change-name-surname', {
             name: this.state.userInput.name, surname: this.state.userInput.surname, user: localStorage.getItem("user"),
         })
             .then(response => {
@@ -84,7 +79,7 @@ class ProfileView extends React.Component {
                 ...prevState.userInput, email: ""
             }
         }))
-        axios.post(API_URL + '/profile/change-email', {
+        this.req.post('/profile/change-email', {
             email: this.state.userInput.email, user: localStorage.getItem("user"),
         })
             .then(response => {
@@ -101,7 +96,7 @@ class ProfileView extends React.Component {
         this.setState(prevState => ({
             ...prevState, editUsername: false
         }))
-        axios.post(API_URL + '/profile/change-username', {
+        this.req.post('/profile/change-username', {
             username: this.state.userInput.username, user: localStorage.getItem("user"),
         })
             .then(response => {
@@ -119,12 +114,30 @@ class ProfileView extends React.Component {
             })
     }
 
-    submitPassword() {
-
+    submitPassword = () => {
+        this.setState(prevState => ({
+            ...prevState, editPassword: false, userInput: {
+                ...prevState.userInput, oldpassword: "", newpassword: "", newpassword2: ""
+            }
+        }))
+        this.req.post('/profile/change-password', {
+            oldpassword: this.state.userInput.oldpassword,
+            newpassword: this.state.userInput.newpassword,
+            newpassword2: this.state.userInput.newpassword2,
+            user: localStorage.getItem("user"),
+        })
+            .then(response => {
+                this.setState({status: response.data})
+                this.getUserData()
+            })
+            .catch(error => {
+                this.setState({status: error.response.data})
+                console.log(error.response.data)
+            })
     }
 
-
     render() {
+        this.getUserData()
         const p = this.state.Posts
         if (this.state.User === null) {
             return <div>No user logged in! Please log in first.</div>
