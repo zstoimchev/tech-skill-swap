@@ -11,7 +11,6 @@ profile.get('/:username', UTILS.authorizeLogin, async (req, res) => {
         let user = null
         try {
             user = await DB.authUsernameWithRole(username)
-            console.log(user)
         } catch (error) {
             return res.status(404).json({ success: false, msg: "No such user found!" })
         }
