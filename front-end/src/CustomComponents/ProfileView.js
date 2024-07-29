@@ -374,33 +374,61 @@ class ProfileView extends React.Component {
                                     </button>
                                 </div>
                             </div>
-
+                            // TODO: toggle this to be shown only when editAbout is false
                             <div className="card-text mb-3">{this.state.User.about}
                                 <hr/>
                             </div>
                         </div>
-                        {this.state.role === "Helper, requesting help" ? (<>
-                            <div className="card-title mb-1"><h5>Skills</h5></div>
+                        {this.state.role === "Helper, requesting help" ? (<div>
+                            <div className={"d-flex align-items-center"}>
+                                <div className="card-title mb-1"><h5>Skills</h5></div>
+                                <button onClick={() => this.setState({editSkills: true})}
+                                        className="btn btn-secondary btn-md ms-auto">Add new 'Skills'
+                                </button>
+                            </div>
                             <div className="card-text mb-3">{this.state.User.skills}
                                 <hr/>
                             </div>
-                        </>) : null}
-                        {this.state.role === "Seeker, looking for help" ? (<>
-                            <div className="card-title mb-1"><h5>Interests</h5></div>
+                        </div>) : null}
+                        {this.state.role === "Seeker, looking for help" ? (<div>
+                            <div className={"d-flex align-items-center"}>
+                                <div className="card-title mb-1"><h5>Interests</h5></div>
+                                <button onClick={() => this.setState({editInterests: true})}
+                                        className="btn btn-secondary btn-md ms-auto">Update 'Interests'
+                                </button>
+                            </div>
+                            // TODO: toggle this to be shown only when editInterests is false
                             <div className="card-text mb-3">{this.state.User.interests}
                             </div>
-                        </>) : null}
+                        </div>) : null}
                         {this.state.role === "Both Helper and Seeker, looking and requesting for help" ? (<>
-                            <div className="card-title mb-1"><h5>Skills</h5></div>
-                            <div className="card-text mb-3">{this.state.User.skills}
-                                <hr/>
+                            <div>
+                                <div className={"d-flex align-items-center"}>
+                                    <div className="card-title mb-1"><h5>Skills</h5></div>
+                                    <button onClick={() => this.setState({editSkills: true})}
+                                            className="btn btn-secondary btn-md ms-auto">Add new 'Skills'
+                                    </button>
+                                </div>
+                                // TODO: toggle this to be shown only when editSkills is false
+                                <div className="card-text mb-3">{this.state.User.skills}
+                                    <hr/>
+                                </div>
                             </div>
-                            <div className="card-title mb-1"><h5>Interests</h5></div>
-                            <div className="card-text mb-3">{this.state.User.interests}
+                            <div>
+                                <div className={"d-flex align-items-center"}>
+                                    <div className="card-title mb-1"><h5>Interests</h5></div>
+                                    <button onClick={() => this.setState({editInterests: true})}
+                                            className="btn btn-secondary btn-md ms-auto">Update 'Interests'
+                                    </button>
+                                </div>
+                                // TODO: toggle this to be shown only when editInterests is false
+                                <div className="card-text mb-3">{this.state.User.interests}
+                                </div>
                             </div>
                         </>) : null}
                     </div>
                 </div>
+
 
                 <div className={"mt-3"}>
                     {this.state.status.success ? (
