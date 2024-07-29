@@ -11,10 +11,10 @@ const conn = mysql.createConnection({
 
 conn.connect((err) => {
     if (err) {
-        console.log("ERROR: " + err.message);
-        return;
+        console.log("ERROR: " + err.message)
+        return
     }
-    console.log('Connection with the DB established');
+    console.log('Connection with the DB established')
 })
 
 let dataPool = {}
@@ -28,6 +28,33 @@ dataPool.authUsername = (username) => {
         })
     })
 }
+
+dataPool.authUsernameWithRole = (username) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT 
+                User.id AS id, 
+                User.name, 
+                User.surname, 
+                User.email, 
+                User.username, 
+                Seeker.interests AS interests, 
+                Seeker.about AS about,
+                Helper.skills AS skills 
+            FROM User 
+            LEFT JOIN Seeker ON User.id = Seeker.user_id
+            LEFT JOIN Helper ON User.id = Helper.user_id 
+            WHERE User.username = ?`
+
+        conn.query(query, [username], (err, res, fields) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
 
 dataPool.authEmail = (email) => {
     return new Promise((resolve, reject) => {
@@ -70,8 +97,8 @@ dataPool.addUser = (name, surname, username, email, password) => {
 dataPool.allUsers = () => {
     return new Promise((resolve, reject) => {
         conn.query('SELECT * FROM User', (err, res) => {
-            if (err) { return reject(err); }
-            return resolve(res);
+            if (err) { return reject(err) }
+            return resolve(res)
         })
     })
 }
@@ -124,8 +151,8 @@ dataPool.changeUsername = async (username, user) => {
 dataPool.allPosts = () => {
     return new Promise((resolve, reject) => {
         conn.query('SELECT * FROM Post', (err, res) => {
-            if (err) { return reject(err); }
-            return resolve(res);
+            if (err) { return reject(err) }
+            return resolve(res)
         })
     })
 }
@@ -136,10 +163,10 @@ dataPool.allPostsJ = () => {
             SELECT Post.*, User.name, User.surname
             FROM Post
             JOIN User ON Post.user_id = User.id
-        `;
+        `
         conn.query(query, (err, res) => {
-            if (err) { return reject(err); }
-            return resolve(res);
+            if (err) { return reject(err) }
+            return resolve(res)
         })
     })
 }
@@ -147,8 +174,8 @@ dataPool.allPostsJ = () => {
 dataPool.getAllPostsByUserId = (id) => {
     return new Promise((resolve, reject) => {
         conn.query('SELECT * FROM Post WHERE user_id = ?', id, (err, res) => {
-            if (err) { return reject(err); }
-            return resolve(res);
+            if (err) { return reject(err) }
+            return resolve(res)
         })
     })
 }
