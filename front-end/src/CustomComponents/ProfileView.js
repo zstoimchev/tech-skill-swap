@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import {API_URL} from "../Utils/Configuration";
-import {HOME, LOGIN, POST} from "../Utils/Constants";
+import {LOGIN, POST} from "../Utils/Constants";
 
 class ProfileView extends React.Component {
     constructor(props) {
@@ -35,6 +35,10 @@ class ProfileView extends React.Component {
         })
     }
 
+    async componentDidMount() {
+        await this.getUserData()
+    }
+
     SetValueFromUserInput = (event) => {
         this.setState(prevState => ({
             userInput: {
@@ -46,7 +50,12 @@ class ProfileView extends React.Component {
     getUserData() {
         this.req.get('/profile/' + this.state.username)
             .then(response => {
-                this.setState({Posts: response.data.postData, User: response.data.userData})
+                // this.setState({Posts: response.data.postData, User: response.data.userData})
+                this.setState({Posts: response.data.postData, User: response.data.userData}, () => {
+                    if (this.state.User.interests !== "") this.setState({role: "Seeker, looking for help"})
+                    if (this.state.User.skills !== "") this.setState({role: "Helper, requesting help"})
+                    if (this.state.User.interests !== "" && this.state.User.skills !== "") this.setState({role: "Both Helper and Seeker, looking and requesting for help"})
+                })
             })
             .catch(error => {
                 console.error(error.response.status, error.response.data)
@@ -136,8 +145,15 @@ class ProfileView extends React.Component {
             })
     }
 
+    editPost = (id) => {
+
+    }
+
+    deletePost = (id) => {
+
+    }
+
     render() {
-        this.getUserData()
         const p = this.state.Posts
         if (this.state.User === null) {
             return <div>No user logged in! Please log in first.</div>
@@ -186,11 +202,14 @@ class ProfileView extends React.Component {
                         </div>
                     </>)}
                 </div>
+                Role: {this.state.role} <br/>
+                maybe add button to change role, but... idk..
                 <hr/>
 
                 {/*CHANGE EMAIL*/}
                 <div className={"d-flex align-items-center"}>
-                    {!this.state.editEmail ? (<> <h5 className="card-title">E-mail: <b>{this.state.User.email}</b></h5>
+                    {!this.state.editEmail ? (<>
+                        <h5 className="card-title">E-mail: <b>{this.state.User.email}</b></h5>
                         <button onClick={() => this.setState(prevState => ({
                             ...prevState, editEmail: true, userInput: {
                                 ...prevState.userInput, email: prevState.User.email
@@ -252,32 +271,28 @@ class ProfileView extends React.Component {
                 {/*CHANGE PASSWORD*/}
                 <div className={"d-flex align-items-center"}>
                     {!this.state.editPassword ? (<>
-                        {/*<div className="row mb-3">*/}
-                        <h5>Feel like you have weak password? Click here and change it.</h5>
-                        <div className="ms-auto">
-                            <button onClick={() => this.setState({editPassword: true})}
-                                    className={"btn btn-primary btn-sm me-1"}>Change password
-                            </button>
-                        </div>
-
+                        <h5>Feel like you have a weak password? Click here and change it.</h5>
+                        <button onClick={() => this.setState({editPassword: true})}
+                                className={"btn btn-primary btn-sm ms-auto"}>Change password
+                        </button>
                     </>) : (<>
                         <div className="row mb-3">
                             <div className="col">
-                                <label htmlFor="name">Old password</label>
+                                <label htmlFor="oldpassword">Old password</label>
                                 <input onChange={this.SetValueFromUserInput} type="password"
                                        className="form-control"
                                        id="oldpassword"
                                        placeholder=""/>
                             </div>
                             <div className="col">
-                                <label htmlFor="surname">New password</label>
+                                <label htmlFor="newpassword">New password</label>
                                 <input onChange={this.SetValueFromUserInput} type="password"
                                        className="form-control"
                                        id="newpassword"
                                        placeholder=""/>
                             </div>
                             <div className="col">
-                                <label htmlFor="surname">Repeat new passvord</label>
+                                <label htmlFor="newpassword2">Repeat new password</label>
                                 <input onChange={this.SetValueFromUserInput} type="password"
                                        className="form-control"
                                        id="newpassword2"
@@ -294,6 +309,7 @@ class ProfileView extends React.Component {
                         </div>
                     </>)}
                 </div>
+
 
                 <div className={"mt-3"}>
                     {this.state.status.success ? (
@@ -312,7 +328,26 @@ class ProfileView extends React.Component {
                                     aria-label="Close"></button>
                         </div>) : null}
                 </div>
+                {/*<hr/>*/}
+
+                <div className="card d-flex justify-content-center ">
+                    <div className="card-body">
+                        <div className="card-title mb-1"><h5>About</h5></div>
+                        <div className="card-text mb-3">{this.state.User.about}
+                            <hr/>
+                        </div>
+                        <div className="card-title mb-1"><h5>Skills</h5></div>
+                        <div className="card-text mb-3">{this.state.User.skills}
+                            <hr/>
+                        </div>
+                        <div className="card-title mb-1"><h5>Interests</h5></div>
+                        <div className="card-text mb-3">{this.state.User.interests}
+                            {/*<hr/>*/}
+                        </div>
+                    </div>
+                </div>
                 <hr/>
+                depending whether seeker or helper, add that field
 
                 {/*ALL POSTS AUTHORED*/}
                 <div className="row row-cols-1 g-4" style={{margin: "10px"}}>
@@ -323,10 +358,17 @@ class ProfileView extends React.Component {
                             <div className="card-body">
                                 <h5 className="card-title">{d.title}</h5>
                                 <p className="card-text">{d.body}</p>
+                                <button onClick={() => this.props.changeState({CurrentPage: POST, id: d.id})}
+                                        style={{margin: "10px"}} className="btn btn-primary bt">Read more
+                                </button>
+                                <button onClick={this.editPost(d.id)}
+                                        style={{margin: "10px"}} className="btn btn-secondary bt">Edit
+                                </button>
+                                <button onClick={this.deletePost(d.id)}
+                                        style={{margin: "10px"}} className="btn btn-danger bt">Delete
+                                </button>
                             </div>
-                            <button onClick={() => this.props.changeState({CurrentPage: POST, id: d.id})}
-                                    style={{margin: "10px"}} className="btn btn-primary bt">Read more
-                            </button>
+
                         </div>
 
                     </div>)
