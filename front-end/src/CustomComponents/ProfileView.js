@@ -154,7 +154,12 @@ class ProfileView extends React.Component {
     }
 
     deletePost = (id) => {
-
+        this.req.delete('posts/' + id).then(response => {
+            this.setState({status: response.data})
+            this.getUserData()
+        }).catch(error => {
+            console.log(error)
+        })
     }
 
     submitRole() {
@@ -465,7 +470,7 @@ class ProfileView extends React.Component {
                                 <button onClick={this.editPost(d.id)}
                                         style={{margin: "10px"}} className="btn btn-secondary bt">Edit
                                 </button>
-                                <button onClick={this.deletePost(d.id)}
+                                <button onClick={() => this.deletePost(d.id)}
                                         style={{margin: "10px"}} className="btn btn-danger bt">Delete
                                 </button>
                             </div>
