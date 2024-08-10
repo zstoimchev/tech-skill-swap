@@ -136,4 +136,28 @@ posts.get('/comment/:id', UTILS.authorizeLogin, async (req, res) => {
     }
 })
 
+
+posts.delete('/:id', UTILS.authorizeLogin, async (req, res) => {
+    try {
+        const id = req.params.id
+        if (!UTILS.verifyId(id)) {
+            return res.status(400).json({ success: false, msg: "Bad post id!" })
+        }
+        try {
+            const queryResult = await DB.deletePost(id)
+            if (queryResult.affectedRows <= 0) {
+                return res.status(404).json({ success: false, msg: "Failed to delete post." })
+            }
+            return res.status(200).json({ success: true, msg: "Post deleted successfully." })
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while processing DB..." })
+        }
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json("Internal server error. Try again later.")
+    }
+})
+
 module.exports = posts

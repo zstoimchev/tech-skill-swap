@@ -147,6 +147,29 @@ dataPool.changeUsername = async (username, user) => {
     }).catch(err => console.log(err))
 }
 
+dataPool.updateHelperAbout = async (about, userId) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE Helper SET about = ? WHERE user_id = ?`,
+            [about, userId],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    }).catch(err => console.log(err))
+}
+
+dataPool.updateSeekerAbout = async (about, userId) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE Seeker SET about = ? WHERE user_id = ?`,
+            [about, userId],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    }).catch(err => console.log(err))
+}
+
+
 
 dataPool.allPosts = () => {
     return new Promise((resolve, reject) => {
@@ -257,5 +280,13 @@ dataPool.getCommentsByPostId = (id) => {
     })
 }
 
+dataPool.deletePost = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query('DELETE FROM Post WHERE id = ?', [id], (err, res, fields) => {
+            if (err) { return reject(err) }
+            return resolve(res)
+        })
+    })
+}
 
 module.exports = dataPool

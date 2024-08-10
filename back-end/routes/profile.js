@@ -28,7 +28,7 @@ profile.get('/:username', UTILS.authorizeLogin, async (req, res) => {
     }
 })
 
-profile.post('/complete-profile', async (req, res, next) => {
+profile.post('/complete-profile', UTILS.authorizeLogin, async (req, res, next) => {
     try {
         const { role, email, interests, skills, about } = req.body
 
@@ -62,7 +62,7 @@ profile.post('/complete-profile', async (req, res, next) => {
     }
 })
 
-profile.post('/change-name-surname', async (req, res) => {
+profile.post('/change-name-surname', UTILS.authorizeLogin, async (req, res) => {
     try {
         const { name, surname, user } = req.body
         if (!(name && surname && user)) {
@@ -104,7 +104,7 @@ profile.post('/change-name-surname', async (req, res) => {
     }
 })
 
-profile.post('/change-email', async (req, res) => {
+profile.post('/change-email', UTILS.authorizeLogin, async (req, res) => {
     try {
         const { email, user } = req.body
         if (!(email && user)) {
@@ -157,7 +157,7 @@ profile.post('/change-email', async (req, res) => {
 })
 
 
-profile.post('/change-username', async (req, res) => {
+profile.post('/change-username', UTILS.authorizeLogin, async (req, res) => {
     try {
         const { username, user } = req.body
         if (!(username && user)) {
@@ -206,7 +206,7 @@ profile.post('/change-username', async (req, res) => {
 })
 
 
-profile.post('/change-password', async (req, res) => {
+profile.post('/change-password', UTILS.authorizeLogin, async (req, res) => {
     try {
         const { oldpassword, newpassword, newpassword2, user } = req.body
 
@@ -249,6 +249,45 @@ profile.post('/change-password', async (req, res) => {
         console.error(error)
         return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
     }
+})
+
+profile.post('/change-about', UTILS.authorizeLogin, async (req, res) => {
+    try {
+        const { user, about } = req.body
+        if (!UTILS.verifyUsername(user)) {
+            return res.status(400).json({ success: false, msg: "Bad username!" })
+        }
+        // TODO: verify the about user input
+
+        let userId = null
+        try {
+            const queryUsername = await DB.authUsername(user)
+            if (!queryUsername)
+                return res.status(404).json({ success: false, msg: "No such user found!" })
+            userId = queryUsername[0].id
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while processing the DB..." })
+        }
+
+        try {
+            const q1 = await DB.updateHelperAbout(about, userId)
+            const q2 = await DB.updateSeekerAbout(about, userId)
+            if (!(q1.affectedRows > 0 && q2.affectedRows > 0)) {
+                return res.status(503).json({ success: false, msg: "Failed saving user role in DB" })
+            }
+
+            return res.status(200).json({ success: true, msg: "Succesfully updated about section in DB." })
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while updating the DB..." })
+        }
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Internal server error. Try again later." })
+    }
+
 })
 
 module.exports = profile
