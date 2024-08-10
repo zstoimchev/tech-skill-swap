@@ -361,4 +361,8 @@ profile.post('/change-interests', async (req, res) => {
     }
 })
 
+profile.post('change-role', async(req, res) => {
+    
+})
+
 module.exports = profile

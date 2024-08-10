@@ -282,6 +282,62 @@ dataPool.addRoleDataHelper = (id, skills, about) => {
     })
 }
 
+dataPool.removeHelper = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`DELETE FROM Helper WHERE user_id = ?`, [id], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
+dataPool.removeSeeker = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`DELETE FROM Seeker WHERE user_id = ?`, [id], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
+dataPool.addHelperRole = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`INSERT INTO Helper (user_id) VALUES (?)`, [id], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
+dataPool.addSeekerRole = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`INSERT INTO Seeker (user_id) VALUES (?)`, [id], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
+dataPool.authRole = (table, id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`SELECT * FROM ${table} WHERE user_id = ?`, [id], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
+
 dataPool.addComment = (user_id, post_id, content) => {
     return new Promise((resolve, reject) => {
         conn.query('Insert into Comment (user_id, post_id, content) VALUES (?,?,?)',
