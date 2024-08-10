@@ -287,7 +287,78 @@ profile.post('/change-about', UTILS.authorizeLogin, async (req, res) => {
         console.error(error)
         return res.status(500).json({ success: false, msg: "Internal server error. Try again later." })
     }
+})
 
+profile.post('/change-skills', async (req, res) => {
+    try {
+        const {skills, user} = req.body
+        if (!UTILS.verifyUsername(user)) {
+            return res.status(400).json({ success: false, msg: "Bad username!" })
+        }
+        // TODO: verify the skills user input
+
+        let userId = null
+        try {
+            const queryUsername = await DB.authUsername(user)
+            if (!queryUsername)
+                return res.status(404).json({ success: false, msg: "No such user found!" })
+            userId = queryUsername[0].id
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while processing the DB..." })
+        }
+
+        try {
+            const q1 = await DB.updateSkills(skills, userId)
+            if (!q1.affectedRows > 0) {
+                return res.status(503).json({ success: false, msg: "Failed saving user skills in DB" })
+            }
+
+            return res.status(200).json({ success: true, msg: "Succesfully updated skills section in DB." })
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while updating the DB..." })
+        }
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Internal server error..." })
+    }
+})
+
+profile.post('/change-interests', async (req, res) => {
+    try {
+        const {interests, user} = req.body
+        if (!UTILS.verifyUsername(user)) {
+            return res.status(400).json({ success: false, msg: "Bad username!" })
+        }
+        // TODO: verify the interests user input
+
+        let userId = null
+        try {
+            const queryUsername = await DB.authUsername(user)
+            if (!queryUsername)
+                return res.status(404).json({ success: false, msg: "No such user found!" })
+            userId = queryUsername[0].id
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while processing the DB..." })
+        }
+
+        try {
+            const q1 = await DB.updateInterests(interests, userId)
+            if (!q1.affectedRows > 0) {
+                return res.status(503).json({ success: false, msg: "Failed saving user interests in DB" })
+            }
+
+            return res.status(200).json({ success: true, msg: "Succesfully updated interests section in DB." })
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while updating the DB..." })
+        }
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Internal server error..." })
+    }
 })
 
 module.exports = profile

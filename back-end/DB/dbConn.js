@@ -169,6 +169,28 @@ dataPool.updateSeekerAbout = async (about, userId) => {
     }).catch(err => console.log(err))
 }
 
+dataPool.updateSkills = async (skills, userId) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE Helper SET skills = ? WHERE user_id = ?`,
+            [skills, userId],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    }).catch(err => console.log(err))
+}
+
+dataPool.updateInterests = async (interests, userId) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE Seeker SET interests = ? WHERE user_id = ?`,
+            [interests, userId],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    }).catch(err => console.log(err))
+}
+
 
 
 dataPool.allPosts = () => {
