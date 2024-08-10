@@ -27,6 +27,9 @@ class ProfileView extends React.Component {
                 oldpassword: "",
                 newpassword: "",
                 newpassword2: "",
+                about: "",
+                skills: "",
+                interests: "",
             },
             status: {
                 success: null, msg: ""
@@ -138,6 +141,25 @@ class ProfileView extends React.Component {
             newpassword: this.state.userInput.newpassword,
             newpassword2: this.state.userInput.newpassword2,
             user: localStorage.getItem("user"),
+        })
+            .then(response => {
+                this.setState({status: response.data})
+                this.getUserData()
+            })
+            .catch(error => {
+                this.setState({status: error.response.data})
+                console.log(error.response.data)
+            })
+    }
+
+    submitAbout = () => {
+        this.setState(prevState => ({
+            ...prevState, editAbout: false, userInput: {
+                ...prevState.userInput, about: ""
+            }
+        }))
+        this.req.post('/profile/change-about', {
+            about: this.state.userInput.about, user: localStorage.getItem("user"),
         })
             .then(response => {
                 this.setState({status: response.data})
@@ -374,16 +396,42 @@ class ProfileView extends React.Component {
                             <div className={"d-flex align-items-center"}>
                                 <div className="card-title mb-1"><h5>About</h5></div>
                                 <div className="ms-auto">
-                                    <button onClick={() => this.setState({editAbout: true})}
-                                            className="btn btn-secondary btn-md ms-auto">Edit 'About me'
-                                    </button>
+                                    {!this.state.editAbout ? <button onClick={() => this.setState(prevState => ({
+                                        ...prevState, editAbout: true, userInput: {
+                                            ...prevState.userInput, about: this.state.User.about
+                                        }
+                                    }))}
+                                                                     className="btn btn-secondary btn-md ms-auto">
+                                        Edit 'About me'
+                                    </button> : (<>
+                                        <div className="ms-auto">
+                                            <button onClick={this.submitAbout}
+                                                    className={"btn btn-success btn-sm me-1"}>Submit
+                                            </button>
+                                            <button onClick={() => this.setState({editAbout: false})}
+                                                    className={"btn btn-danger btn-sm ms-auto"}>Cancel
+                                            </button>
+                                        </div>
+                                    </>)}
+
                                 </div>
                             </div>
-                            // TODO: toggle this to be shown only when editAbout is false
-                            <div className="card-text mb-3">{this.state.User.about}
+                            {!this.state.editAbout ? <div className="card-text mb-3">{this.state.User.about}
                                 <hr/>
-                            </div>
+                            </div> : (<>
+                                <div className="mb-3 m-3">
+                                    <textarea name="about"
+                                              id="about"
+                                              className="form-control"
+                                              rows="3"
+                                              onChange={this.SetValueFromUserInput}
+                                              defaultValue={this.state.User.about}/>
+                                </div>
+                            </>)}
+
                         </div>
+
+
                         {this.state.role === "Helper, requesting help" ? (<div>
                             <div className={"d-flex align-items-center"}>
                                 <div className="card-title mb-1"><h5>Skills</h5></div>
@@ -402,10 +450,10 @@ class ProfileView extends React.Component {
                                         className="btn btn-secondary btn-md ms-auto">Update 'Interests'
                                 </button>
                             </div>
-                            // TODO: toggle this to be shown only when editInterests is false
                             <div className="card-text mb-3">{this.state.User.interests}
                             </div>
                         </div>) : null}
+
                         {this.state.role === "Both Helper and Seeker, looking and requesting for help" ? (<>
                             <div>
                                 <div className={"d-flex align-items-center"}>
@@ -414,7 +462,6 @@ class ProfileView extends React.Component {
                                             className="btn btn-secondary btn-md ms-auto">Add new 'Skills'
                                     </button>
                                 </div>
-                                // TODO: toggle this to be shown only when editSkills is false
                                 <div className="card-text mb-3">{this.state.User.skills}
                                     <hr/>
                                 </div>
@@ -426,11 +473,11 @@ class ProfileView extends React.Component {
                                             className="btn btn-secondary btn-md ms-auto">Update 'Interests'
                                     </button>
                                 </div>
-                                // TODO: toggle this to be shown only when editInterests is false
                                 <div className="card-text mb-3">{this.state.User.interests}
                                 </div>
                             </div>
                         </>) : null}
+
                     </div>
                 </div>
 
