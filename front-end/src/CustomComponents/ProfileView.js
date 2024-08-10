@@ -9,6 +9,7 @@ class ProfileView extends React.Component {
         this.state = {
             Posts: [],
             User: null,
+            role: "",
             username: localStorage.getItem("user"),
             editName: false,
             editEmail: false,
@@ -160,6 +161,44 @@ class ProfileView extends React.Component {
         }))
         this.req.post('/profile/change-about', {
             about: this.state.userInput.about, user: localStorage.getItem("user"),
+        })
+            .then(response => {
+                this.setState({status: response.data})
+                this.getUserData()
+            })
+            .catch(error => {
+                this.setState({status: error.response.data})
+                console.log(error.response.data)
+            })
+    }
+
+    submitSkills = () => {
+        this.setState(prevState => ({
+            ...prevState, editSkills: false, userInput: {
+                ...prevState.userInput, skills: ""
+            }
+        }))
+        this.req.post('/profile/change-skills', {
+            skills: this.state.userInput.skills, user: localStorage.getItem("user"),
+        })
+            .then(response => {
+                this.setState({status: response.data})
+                this.getUserData()
+            })
+            .catch(error => {
+                this.setState({status: error.response.data})
+                console.log(error.response.data)
+            })
+    }
+
+    submitInterests = () => {
+        this.setState(prevState => ({
+            ...prevState, editInterests: false, userInput: {
+                ...prevState.userInput, interests: ""
+            }
+        }))
+        this.req.post('/profile/change-interests', {
+            interests: this.state.userInput.interests, user: localStorage.getItem("user"),
         })
             .then(response => {
                 this.setState({status: response.data})
@@ -416,7 +455,7 @@ class ProfileView extends React.Component {
 
                                 </div>
                             </div>
-                            {!this.state.editAbout ? <div className="card-text mb-3">{this.state.User.about}
+                            {!this.state.editAbout ? <div className="card-text mb-3 mt-1">{this.state.User.about}
                                 <hr/>
                             </div> : (<>
                                 <div className="mb-3 m-3">
@@ -428,55 +467,79 @@ class ProfileView extends React.Component {
                                               defaultValue={this.state.User.about}/>
                                 </div>
                             </>)}
-
                         </div>
 
-
-                        {this.state.role === "Helper, requesting help" ? (<div>
+                        {this.state.role.includes("Helper") ? (<div>
                             <div className={"d-flex align-items-center"}>
                                 <div className="card-title mb-1"><h5>Skills</h5></div>
-                                <button onClick={() => this.setState({editSkills: true})}
-                                        className="btn btn-secondary btn-md ms-auto">Add new 'Skills'
-                                </button>
+                                {!this.state.editSkills ? <button onClick={() => this.setState(prevState => ({
+                                    ...prevState, editSkills: true, userInput: {
+                                        ...prevState.userInput, skills: this.state.User.skills
+                                    }
+                                }))}
+                                                                  className="btn btn-secondary btn-md ms-auto">Add new
+                                    'Skills'
+                                </button> : (<>
+                                    <div className="ms-auto">
+                                        <button onClick={this.submitSkills}
+                                                className={"btn btn-success btn-sm me-1"}>Submit
+                                        </button>
+                                        <button onClick={() => this.setState({editSkills: false})}
+                                                className={"btn btn-danger btn-sm ms-auto"}>Cancel
+                                        </button>
+                                    </div>
+                                </>)}
+
                             </div>
-                            <div className="card-text mb-3">{this.state.User.skills}
+                            {!this.state.editSkills ? <div className="card-text mb-3 mt-1">{this.state.User.skills}
                                 <hr/>
-                            </div>
-                        </div>) : null}
-                        {this.state.role === "Seeker, looking for help" ? (<div>
-                            <div className={"d-flex align-items-center"}>
-                                <div className="card-title mb-1"><h5>Interests</h5></div>
-                                <button onClick={() => this.setState({editInterests: true})}
-                                        className="btn btn-secondary btn-md ms-auto">Update 'Interests'
-                                </button>
-                            </div>
-                            <div className="card-text mb-3">{this.state.User.interests}
-                            </div>
+                            </div> : (<>
+                                <div className="mb-3 m-3">
+                                    <textarea name="skills"
+                                              id="skills"
+                                              className="form-control"
+                                              rows="2"
+                                              onChange={this.SetValueFromUserInput}
+                                              defaultValue={this.state.User.skills}/>
+                                </div>
+                            </>)}
                         </div>) : null}
 
-                        {this.state.role === "Both Helper and Seeker, looking and requesting for help" ? (<>
-                            <div>
-                                <div className={"d-flex align-items-center"}>
-                                    <div className="card-title mb-1"><h5>Skills</h5></div>
-                                    <button onClick={() => this.setState({editSkills: true})}
-                                            className="btn btn-secondary btn-md ms-auto">Add new 'Skills'
-                                    </button>
-                                </div>
-                                <div className="card-text mb-3">{this.state.User.skills}
-                                    <hr/>
-                                </div>
-                            </div>
-                            <div>
-                                <div className={"d-flex align-items-center"}>
-                                    <div className="card-title mb-1"><h5>Interests</h5></div>
-                                    <button onClick={() => this.setState({editInterests: true})}
+                        {this.state.role.includes("Seeker") ? (<div>
+                            <div className={"d-flex align-items-center"}>
+                                <div className="card-title mb-1"><h5>Interests</h5></div>
+                                {!this.state.editInterests ?
+                                    <button onClick={() => this.setState(prevState => ({
+                                        ...prevState, editInterests: true, userInput: {
+                                            ...prevState.userInput, interests: this.state.User.interests
+                                        }
+                                    }))}
                                             className="btn btn-secondary btn-md ms-auto">Update 'Interests'
-                                    </button>
-                                </div>
-                                <div className="card-text mb-3">{this.state.User.interests}
-                                </div>
+                                    </button> : (<>
+                                        <div className="ms-auto">
+                                            <button onClick={this.submitInterests}
+                                                    className={"btn btn-success btn-sm me-1"}>Submit
+                                            </button>
+                                            <button onClick={() => this.setState({editInterests: false})}
+                                                    className={"btn btn-danger btn-sm ms-auto"}>Cancel
+                                            </button>
+                                        </div>
+                                    </>)}
+
                             </div>
-                        </>) : null}
+                            {!this.state.editInterests ? <div className="card-text mb-3 mt-1">{this.state.User.interests}
+                            </div> : (<>
+                                <div className="mb-3 m-3">
+                                    <textarea name="interests"
+                                              id="interests"
+                                              className="form-control"
+                                              rows="2"
+                                              onChange={this.SetValueFromUserInput}
+                                              defaultValue={this.state.User.interests}/>
+                                </div>
+                            </>)}
+
+                        </div>) : null}
 
                     </div>
                 </div>
