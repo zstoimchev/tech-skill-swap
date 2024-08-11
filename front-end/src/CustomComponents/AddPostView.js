@@ -6,12 +6,22 @@ class AddPostView extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            post: {
-                title: "", body: "", img: null
+            category: [], post: {
+                title: "", body: "", img: null, category: "1"
             }, status: {
                 success: null, msg: ""
-            }
+            }, editCat: false,
         }
+    }
+
+    componentDidMount() {
+        axios.get(API_URL + '/posts/category/get/').then(res => {
+            this.setState({category: res.data["arr"]})
+            // this.setState({status: res.data})
+        }).catch(err => {
+            console.error(err)
+            this.setState({status: err.response.data})
+        })
     }
 
     SetValueFromUserInput = (e) => {
@@ -26,7 +36,6 @@ class AddPostView extends React.Component {
         }))
     }
 
-
     AddPost = () => {
         if (this.state.post.title === "" || this.state.post.body === "") {
             this.setState({status: {success: false, msg: "Missing input filed"}})
@@ -37,6 +46,7 @@ class AddPostView extends React.Component {
         data.append('title', this.state.post.title)
         data.append('body', this.state.post.body)
         data.append('username', localStorage.getItem('user'))
+        data.append('category', this.state.post.category)
         data.append('file', this.state.post.img)
 
         const token = localStorage.getItem("token")
@@ -75,18 +85,55 @@ class AddPostView extends React.Component {
             <div className="mb-3"
                  style={{margin: "10px"}}>
                 <label className="form-label">Body</label>
-                <input name="body" type="text"
-                       onChange={this.SetValueFromUserInput.bind(this)}
-                       className="form-control"
-                       placeholder="Briefly describe your problem..."/>
+                <div className="mb-3 m-3">
+                    <textarea name="body"
+                              id="body"
+                              className="form-control"
+                              rows="5"
+                              onChange={this.SetValueFromUserInput.bind(this)}
+                              placeholder="Briefly describe your problem"/>
+                </div>
             </div>
 
+            <div className="row mb-3">
 
-            <div className="mb-3">
-                <label form="file" className="form-label">Select related image describing your problem
-                    (optional)</label>
-                <input className="form-control" type="file" id="file" name="file"
-                       onChange={this.SetFileFromUserInput.bind(this)}/>
+                {/*<div className="mb-3 col">*/}
+                {/*    <label htmlFor="dropdown">Select the category best describing your problem:</label>*/}
+                {/*    <select onChange={this.SetValueFromUserInput} className="form-control w-100" id="category">*/}
+                {/*        <option value="">Select a category</option>*/}
+                {/*        {this.state.category.map((item, index) => (*/}
+                {/*            <option key={index} value={item.id}>{item.name}</option>*/}
+                {/*        ))}*/}
+                {/*    </select>*/}
+                {/*</div>*/}
+
+                <div className="mb-3 col">
+                    <label htmlFor="dropdown" className="form-label">Select the category best describing your
+                        problem:</label>
+                    {!this.state.editCat ?
+                        <select onChange={this.SetValueFromUserInput} className="form-control w-100" id="category"
+                                name="category">
+                            <option value="1">Select a category (default is 'other')</option>
+                            {this.state.category.map((item, index) => (
+                                <option key={index} value={item.id}>{item.name}</option>))}
+                            <option onClick={() => this.setState({editCat: true})}>Add new category</option>
+                        </select> : <div className="d-flex align-items-center">
+                            <input onChange={this.SetValueFromUserInput}
+                                   type="text" className="form-control"
+                                   id="category"
+                                   name="category"
+                                   placeholder="Enter the name of the new category"/>
+                            <button onClick={() => this.setState({editCat: false})} className="btn btn-light ml-2">X
+                            </button>
+                        </div>}
+                </div>
+
+                <div className="mb-3 col">
+                    <label form="file" className="form-label">Select related image describing your problem
+                        (optional)</label>
+                    <input className="form-control" type="file" id="file" name="file"
+                           onChange={this.SetFileFromUserInput.bind(this)}/>
+                </div>
             </div>
 
 
