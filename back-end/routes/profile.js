@@ -22,7 +22,25 @@ profile.get('/:username', UTILS.authorizeLogin, async (req, res) => {
             return res.status(503).json({ success: false, msg: "Error while fetching posts from the DB." })
         }
 
-        return res.status(200).json({ success: true, msg: "User and posts succesfully fetched.", userData: user[0], postData: posts })
+        let role = null
+        try {
+            const q1 = await DB.authRole("Seeker", user[0].id)
+            const q2 = await DB.authRole("Helper", user[0].id)
+
+            if (q1.length > 0 && q2.length > 0)
+                role = "Both Hlper and Seeker, asking and requesting for help."
+            else if (q1.length > 0 && q2.length === 0)
+                role = "Seeker, asking people for help."
+            else if (q1.length === 0 && q2.length > 0)
+                role = "Helper, requesting to help with some skills."
+            else
+                role = "No specified role yet."
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Failed processing DB..." })
+        }
+
+        return res.status(200).json({ success: true, msg: "User and posts succesfully fetched.", userData: user[0], postData: posts, roleData: role })
     } catch (err) {
         return res.status(500).json({ success: false, msg: "Internal server error..." })
     }
@@ -273,8 +291,8 @@ profile.post('/change-about', UTILS.authorizeLogin, async (req, res) => {
         try {
             const q1 = await DB.updateHelperAbout(about, userId)
             const q2 = await DB.updateSeekerAbout(about, userId)
-            if (!(q1.affectedRows > 0 && q2.affectedRows > 0)) {
-                return res.status(503).json({ success: false, msg: "Failed saving user role in DB" })
+            if (!(q1.affectedRows > 0 || q2.affectedRows > 0)) {
+                return res.status(503).json({ success: false, msg: "Failed saving about section in DB" })
             }
 
             return res.status(200).json({ success: true, msg: "Succesfully updated about section in DB." })
@@ -291,7 +309,7 @@ profile.post('/change-about', UTILS.authorizeLogin, async (req, res) => {
 
 profile.post('/change-skills', async (req, res) => {
     try {
-        const {skills, user} = req.body
+        const { skills, user } = req.body
         if (!UTILS.verifyUsername(user)) {
             return res.status(400).json({ success: false, msg: "Bad username!" })
         }
@@ -327,7 +345,7 @@ profile.post('/change-skills', async (req, res) => {
 
 profile.post('/change-interests', async (req, res) => {
     try {
-        const {interests, user} = req.body
+        const { interests, user } = req.body
         if (!UTILS.verifyUsername(user)) {
             return res.status(400).json({ success: false, msg: "Bad username!" })
         }
@@ -361,8 +379,100 @@ profile.post('/change-interests', async (req, res) => {
     }
 })
 
-profile.post('change-role', async(req, res) => {
-    
+profile.post('/change-role', async (req, res) => {
+    try {
+        const { role, oldRole, user } = req.body
+        console.log(req.body)
+        if (!(UTILS.verifyRole(role) && UTILS.verifyRole(oldRole)))
+            return res.status(400).json({ success: false, msg: "Bad role submitted!" })
+        let userId = null
+        try {
+            const queryUser = await DB.authUsername(user)
+            if (queryUser.length === 0)
+                return res.status(404).json({ success: false, msg: "No such user found! Log in again." })
+            userId = queryUser[0].id
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Failed processing DB while checking user." })
+        }
+
+        if (role === "Seeker") {
+            try {
+                const queryDeleteRole = await DB.removeSeeker(userId)
+
+                if (oldRole === "both" || oldRole === "Seeker")
+                    return res.status(200).json({ success: true, msg: "Role succesfully submitted" })
+
+                const queryChangeRole = await DB.addSeekerRole(userId)
+                if (!queryChangeRole.affectedRows)
+                    return res.status(503).json({ success: false, msg: "Failed to update new role." })
+
+                return res.status(200).json({ success: true, msg: "Role succesfully updated." })
+            } catch (error) {
+                console.error(error)
+                return res.status(503).json({ success: false, msg: "Failed processing DB to change role..." })
+            }
+        }
+
+        else if (role === "Helper") {
+            try {
+                const queryDeleteRole = await DB.removeHelper(userId)
+
+                if (oldRole === "both" || oldRole === "Helper")
+                    return res.status(200).json({ success: true, msg: "Role succesfully submitted" })
+
+                const queryChangeRole = await DB.addHelperRole(userId)
+                if (!queryChangeRole.affectedRows)
+                    return res.status(503).json({ success: false, msg: "Failed to update new role." })
+
+                return res.status(200).json({ success: true, msg: "Role succesfully updated." })
+            } catch (error) {
+                console.error(error)
+                return res.status(503).json({ success: false, msg: "Failed processing DB to change role..." })
+            }
+        }
+
+        else if (role === "both") {
+            // auth both tables, the one that has length 0, add that role
+            let q1Role = null
+            let q2Role = null
+            try {
+                q1Role = await DB.authRole("Seeker", userId)
+                q2Role = await DB.authRole("Helper", userId)
+            } catch (error) {
+                console.error(error)
+                return res.status(503).json({ success: false, msg: "Failed authenticating role..." })
+            }
+
+            if (q1Role.length === 0) {
+                try {
+                    const queryChangeRole1 = await DB.addSeekerRole(userId)
+                    if (!queryChangeRole1.affectedRows)
+                        return res.status(503).json({ success: false, msg: "Failed to update new role." })
+                } catch (error) {
+                    console.error(error)
+                    return res.status(503).json({ success: false, msg: "Failed processing DB while changing role." })
+                }
+            }
+            if (q2Role.length === 0) {
+                try {
+                    const queryChangeRole2 = await DB.addHelperRole(userId)
+                    if (!queryChangeRole2.affectedRows)
+                        return res.status(503).json({ success: false, msg: "Failed to update new role." })
+                } catch (error) {
+                    console.error(error)
+                    return res.status(503).json({ success: false, msg: "Failed processing DB while changing role." })
+                }
+            }
+            return res.status(200).json({ success: true, msg: "Role succesfully updated." })
+        }
+        else
+            return res.status(400).json({ success: false, msg: "Invalid role submitted! Try again later." })
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Internal server error..." })
+    }
 })
 
 module.exports = profile
