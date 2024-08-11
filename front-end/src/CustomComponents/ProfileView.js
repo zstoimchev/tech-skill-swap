@@ -255,12 +255,12 @@ class ProfileView extends React.Component {
             return <div>No user logged in! Please log in first.</div>
         }
 
-        return (<div className="card" style={{margin: "10px"}}>
+        return <div className="card" style={{margin: "10px"}}>
             <div className="card-body">
 
                 {/*CHANGE NAME/SURNAME*/}
                 <div className={"d-flex align-items-center"}>
-                    {!this.state.editName ? (<>
+                    {!this.state.editName ? <>
                         <h1 className="card-title"><b>{this.state.User.name} {this.state.User.surname}</b></h1>
                         <button onClick={() => this.setState(prevState => ({
                             ...prevState, editName: true, userInput: {
@@ -270,7 +270,7 @@ class ProfileView extends React.Component {
                                 className={"btn btn-primary btn-md ms-auto"}>Edit
                             Name/Surname
                         </button>
-                    </>) : (<>
+                    </> : <>
                         <div className="row mb-3">
                             <div className="col">
                                 <label htmlFor="oldpassword"><h5>First name</h5></label>
@@ -298,11 +298,11 @@ class ProfileView extends React.Component {
                                     className={"btn btn-danger btn-md ms-auto"}>Cancel
                             </button>
                         </div>
-                    </>)}
+                    </>}
                 </div>
 
                 <div className={"d-flex align-items-center w-100"}>
-                    {!this.state.editRole ? (<>
+                    {!this.state.editRole ? <>
                         <div>
                             Role: {this.state.role}
                         </div>
@@ -311,7 +311,7 @@ class ProfileView extends React.Component {
                                     className={"btn btn-primary btn-sm ms-auto"}>Change role
                             </button>
                         </div>
-                    </>) : (<>
+                    </> : <>
                         <div className="mb-3 w-50">
                             <label htmlFor="dropdown">What is your role?</label>
                             <select onChange={this.SetValueFromUserInput} className="form-control w-100" id="role">
@@ -329,7 +329,7 @@ class ProfileView extends React.Component {
                                     className={"btn btn-danger btn-sm ms-auto"}>Cancel
                             </button>
                         </div>
-                    </>)}
+                    </>}
                 </div>
 
                 <hr/>
@@ -339,7 +339,7 @@ class ProfileView extends React.Component {
 
                 {/*CHANGE EMAIL*/}
                 <div className={"d-flex align-items-center"}>
-                    {!this.state.editEmail ? (<>
+                    {!this.state.editEmail ? <>
                         <h5 className="card-title">E-mail: <b>{this.state.User.email}</b></h5>
                         <button onClick={() => this.setState(prevState => ({
                             ...prevState, editEmail: true, userInput: {
@@ -348,7 +348,7 @@ class ProfileView extends React.Component {
                         }))}
                                 className={"btn btn-primary btn-sm ms-auto"}>Update E-mail
                         </button>
-                    </>) : (<>
+                    </> : <>
                         <div className="row mb-0">
                             <div className="col-auto">
                                 <label htmlFor="username" className="col-form-label">E-mail:</label>
@@ -369,12 +369,12 @@ class ProfileView extends React.Component {
                                     className={"btn btn-danger btn-sm ms-auto"}>Cancel
                             </button>
                         </div>
-                    </>)}
+                    </>}
                 </div>
 
                 {/*CHANGE USERNAME*/}
                 <div className={"d-flex align-items-center"}>
-                    {!this.state.editUsername ? (<>
+                    {!this.state.editUsername ? <>
                         <h5 className="card-title">Username: <b>{this.state.User.username}</b></h5>
                         <button onClick={() => this.setState(prevState => ({
                             ...prevState, editUsername: true, userInput: {
@@ -383,7 +383,7 @@ class ProfileView extends React.Component {
                         }))}
                                 className={"btn btn-primary btn-sm ms-auto"}>Edit username
                         </button>
-                    </>) : (<>
+                    </> : <>
                         <div className="row mb-0">
                             <div className="col-auto">
                                 <label htmlFor="username" className="col-form-label">Username:</label>
@@ -404,17 +404,17 @@ class ProfileView extends React.Component {
                                     className={"btn btn-danger btn-sm ms-auto"}>Cancel
                             </button>
                         </div>
-                    </>)}
+                    </>}
                 </div>
 
                 {/*CHANGE PASSWORD*/}
                 <div className={"d-flex align-items-center"}>
-                    {!this.state.editPassword ? (<>
+                    {!this.state.editPassword ? <>
                         <h5>Feel like you have a weak password? Change it now</h5>
                         <button onClick={() => this.setState({editPassword: true})}
                                 className={"btn btn-primary btn-sm ms-auto"}>Change password
                         </button>
-                    </>) : (<>
+                    </> : <>
                         <div className="row mb-3">
                             <div className="col">
                                 <label htmlFor="oldpassword">Old password</label>
@@ -446,7 +446,7 @@ class ProfileView extends React.Component {
                                     className={"btn btn-danger btn-sm ms-auto"}>Cancel
                             </button>
                         </div>
-                    </>)}
+                    </>}
                 </div>
                 {/*<hr/>*/}
 
@@ -464,7 +464,7 @@ class ProfileView extends React.Component {
                                     }))}
                                                                      className="btn btn-secondary btn-md ms-auto">
                                         Edit 'About me'
-                                    </button> : (<>
+                                    </button> : <>
                                         <div className="ms-auto">
                                             <button onClick={this.submitAbout}
                                                     className={"btn btn-success btn-sm me-1"}>Submit
@@ -473,13 +473,13 @@ class ProfileView extends React.Component {
                                                     className={"btn btn-danger btn-sm ms-auto"}>Cancel
                                             </button>
                                         </div>
-                                    </>)}
+                                    </>}
 
                                 </div>
                             </div>
                             {!this.state.editAbout ? <div className="card-text mb-3 mt-1">{this.state.User.about}
-                                {/*<hr/>*/}
-                            </div> : (<>
+                                {/*// TODO: when changing roles, do not remove About everytime*/}
+                            </div> : <>
                                 <div className="mb-3 m-3">
                                     <textarea name="about"
                                               id="about"
@@ -488,10 +488,10 @@ class ProfileView extends React.Component {
                                               onChange={this.SetValueFromUserInput}
                                               defaultValue={this.state.User.about}/>
                                 </div>
-                            </>)}
+                            </>}
                         </div>
 
-                        {this.state.role.includes("Helper") ? (<div>
+                        {this.state.role.includes("Helper") ? <div>
                             <hr/>
                             <div className={"d-flex align-items-center"}>
                                 <div className="card-title mb-1"><h5>Skills</h5></div>
@@ -526,9 +526,9 @@ class ProfileView extends React.Component {
                                               defaultValue={this.state.User.skills}/>
                                 </div>
                             </>)}
-                        </div>) : null}
+                        </div> : null}
 
-                        {this.state.role.includes("Seeker") ? (<div>
+                        {this.state.role.includes("Seeker") ? <div>
                             <hr/>
                             <div className={"d-flex align-items-center"}>
                                 <div className="card-title mb-1"><h5>Interests</h5></div>
@@ -563,38 +563,34 @@ class ProfileView extends React.Component {
                                               defaultValue={this.state.User.interests}/>
                                     </div>
                                 </>)}
-
-                        </div>) : null}
+                        </div> : null}
 
                     </div>
                 </div>
 
 
                 <div className={"mt-3"}>
-                    {this.state.status.success ? (
-                        <div className="alert alert-success alert-dismissible fade show" role="alert">
+                    {this.state.status.success ? <div className="alert alert-success alert-dismissible fade show" role="alert">
                             {this.state.status.msg}
                             <button onClick={() => this.setState({status: {success: null, msg: ""}})}
                                     type="button" className="btn-close" data-bs-dismiss="alert"
                                     aria-label="Close"></button>
-                        </div>) : null}
+                        </div> : null}
 
-                    {!this.state.status.success && this.state.status.msg !== "" ? (
-                        <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                    {!this.state.status.success && this.state.status.msg !== "" ? <div className="alert alert-danger alert-dismissible fade show" role="alert">
                             {this.state.status.msg}
                             <button onClick={() => this.setState({status: {success: null, msg: ""}})}
                                     type="button" className="btn-close" data-bs-dismiss="alert"
                                     aria-label="Close"></button>
-                        </div>) : null}
+                        </div> : null}
                 </div>
-                {/*<hr/>*/}
 
 
                 {/*ALL POSTS AUTHORED*/}
                 <div className="row row-cols-1 g-4" style={{margin: "10px"}}>
                     <h4 className={"card-title"} style={{fontWeight: "bold"}}>All posts asking/requesting for
                         help:</h4>    {p.length > 0 ? p.map((d) => {
-                    return (<div className="col" key={d.id}>
+                    return <div className="col" key={d.id}>
                         <div className="card">
                             <div className="card-body">
                                 <h5 className="card-title">{d.title}</h5>
@@ -612,13 +608,13 @@ class ProfileView extends React.Component {
 
                         </div>
 
-                    </div>)
+                    </div>
                 }) : "No help requested yet"}
                 </div>
 
 
             </div>
-        </div>)
+        </div>
     }
 
 }
