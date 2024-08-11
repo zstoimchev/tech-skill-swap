@@ -136,7 +136,6 @@ posts.get('/comment/:id', UTILS.authorizeLogin, async (req, res) => {
     }
 })
 
-
 posts.delete('/:id', UTILS.authorizeLogin, async (req, res) => {
     try {
         const id = req.params.id
@@ -157,6 +156,27 @@ posts.delete('/:id', UTILS.authorizeLogin, async (req, res) => {
     } catch (error) {
         console.error(error)
         return res.status(500).json("Internal server error. Try again later.")
+    }
+})
+
+posts.get('/search/:payload', async (req, res) => {
+    try {
+        const payload = req.params.payload
+
+        // TODO: verify user input
+        try {
+            const queryResult = await DB.searchPosts(payload)
+            if (queryResult.length <= 0)
+                return res.status(503).json({success: false, msg:"Error while searching for posts."})
+            return res.status(200).json({success: true, msg:"Posts succesfully fetched/searched", posts: queryResult})
+        } catch(error) {
+            console.error(error)
+            return res.status(503).json({success: false, msg:"An error occured while processing DB..."})
+        }
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Something internally snapped! Try again later." })
     }
 })
 

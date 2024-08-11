@@ -248,6 +248,37 @@ dataPool.addPost = (title, body, img, user_id) => {
 
 
 
+dataPool.searchPosts = (payload) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+                SELECT Post.*, User.name, User.surname
+                FROM Post
+                JOIN User ON Post.user_id = User.id
+                WHERE Post.title LIKE ? OR Post.body LIKE ?
+            `
+        conn.query(query, ['%' + payload + '%', '%' + payload + '%'], (err, res) => {
+            if (err) { return reject(err) }
+            return resolve(res)
+        })
+    })
+}
+
+
+// dataPool.allPostsJ = () => {
+//     return new Promise((resolve, reject) => {
+//         const query = `
+//             SELECT Post.*, User.name, User.surname
+//             FROM Post
+//             JOIN User ON Post.user_id = User.id
+//         `
+//         conn.query(query, (err, res) => {
+//             if (err) { return reject(err) }
+//             return resolve(res)
+//         })
+//     })
+// }
+
+
 
 dataPool.addRole = (table, id) => {
     return new Promise((resolve, reject) => {
