@@ -60,7 +60,7 @@ class PostsView extends React.Component {
                 }
             })
             .catch(error => {
-                this.setState({status: error.response.data})
+                this.setState({status: error.response.data, Posts: []})
                 console.log(error.response.data)
             })
     }
@@ -69,14 +69,20 @@ class PostsView extends React.Component {
     render() {
         const data = this.state.Posts
         return (<div>
-            <h3>Browse the content free of charge</h3>
 
             <div className="row row-cols-1 row-cols-md-3 g-4" style={{margin: "10px"}}>
+                {/*<h3 className="input-group">Browse the content free of charge</h3>*/}
+                <div className="w-100 d-flex justify-content-center">
+                    <h3>Browse the content free of charge</h3>
+                </div>
 
                 <div className="input-group">
-                    <input id="payload" type="search" className="form-control rounded" placeholder="Search" aria-label="Search"
+                    <input id="payload" type="search" className="form-control rounded" placeholder="Search"
+                           aria-label="Search"
                            aria-describedby="search-addon" onChange={this.SetValueFromUserInput}/>
-                    <button onClick={this.PerformSearchInDb} type="button" className="btn btn-outline-primary" data-mdb-ripple-init="">search</button>
+                    <button onClick={this.PerformSearchInDb} type="button" className="btn btn-outline-primary"
+                            data-mdb-ripple-init="">search
+                    </button>
                 </div>
 
                 {data.length > 0 ? data.map((d) => {
@@ -96,7 +102,7 @@ class PostsView extends React.Component {
                             </button>
                         </div>
                     </div>)
-                }) : "Loading..."}
+                }) : "No posts found yet..."}
             </div>
 
         </div>)
