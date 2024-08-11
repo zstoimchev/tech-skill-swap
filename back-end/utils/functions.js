@@ -89,4 +89,9 @@ funct.authorizeLoginForLogin = async (req, res, next) => {
     }
 }
 
+funct.verifyCategoryNumber = function (p) {
+    const regex = /^[0-9]+$/
+    return regex.test(p)
+}
+
 module.exports = funct

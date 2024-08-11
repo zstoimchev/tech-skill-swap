@@ -16,14 +16,39 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 posts.post('/add', UTILS.authorizeLogin, upload.single('file'), async (req, res) => {
-    const { title, body, username } = req.body
+    const { title, body, username, category } = req.body
     let file = ""
     if (req.file) {
         file = req.file.filename
     }
+    console.log(req.body)
 
-    if (!(title && body && username)) {
+    if (!(title && body && username && category !== "")) {
         return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" })
+    }
+
+    let category_id = category
+    if (!UTILS.verifyCategoryNumber(category)) {
+        try {
+            let queryCaregoryRes = await DB.authCategory(category)
+            if (queryCaregoryRes.length >= 1) {
+                return res.status(503).json({ success: false, msg: "Category already exists in DB..." })
+            }
+
+            const queryAddCat = await DB.addCategory(category)
+            if (!queryAddCat.affectedRows) {
+                return res.status(503).json({ success: false, msg: "Failed saving category in the DB..." })
+            }
+
+            queryCaregoryRes = await DB.authCategory(category)
+            category_id = queryCaregoryRes[0].id
+            if (!UTILS.verifyId) {
+                return res.status(503).json({ success: false, msg: "Error while saving category in the DB..." })
+            }
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while processing DB for category..." })
+        }
     }
 
     let user_id = null
@@ -40,7 +65,7 @@ posts.post('/add', UTILS.authorizeLogin, upload.single('file'), async (req, res)
 
     // TODO: verify user input before sending to DB
     try {
-        const queryResult = await DB.addPost(title, body, file, user_id)
+        const queryResult = await DB.addPost(title, body, file, user_id, category_id)
         if (!(queryResult.affectedRows)) {
             return res.status(503).json({ success: false, msg: "Error processing new post..." })
         }
@@ -167,11 +192,11 @@ posts.get('/search/:payload', async (req, res) => {
         try {
             const queryResult = await DB.searchPosts(payload)
             if (queryResult.length <= 0)
-                return res.status(503).json({success: false, msg:"Error while searching for posts."})
-            return res.status(200).json({success: true, msg:"Posts succesfully fetched/searched", posts: queryResult})
-        } catch(error) {
+                return res.status(503).json({ success: false, msg: "Error while searching for posts." })
+            return res.status(200).json({ success: true, msg: "Posts succesfully fetched/searched", posts: queryResult })
+        } catch (error) {
             console.error(error)
-            return res.status(503).json({success: false, msg:"An error occured while processing DB..."})
+            return res.status(503).json({ success: false, msg: "An error occured while processing DB..." })
         }
 
     } catch (error) {
@@ -179,5 +204,19 @@ posts.get('/search/:payload', async (req, res) => {
         return res.status(500).json({ success: false, msg: "Something internally snapped! Try again later." })
     }
 })
+
+posts.get('/category/get', async (req, res) => {
+    try {
+        const queryResult = await DB.fetchCategories()
+        if (queryResult.length <= 0) {
+            return res.status(503).json({ syccess: false, msg: "No categories fetched... Snap!" })
+        }
+        return res.status(200).json({ success: true, msg: "Categories succesfully fetched", arr: queryResult })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Internal server error while fetching categories..." })
+    }
+})
+
 
 module.exports = posts

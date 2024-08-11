@@ -235,10 +235,10 @@ dataPool.onePost = (id) => {
     })
 }
 
-dataPool.addPost = (title, body, img, user_id) => {
+dataPool.addPost = (title, body, img, user_id, category_id) => {
     return new Promise((resolve, reject) => {
-        conn.query(`INSERT INTO Post (title,body,image,user_id) VALUES (?,?,?,?)`,
-            [title, body, img, user_id],
+        conn.query(`INSERT INTO Post (title,body,image,user_id,category) VALUES (?,?,?,?,?)`,
+            [title, body, img, user_id, category_id],
             (err, res) => {
                 if (err) { return reject(err) }
                 return resolve(res)
@@ -395,6 +395,35 @@ dataPool.deletePost = (id) => {
             if (err) { return reject(err) }
             return resolve(res)
         })
+    })
+}
+
+dataPool.fetchCategories = () => {
+    return new Promise((resolve, reject) => {
+        conn.query('SELECT * FROM Category', (err, res) => {
+            if (err) { return reject(err) }
+            return resolve(res)
+        })
+    })
+}
+
+dataPool.authCategory = (name) => {
+    return new Promise((resolve, reject) => {
+        conn.query('SELECT * FROM Category WHERE name = ?', [name], (err, res) => {
+            if (err) { return reject(err) }
+            return resolve(res)
+        })
+    })
+}
+
+dataPool.addCategory = (name) => {
+    return new Promise((resolve, reject) => {
+        conn.query('Insert into Category (name) VALUES (?)',
+            [name],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
     })
 }
 
