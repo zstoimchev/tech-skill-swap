@@ -307,7 +307,7 @@ profile.post('/change-about', UTILS.authorizeLogin, async (req, res) => {
     }
 })
 
-profile.post('/change-skills', async (req, res) => {
+profile.post('/change-skills', UTILS.authorizeLogin, async (req, res) => {
     try {
         const { skills, user } = req.body
         if (!UTILS.verifyUsername(user)) {
@@ -343,7 +343,7 @@ profile.post('/change-skills', async (req, res) => {
     }
 })
 
-profile.post('/change-interests', async (req, res) => {
+profile.post('/change-interests', UTILS.authorizeLogin, async (req, res) => {
     try {
         const { interests, user } = req.body
         if (!UTILS.verifyUsername(user)) {
@@ -379,7 +379,7 @@ profile.post('/change-interests', async (req, res) => {
     }
 })
 
-profile.post('/change-role', async (req, res) => {
+profile.post('/change-role', UTILS.authorizeLogin, async (req, res) => {
     try {
         const { role, oldRole, user } = req.body
         if (!(UTILS.verifyRole(role)))
