@@ -59,10 +59,16 @@ class ProfileView extends React.Component {
         this.req.get('/profile/' + this.state.username)
             .then(response => {
                 // this.setState({Posts: response.data.postData, User: response.data.userData})
-                this.setState({Posts: response.data["postData"], User: response.data["userData"]}, () => {
-                    if (this.state.User.interests !== "" && this.state.User.interests !== null) this.setState({role: "Seeker, looking for help"})
-                    if (this.state.User.skills !== "" && this.state.User.skills !== null) this.setState({role: "Helper, requesting help"})
-                    if (this.state.User.interests !== "" && this.state.User.interests !== null && this.state.User.skills !== "" && this.state.User.skills !== null) this.setState({role: "Both Helper and Seeker, looking and requesting for help"})
+                this.setState({
+                    Posts: response.data["postData"], User: response.data["userData"], role: response.data["roleData"]
+                }, () => {
+                    if (this.state.role.includes("Helper") && this.state.role.includes("Seeler")) {
+                        this.setState({roleShort: "both"})
+                    } else if (this.state.role.includes("Helper")) {
+                        this.setState({roleShort: "Helper"})
+                    } else if (this.state.role.includes("Seeker")) {
+                        this.setState({roleShort: "Seeker"})
+                    } else this.setState(({roleShort: "Undefined"}))
                 })
             })
             .catch(error => {
@@ -79,6 +85,25 @@ class ProfileView extends React.Component {
         }))
         this.req.post('/profile/change-name-surname', {
             name: this.state.userInput.name, surname: this.state.userInput.surname, user: localStorage.getItem("user"),
+        })
+            .then(response => {
+                this.setState({status: response.data})
+                this.getUserData()
+            })
+            .catch(error => {
+                this.setState({status: error.response.data})
+                console.log(error.response.data)
+            })
+    }
+
+    submitRole = () => {
+        this.setState(prevState => ({
+            ...prevState, editRole: false, userInput: {
+                ...prevState.userInput, role: ""
+            }
+        }))
+        this.req.post('/profile/change-role', {
+            role: this.state.userInput.role, oldRole: this.state.roleShort, user: localStorage.getItem("user"),
         })
             .then(response => {
                 this.setState({status: response.data})
@@ -223,9 +248,6 @@ class ProfileView extends React.Component {
         })
     }
 
-    submitRole() {
-
-    }
 
     render() {
         const p = this.state.Posts
@@ -456,7 +478,7 @@ class ProfileView extends React.Component {
                                 </div>
                             </div>
                             {!this.state.editAbout ? <div className="card-text mb-3 mt-1">{this.state.User.about}
-                                <hr/>
+                                {/*<hr/>*/}
                             </div> : (<>
                                 <div className="mb-3 m-3">
                                     <textarea name="about"
@@ -470,6 +492,7 @@ class ProfileView extends React.Component {
                         </div>
 
                         {this.state.role.includes("Helper") ? (<div>
+                            <hr/>
                             <div className={"d-flex align-items-center"}>
                                 <div className="card-title mb-1"><h5>Skills</h5></div>
                                 {!this.state.editSkills ? <button onClick={() => this.setState(prevState => ({
@@ -492,7 +515,7 @@ class ProfileView extends React.Component {
 
                             </div>
                             {!this.state.editSkills ? <div className="card-text mb-3 mt-1">{this.state.User.skills}
-                                <hr/>
+                                {/*<hr/>*/}
                             </div> : (<>
                                 <div className="mb-3 m-3">
                                     <textarea name="skills"
@@ -506,38 +529,40 @@ class ProfileView extends React.Component {
                         </div>) : null}
 
                         {this.state.role.includes("Seeker") ? (<div>
+                            <hr/>
                             <div className={"d-flex align-items-center"}>
                                 <div className="card-title mb-1"><h5>Interests</h5></div>
-                                {!this.state.editInterests ?
-                                    <button onClick={() => this.setState(prevState => ({
-                                        ...prevState, editInterests: true, userInput: {
-                                            ...prevState.userInput, interests: this.state.User.interests
-                                        }
-                                    }))}
-                                            className="btn btn-secondary btn-md ms-auto">Update 'Interests'
-                                    </button> : (<>
-                                        <div className="ms-auto">
-                                            <button onClick={this.submitInterests}
-                                                    className={"btn btn-success btn-sm me-1"}>Submit
-                                            </button>
-                                            <button onClick={() => this.setState({editInterests: false})}
-                                                    className={"btn btn-danger btn-sm ms-auto"}>Cancel
-                                            </button>
-                                        </div>
-                                    </>)}
+                                {!this.state.editInterests ? <button onClick={() => this.setState(prevState => ({
+                                    ...prevState, editInterests: true, userInput: {
+                                        ...prevState.userInput, interests: this.state.User.interests
+                                    }
+                                }))}
+                                                                     className="btn btn-secondary btn-md ms-auto">Update
+                                    'Interests'
+                                </button> : (<>
+                                    <div className="ms-auto">
+                                        <button onClick={this.submitInterests}
+                                                className={"btn btn-success btn-sm me-1"}>Submit
+                                        </button>
+                                        <button onClick={() => this.setState({editInterests: false})}
+                                                className={"btn btn-danger btn-sm ms-auto"}>Cancel
+                                        </button>
+                                    </div>
+                                </>)}
 
                             </div>
-                            {!this.state.editInterests ? <div className="card-text mb-3 mt-1">{this.state.User.interests}
-                            </div> : (<>
-                                <div className="mb-3 m-3">
+                            {!this.state.editInterests ?
+                                <div className="card-text mb-3 mt-1">{this.state.User.interests}
+                                </div> : (<>
+                                    <div className="mb-3 m-3">
                                     <textarea name="interests"
                                               id="interests"
                                               className="form-control"
                                               rows="2"
                                               onChange={this.SetValueFromUserInput}
                                               defaultValue={this.state.User.interests}/>
-                                </div>
-                            </>)}
+                                    </div>
+                                </>)}
 
                         </div>) : null}
 
