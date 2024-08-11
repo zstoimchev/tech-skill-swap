@@ -28,7 +28,7 @@ profile.get('/:username', UTILS.authorizeLogin, async (req, res) => {
             const q2 = await DB.authRole("Helper", user[0].id)
 
             if (q1.length > 0 && q2.length > 0)
-                role = "Both Hlper and Seeker, asking and requesting for help."
+                role = "Both Helper and Seeker, asking and requesting for help."
             else if (q1.length > 0 && q2.length === 0)
                 role = "Seeker, asking people for help."
             else if (q1.length === 0 && q2.length > 0)
@@ -382,8 +382,7 @@ profile.post('/change-interests', async (req, res) => {
 profile.post('/change-role', async (req, res) => {
     try {
         const { role, oldRole, user } = req.body
-        console.log(req.body)
-        if (!(UTILS.verifyRole(role) && UTILS.verifyRole(oldRole)))
+        if (!(UTILS.verifyRole(role)))
             return res.status(400).json({ success: false, msg: "Bad role submitted!" })
         let userId = null
         try {
@@ -398,7 +397,7 @@ profile.post('/change-role', async (req, res) => {
 
         if (role === "Seeker") {
             try {
-                const queryDeleteRole = await DB.removeSeeker(userId)
+                const queryDeleteRole = await DB.removeHelper(userId)
 
                 if (oldRole === "both" || oldRole === "Seeker")
                     return res.status(200).json({ success: true, msg: "Role succesfully submitted" })
@@ -416,7 +415,7 @@ profile.post('/change-role', async (req, res) => {
 
         else if (role === "Helper") {
             try {
-                const queryDeleteRole = await DB.removeHelper(userId)
+                const queryDeleteRole = await DB.removeSeeker(userId)
 
                 if (oldRole === "both" || oldRole === "Helper")
                     return res.status(200).json({ success: true, msg: "Role succesfully submitted" })
