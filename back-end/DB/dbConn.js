@@ -39,7 +39,7 @@ dataPool.authUsernameWithRole = (username) => {
                 User.email, 
                 User.username, 
                 Seeker.interests AS interests, 
-                Seeker.about AS about,
+                COALESCE(Seeker.about, Helper.about) AS about,
                 Helper.skills AS skills 
             FROM User 
             LEFT JOIN Seeker ON User.id = Seeker.user_id
