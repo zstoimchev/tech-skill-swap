@@ -2,6 +2,7 @@ import React from "react"
 import {useNavigate, useParams} from 'react-router-dom'
 import axios from "axios"
 import {API_URL} from "../Utils/Configuration"
+import {LOGIN} from "../Utils/Constants";
 
 
 class PasswordResetRouterView extends React.Component {
@@ -27,7 +28,7 @@ class PasswordResetRouterView extends React.Component {
     }
 
     componentDidMount() {
-        const param = this.props
+        const param = this.props.param
 
         axios.get(API_URL + '/password/reset/' + param)
             .then(response => {
@@ -88,15 +89,24 @@ class PasswordResetRouterView extends React.Component {
                 </div>
             </form>
 
-            <button style={{margin: "10px"}} onClick={this.Submit}
-                    className="btn btn-primary bt">Submit
-            </button>
+            {this.state.status.success ? <button style={{margin: "10px"}} onClick={() => {
+                this.props.navigate('/');
+                this.props.changeState({CurrentPage: LOGIN});
+            }}
+                                                 className="btn btn-primary bt">Go back to Login
+            </button> : <button style={{margin: "10px"}} onClick={this.Submit}
+                                className="btn btn-primary bt">Submit
+            </button>}
 
             {/*{this.state.status.success ?*/}
             {/*    <p className="alert alert-success" role="alert">{this.state.status.msg}</p> : null}*/}
             {this.state.status.success ? (<> <p className="alert alert-success" role="alert">{this.state.status.msg}</p>
                 <p>Your password was changed successfully! You can now close this window, or
-                    <span id={"font-weight-paragraph"} onClick={() => this.props.navigate('/')}> click here to go back to login</span>.
+                    <span id={"font-weight-paragraph"}
+                          onClick={() => {
+                              this.props.navigate('/');
+                              this.props.changeState({CurrentPage: LOGIN});
+                          }}> click here to go back to login</span>.
                 </p> </>) : null}
 
             {!this.state.status.success && this.state.status.msg !== "" ?
