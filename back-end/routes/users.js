@@ -3,6 +3,7 @@ const users = express.Router()
 const DB = require('../DB/dbConn.js')
 const jwt = require('jsonwebtoken')
 const UTILS = require('../utils/functions.js')
+const nodemailer = require('nodemailer')
 
 
 users.post('/login', UTILS.authorizeLoginForLogin, async (req, res, next) => {
@@ -47,13 +48,19 @@ users.post('/login', UTILS.authorizeLoginForLogin, async (req, res, next) => {
     }
 })
 
+let transporter = nodemailer.createTransport({
+    host: 'smtp-mail.outlook.com',
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+        user: process.env.MY_EMAIL,
+        pass: process.env.MY_PASSWORD
+    },
+    tls: {
+        ciphers: 'SSLv3'
+    }
+})
 
-// TODO: when registering, verify the user with email confirmation???
-// =========================================================================================================================================\
-// How to confirm registration with email? Create JWT with expiration date 15 minutes and email it. When the user oppens the link           |
-// with the token, extract the data. Check if in the DB there is already user with that email or with that address. If there is,            |
-// return error to the frontend that in the meantime someone registered user with that email/username, otherwise save the user to the DB    |
-// =========================================================================================================================================/
 users.post('/register', UTILS.authorizeLoginForLogin, async (req, res) => {
     // TODO: implement middleware function that will check user input only
     try {
@@ -106,44 +113,34 @@ users.post('/register', UTILS.authorizeLoginForLogin, async (req, res) => {
             return res.status(500).json({ success: false, msg: "Error while processing password. Please try again later." })
         }
 
-        try {
-            const queryResult = await DB.addUser(name, surname, username, email, hashedPassword)
-            if (!(queryResult.affectedRows)) {
-                return res.status(500).json({ success: false, msg: "Error registering new user..." })
-            }
-        } catch (error) {
-            console.error(error)
-            return res.status(503).json({ success: false, msg: "Error while saving user in DB... Please try again later." })
+        const secretKey = process.env.JWT_TOKEN_SECRET
+        const expiresIn = '1h'
+        const token = jwt.sign({ name: name, surname: surname, email: email, username: username, password: hashedPassword, role: role }, secretKey, { expiresIn })
+        // now send the mail
+        let mailOptions = {
+            from: process.env.MY_EMAIL,
+            to: email,
+            subject: 'Account confirmation - Tech Skill-Swap',
+            html: `
+                <p>You are receiving this because you (or someone else) have requested 
+                account creation using this email address.</p>
+                
+                <p>Please click on the following link, or paste this into your browser to complete 
+                the process within 15 minutes of receiving it:</p>
+                
+                <a href="http://localhost:3000/users/activate-account/${token}">Reset Password</a>
+
+                <p>If you did not request this, please ignore this email, hence no changes will be made.</p>
+                `
         }
 
-        try {
-            const userr_idd = await DB.getIdByEmail(email)
-            if (!userr_idd) {
-                return res.status(404).json({ success: false, msg: "No such user found!" })
+        transporter.sendMail(mailOptions, (err, response) => {
+            if (err) {
+                return res.status(500).json({ success: false, msg: "Error sending mail to the user." })
+            } else {
+                return res.status(200).json({ success: true, msg: "Activation email sent!" })
             }
-            if (role === "both") {
-                const q1 = await DB.addRole("Helper", userr_idd[0].id)
-                const q2 = await DB.addRole("Seeker", userr_idd[0].id)
-                if (!(q1.affectedRows > 0 && q2.affectedRows > 0)) {
-                    return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
-                }
-            } else if (role === "Helper") {
-                const q = await DB.addRole(role, userr_idd[0].id)
-                if (!q.affectedRows) {
-                    return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
-                }
-            } else if (role === "Seeker") {
-                const q = await DB.addRole(role, userr_idd[0].id)
-                if (!q.affectedRows) {
-                    return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
-                }
-            }
-        } catch (error) {
-            console.error(error)
-            return res.status(503).json({ success: false, msg: "User saved, but failed processing role..." })
-        }
-
-        return res.status(200).json({ success: true, msg: "New user successfully registered." })
+        })
     } catch (err) {
         console.error(err)
         return res.status(500).json({ success: false, msg: "Something happened internally! Please try again later." })
@@ -155,6 +152,73 @@ users.get('/auth', UTILS.authorizeLogin, async (req, res) => {
     return res.status(200).json({ success: true, user: req.user, msg: "User is logged in!" })
 })
 
+users.post('/activate-account/:token', async (req, res) => {
+    try {
+        const token = req.params.token
+
+        const secretKey = process.env.JWT_SECRET
+
+        try {
+            const decoded = jwt.verify(token, secretKey)
+            const name = decoded.name
+            const surname = decoded.surname
+            const email = decoded.email
+            const username = decoded.username
+            const password = decoded.password
+            const role = decoded.role
+
+            const user = await DB.authUsername(username)
+            if (user.length >= 1) {
+                return res.status(400).json({ success: false, msg: "User is already registered!" })
+            }
+
+            try {
+                const queryResult = await DB.addUser(name, surname, username, email, password)
+                if (!(queryResult.affectedRows)) {
+                    return res.status(500).json({ success: false, msg: "Error registering new user..." })
+                }
+            } catch (error) {
+                console.error(error)
+                return res.status(503).json({ success: false, msg: "Error while saving user in DB... Please try again later." })
+            }
+
+            try {
+                const userr_idd = await DB.getIdByEmail(email)
+                if (!userr_idd) {
+                    return res.status(404).json({ success: false, msg: "No such user found!" })
+                }
+                if (role === "both") {
+                    const q1 = await DB.addRole("Helper", userr_idd[0].id)
+                    const q2 = await DB.addRole("Seeker", userr_idd[0].id)
+                    if (!(q1.affectedRows > 0 && q2.affectedRows > 0)) {
+                        return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
+                    }
+                } else if (role === "Helper") {
+                    const q = await DB.addRole(role, userr_idd[0].id)
+                    if (!q.affectedRows) {
+                        return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
+                    }
+                } else if (role === "Seeker") {
+                    const q = await DB.addRole(role, userr_idd[0].id)
+                    if (!q.affectedRows) {
+                        return res.status(500).json({ success: false, msg: "Failed saving user role in DB" })
+                    }
+                }
+            } catch (error) {
+                console.error(error)
+                return res.status(503).json({ success: false, msg: "User saved, but failed processing role..." })
+            }
+
+            return res.status(200).json({ success: true, msg: "User account activated succesfully!" })
+        } catch (err) {
+            return res.status(401).json({ success: false, msg: "Invalid or expired token!" })
+        }
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Something internally snapped..." })
+    }
+})
 
 // Some way of logging, keeping logs of what is going on, like which user logs in registers logs out at what time etc.
 
