@@ -46,7 +46,7 @@ profile.get('/:username', UTILS.authorizeLogin, async (req, res) => {
     }
 })
 
-profile.post('/complete-profile', UTILS.authorizeLogin, async (req, res, next) => {
+profile.post('/complete-profile', async (req, res, next) => {
     try {
         const { role, email, interests, skills, about } = req.body
 
