@@ -42,21 +42,6 @@ class App extends Component {
     }
 
     componentDidMount() {
-        // this.req.get('/users/auth').then(response => {
-        //     if (response.data.success) {
-        //         console.log("success")
-        //         this.setState({status: response.data})
-        //         localStorage.setItem('user', response.data.user)
-        //         localStorage.setItem('loggedIn', 'true')
-        //         // this.updateStateApp({user: response.data.username, loggedIn: true, CurrentPage: POSTS})
-        //     }
-        // }).catch(err => {
-        //     console.log("fail")
-        //     localStorage.removeItem('token')
-        //     localStorage.removeItem('user')
-        //     localStorage.removeItem('loggedIn')
-        //     this.updateStateApp({user: null, loggedIn: false, CurrentPage: HOME})
-        // })
         this.setState({CurrentPage: HOME})
     }
 
@@ -84,7 +69,7 @@ class App extends Component {
             case RESETPW:
                 return <ResetPasswordView/>
             case USERINFO:
-                return <UserInfoSetupView getUserInfo={this.state}/>
+                return <UserInfoSetupView getUserInfo={this.state} changeState={this.updateStateApp}/>
             case PROFILE:
                 return <ProfileView changeState={this.updateStateApp}/>
             default:
@@ -135,7 +120,9 @@ class App extends Component {
                                         href="">Add New Post</Nav.Link>
                                         <Nav.Link
                                             className={this.state.CurrentPage === PROFILE ? 'active' : ''}
-                                            onClick={this.SetView.bind(this, {page: PROFILE, user: this.state.user})}>Profile</Nav.Link>
+                                            onClick={this.SetView.bind(this, {
+                                                page: PROFILE, user: this.state.user
+                                            })}>Profile</Nav.Link>
                                         <Nav.Link
                                             onClick={() => this.Logout()}
                                             href="">Logout</Nav.Link>
