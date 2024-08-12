@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import axios from 'axios'
 import {API_URL} from "../Utils/Configuration";
-import {REGISTER} from "../Utils/Constants";
+import {REGISTER, USERINFO} from "../Utils/Constants";
 import {useNavigate, useParams} from 'react-router-dom'
 
 
@@ -24,8 +24,8 @@ class ActivateAccountView extends Component {
         const param = this.props.param;
         axios.post(API_URL + `/users/activate-account/` + param)
             .then(response => {
-                console.log(response.data);
-                this.setState({ status: response.data });
+                this.setState({ status: response.data })
+                this.props.changeState({user: response.data.email, role: response.data.role})
             })
             .catch(error => {
                 console.error(error.response.data);
@@ -49,7 +49,10 @@ class ActivateAccountView extends Component {
             </form>
 
             {this.state.status.success ? <button style={{margin: "10px"}}
-                                                 onClick={() => this.Submit()}
+                                                 onClick={() => {
+                                                     this.props.navigate('/');
+                                                     this.props.changeState({CurrentPage: USERINFO})
+                                                 }}
                                                  className="btn btn-primary bt">Complete your profile
             </button> : <button style={{margin: "10px"}}
                                 onClick={() => {
