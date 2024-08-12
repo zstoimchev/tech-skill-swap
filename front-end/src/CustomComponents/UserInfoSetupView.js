@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import axios from 'axios'
 import {API_URL} from "../Utils/Configuration";
+import {LOGIN} from "../Utils/Constants";
 
 
 class UserInfoSetupView extends Component {
@@ -26,7 +27,8 @@ class UserInfoSetupView extends Component {
         }))
     }
 
-    Submit() {
+    Submit = () => {
+        console.log("---")
         axios.post(API_URL + '/profile/complete-profile', {
             role: this.state.user.role,
             email: this.state.user.email,
@@ -40,6 +42,7 @@ class UserInfoSetupView extends Component {
             })
             .catch(error => {
                 console.log(error.response.data)
+                this.setState({status: error.response.data})
             })
     }
 
@@ -47,39 +50,60 @@ class UserInfoSetupView extends Component {
     render() {
         return (<div className="card"
                      style={{
-                         width: "400px",
+                         width: "450px",
                          marginLeft: "auto",
                          marginRight: "auto",
                          marginTop: "10px",
                          marginBottom: "10px"
                      }}>
-            <h5 className="card-title">Tell us something more about yourself</h5>
-            <form style={{margin: "20px"}}>
+            <form className="m-3">
+                <h5 className="card-title mb-4 text-center">Tell us something more about yourself</h5>
+                <div className="mb-3">
+                    <div className="mb-3 m-3">
+                        <label htmlFor="about">About</label>
+
+                        <textarea name="about"
+                                  id="about"
+                                  className="form-control"
+                                  rows="3"
+                                  onChange={this.SetValueFromUserInput}
+                                  placeholder="Briefly tell something about yourself..."/>
+                    </div>
+                </div>
 
                 {this.state.user.role === "Seeker" || this.state.user.role === "both" ? <div className="mb-3">
-                    <label htmlFor="interests">Interests</label>
-                    <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="interests"
-                           placeholder="List what you are interested in..."/>
+                    <div className="mb-3 m-3">
+                        <label htmlFor="interests">Interests</label>
+                        <textarea name="interests"
+                                  id="interests"
+                                  className="form-control"
+                                  rows="2"
+                                  onChange={this.SetValueFromUserInput}
+                                  placeholder="List what you are interested in..."/>
+                    </div>
                 </div> : null}
 
                 {this.state.user.role === "Helper" || this.state.user.role === "both" ? <div className="mb-3">
-                    <label htmlFor="skills">Skills</label>
-                    <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="skills"
-                           placeholder="List skills you can offer..."/>
+                    <div className="mb-3 m-3">
+                        <label htmlFor="skills">Skills</label>
+                        <textarea name="skills"
+                                  id="skills"
+                                  className="form-control"
+                                  rows="2"
+                                  onChange={this.SetValueFromUserInput}
+                                  placeholder="List the skills you can offer..."/>
+                    </div>
                 </div> : null}
-
-                <div className="mb-3">
-                    <label htmlFor="about">About</label>
-                    <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="about"
-                           placeholder="Briefly tell something about yourself..."/>
-                </div>
 
             </form>
 
-            <button style={{margin: "10px"}}
-                    onClick={() => this.Submit()}
-                    className="btn btn-primary bt">Submit
-            </button>
+            {!this.state.status.success ? <button style={{margin: "10px"}}
+                                                  onClick={() => this.Submit()}
+                                                  className="btn btn-primary bt">Submit
+            </button> : <button style={{margin: "10px"}}
+                                onClick={() => this.props.changeState({CurrentPage: LOGIN})}
+                                className="btn btn-primary bt">Go to Login</button>}
+
 
             {this.state.status.success ?
                 <p className="alert alert-success" role="alert">{this.state.status.msg}</p> : null}
