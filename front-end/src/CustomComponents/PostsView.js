@@ -77,13 +77,24 @@ class PostsView extends React.Component {
                 </div>
 
                 <div className="input-group">
+                    <div className="input-group-append">
+                        <select onChange={this.SetValueFromUserInput} className="form-control w-100" id="role">
+                            <option value="">Toggle Category</option>
+                            <option value="Helper">Helper, I want to help people</option>
+                            <option value="Seeker">Seeker, I want to ask for help</option>
+                            <option value="both">Both helping and requesting help...</option>
+                        </select>
+                    </div>
                     <input id="payload" type="search" className="form-control rounded" placeholder="Search"
                            aria-label="Search"
                            aria-describedby="search-addon" onChange={this.SetValueFromUserInput}/>
+
+
                     <button onClick={this.PerformSearchInDb} type="button" className="btn btn-outline-primary"
                             data-mdb-ripple-init="">search
                     </button>
                 </div>
+
 
                 {data.length > 0 ? data.map((d) => {
                     return (<div className="col" key={d.id}>
