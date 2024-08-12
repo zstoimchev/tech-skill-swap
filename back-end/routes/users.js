@@ -128,7 +128,7 @@ users.post('/register', UTILS.authorizeLoginForLogin, async (req, res) => {
                 <p>Please click on the following link, or paste this into your browser to complete 
                 the process within 15 minutes of receiving it:</p>
                 
-                <a href="http://localhost:3000/users/activate-account/${token}">Reset Password</a>
+                <a href="http://localhost:3000/activate-account/${token}">Reset Password</a>
 
                 <p>If you did not request this, please ignore this email, hence no changes will be made.</p>
                 `
@@ -155,9 +155,7 @@ users.get('/auth', UTILS.authorizeLogin, async (req, res) => {
 users.post('/activate-account/:token', async (req, res) => {
     try {
         const token = req.params.token
-
         const secretKey = process.env.JWT_SECRET
-
         try {
             const decoded = jwt.verify(token, secretKey)
             const name = decoded.name
@@ -167,9 +165,9 @@ users.post('/activate-account/:token', async (req, res) => {
             const password = decoded.password
             const role = decoded.role
 
-            const user = await DB.authUsername(username)
+            const user = await DB.authEmail(email)
             if (user.length >= 1) {
-                return res.status(400).json({ success: false, msg: "User is already registered!" })
+                return res.status(400).json({ success: false, msg: "User is already registered with that email!" })
             }
 
             try {
