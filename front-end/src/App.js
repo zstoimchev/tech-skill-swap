@@ -11,6 +11,7 @@ import AddPostView from "./CustomComponents/AddPostView"
 import ResetPasswordView from "./CustomComponents/ResetPasswordView"
 import PasswordResetRouterView from "./CustomComponents/PasswordResetRouterView"
 import UserInfoSetupView from "./CustomComponents/UserInfoSetupView"
+import ActivateAccountView from "./CustomComponents/ActivateAccountView";
 
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 import {useNavigate} from 'react-router-dom';
@@ -150,7 +151,8 @@ class App extends Component {
                 <Router>
                     <Routes>
                         <Route path="/" element={this.GetView(this.state)}/>
-                        <Route path="/password-reset/:param" element={<PasswordResetRouterView/>}/>
+                        <Route path="/password-reset/:param" element={<PasswordResetRouterView changeState={this.updateStateApp}/>}/>
+                        <Route path="/activate-account/:param" element={<ActivateAccountView changeState={this.updateStateApp}/>}/>
                         <Route path="*" element={<DefaultRoute/>}/>
                     </Routes>
                 </Router>
