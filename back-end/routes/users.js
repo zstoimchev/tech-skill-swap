@@ -114,9 +114,9 @@ users.post('/register', UTILS.authorizeLoginForLogin, async (req, res) => {
         }
 
         const secretKey = process.env.JWT_TOKEN_SECRET
-        const expiresIn = '1h'
+        const expiresIn = '15min'
         const token = jwt.sign({ name: name, surname: surname, email: email, username: username, password: hashedPassword, role: role }, secretKey, { expiresIn })
-        // now send the mail
+
         let mailOptions = {
             from: process.env.MY_EMAIL,
             to: email,
@@ -207,7 +207,7 @@ users.post('/activate-account/:token', async (req, res) => {
                 return res.status(503).json({ success: false, msg: "User saved, but failed processing role..." })
             }
 
-            return res.status(200).json({ success: true, msg: "User account activated succesfully!" })
+            return res.status(200).json({ success: true, msg: "User account activated succesfully!", email: email, role: role })
         } catch (err) {
             return res.status(401).json({ success: false, msg: "Invalid or expired token!" })
         }
