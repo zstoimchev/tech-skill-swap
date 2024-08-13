@@ -243,8 +243,11 @@ profile.post('/change-password', UTILS.authorizeLogin, async (req, res) => {
             return res.status(503).json({ success: false, msg: "An error occured while processing DB..." })
         }
 
-        if (!(UTILS.comparePassword(oldpassword, userData[0].password))) {
-            return res.status(400).json("Old password does not match!")
+        const storedHashedPassword = userData[0].password
+        const isPasswordMatch = await UTILS.comparePassword(oldpassword, storedHashedPassword)
+
+        if (!isPasswordMatch) {
+            return res.status(401).json({ success: false, msg: "Old password does not match!" })
         }
 
         if (newpassword !== newpassword2) {

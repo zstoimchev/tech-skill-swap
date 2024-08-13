@@ -128,7 +128,7 @@ users.post('/register', UTILS.authorizeLoginForLogin, async (req, res) => {
                 <p>Please click on the following link, or paste this into your browser to complete 
                 the process within 15 minutes of receiving it:</p>
                 
-                <a href="http://88.200.63.148:8127/activate-account/${token}">Reset Password</a>
+                <a href="http://88.200.63.148:8127/activate-account/${token}">Activate Account</a>
 
                 <p>If you did not request this, please ignore this email, hence no changes will be made.</p>
                 `

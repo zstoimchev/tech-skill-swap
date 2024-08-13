@@ -21,7 +21,6 @@ posts.post('/add', UTILS.authorizeLogin, upload.single('file'), async (req, res)
     if (req.file) {
         file = req.file.filename
     }
-    console.log(req.body)
 
     if (!(title && body && username && category !== "")) {
         return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" })

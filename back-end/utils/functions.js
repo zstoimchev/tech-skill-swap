@@ -32,7 +32,7 @@ funct.verifyEmail = function (email) {
 }
 
 funct.verifyPassStrength = function (pass) {
-    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[+-=!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/
     return regex.test(pass)
 
 }
