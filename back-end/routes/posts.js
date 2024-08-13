@@ -218,5 +218,19 @@ posts.get('/category/get', async (req, res) => {
     }
 })
 
+posts.get('/category/get/:id', async (req, res) => {
+    try {
+        const queryResult = await DB.fetchPostsByGivenCategory(req.params.id)
+        if (queryResult.length <= 0) {
+            return res.status(503).json({ syccess: false, msg: "No posts with that category fetched..." })
+        }
+
+        return res.status(200).json({ success: true, msg: "Posts succesfully fetched", arr: queryResult })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Internal server error while fetching categories..." })
+    }
+})
+
 
 module.exports = posts
