@@ -273,21 +273,23 @@ class ProfileView extends React.Component {
                     </> : <>
                         <div className="row mb-3">
                             <div className="col">
-                                <label htmlFor="oldpassword"><h5>First name</h5></label>
+                                <label htmlFor="name"><h5>First name</h5></label>
                                 <input onChange={this.SetValueFromUserInput}
                                        type="text"
                                        className="form-control"
                                        id="name"
-                                       defaultValue={this.state.User.name}/>
+                                       defaultValue={this.state.User.name}
+                                       autoComplete="off"/>
                             </div>
 
                             <div className="col">
-                                <label htmlFor="oldpassword"><h5>Last name</h5></label>
+                                <label htmlFor="surname"><h5>Last name</h5></label>
                                 <input onChange={this.SetValueFromUserInput}
                                        type="text"
                                        className="form-control"
                                        id="surname"
-                                       defaultValue={this.state.User.surname}/>
+                                       defaultValue={this.state.User.surname}
+                                       autoComplete="off"/>
                             </div>
                         </div>
                         <div className="ms-auto">
@@ -313,8 +315,8 @@ class ProfileView extends React.Component {
                         </div>
                     </> : <>
                         <div className="mb-3 w-50">
-                            <label htmlFor="dropdown">What is your role?</label>
-                            <select onChange={this.SetValueFromUserInput} className="form-control w-100" id="role">
+                            <label htmlFor="role">What is your role?</label>
+                            <select onChange={this.SetValueFromUserInput} className="form-control w-100" id="role" autoComplete="off">
                                 <option value="">Select an option</option>
                                 <option value="Helper">Helper, I want to help people</option>
                                 <option value="Seeker">Seeker, I want to ask for help</option>
@@ -351,14 +353,15 @@ class ProfileView extends React.Component {
                     </> : <>
                         <div className="row mb-0">
                             <div className="col-auto">
-                                <label htmlFor="username" className="col-form-label">E-mail:</label>
+                                <label htmlFor="email" className="col-form-label">E-mail:</label>
                             </div>
                             <div className={"col"}>
                                 <input onChange={this.SetValueFromUserInput}
                                        type="text"
                                        className="form-control"
                                        id="email"
-                                       defaultValue={this.state.User.email}/>
+                                       defaultValue={this.state.User.email}
+                                       autoComplete="off"/>
                             </div>
                         </div>
                         <div className="ms-auto">
@@ -393,7 +396,8 @@ class ProfileView extends React.Component {
                                        type="text"
                                        className="form-control"
                                        id="username"
-                                       defaultValue={this.state.User.username}/>
+                                       defaultValue={this.state.User.username}
+                                       autoComplete="off"/>
                             </div>
                         </div>
                         <div className="ms-auto">
@@ -421,21 +425,24 @@ class ProfileView extends React.Component {
                                 <input onChange={this.SetValueFromUserInput} type="password"
                                        className="form-control"
                                        id="oldpassword"
-                                       placeholder=""/>
+                                       placeholder=""
+                                       autoComplete="off"/>
                             </div>
                             <div className="col">
                                 <label htmlFor="newpassword">New password</label>
                                 <input onChange={this.SetValueFromUserInput} type="password"
                                        className="form-control"
                                        id="newpassword"
-                                       placeholder=""/>
+                                       placeholder=""
+                                       autoComplete="off"/>
                             </div>
                             <div className="col">
                                 <label htmlFor="newpassword2">Repeat new password</label>
                                 <input onChange={this.SetValueFromUserInput} type="password"
                                        className="form-control"
                                        id="newpassword2"
-                                       placeholder=""/>
+                                       placeholder=""
+                                       autoComplete="off"/>
                             </div>
                         </div>
                         <div className="ms-auto">
@@ -486,7 +493,8 @@ class ProfileView extends React.Component {
                                               className="form-control"
                                               rows="3"
                                               onChange={this.SetValueFromUserInput}
-                                              defaultValue={this.state.User.about}/>
+                                              defaultValue={this.state.User.about}
+                                              autoComplete="off"/>
                                 </div>
                             </>}
                         </div>
@@ -523,7 +531,8 @@ class ProfileView extends React.Component {
                                               className="form-control"
                                               rows="2"
                                               onChange={this.SetValueFromUserInput}
-                                              defaultValue={this.state.User.skills}/>
+                                              defaultValue={this.state.User.skills}
+                                              autoComplete="off"/>
                                 </div>
                             </>)}
                         </div> : null}
@@ -560,7 +569,8 @@ class ProfileView extends React.Component {
                                               className="form-control"
                                               rows="2"
                                               onChange={this.SetValueFromUserInput}
-                                              defaultValue={this.state.User.interests}/>
+                                              defaultValue={this.state.User.interests}
+                                              autoComplete="off"/>
                                     </div>
                                 </>)}
                         </div> : null}

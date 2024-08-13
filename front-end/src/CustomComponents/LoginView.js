@@ -77,7 +77,8 @@ class LoginView extends React.Component {
                            type="text"
                            className="form-control"
                            id="email"
-                           placeholder="@username"/>
+                           placeholder="@username"
+                           autoComplete="username"/>
                 </div>
                 <div className="mb-3">
                     <label className="form-label">Password</label>
@@ -85,7 +86,8 @@ class LoginView extends React.Component {
                            type="password"
                            className="form-control"
                            id="password"
-                           placeholder="********"/>
+                           placeholder="********"
+                           autoComplete="password"/>
                 </div>
                 <div className="form-check form-check-inline">
                     <input className="form-check-input" type="checkbox" id="inlineCheckbox1" value="keep_logged_in"/>

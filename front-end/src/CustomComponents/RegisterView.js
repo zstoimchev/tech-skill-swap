@@ -65,21 +65,21 @@ class RegisterView extends Component {
                         {/*<input type="text" className="form-control" placeholder="First name"/>*/}
                         <label htmlFor="name">First name</label>
                         <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="name"
-                               placeholder="Name"/>
+                               placeholder="Name" autoComplete="given-name"/>
                     </div>
 
                     <div className="col">
                         {/*<input type="text" className="form-control" placeholder="Last name"/>*/}
                         <label htmlFor="surname">Last name</label>
                         <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="surname"
-                               placeholder="Surname"/>
+                               placeholder="Surname" autoComplete="family-name"/>
                     </div>
                 </div>
 
                 <div className="mb-3">
                     <label htmlFor="email">E-mail</label>
                     <input onChange={this.SetValueFromUserInput} type="email" className="form-control" id="email"
-                           placeholder="username [at] provider [dot] domain"/>
+                           placeholder="username [at] provider [dot] domain" autoComplete="email"/>
                 </div>
 
                 <div className="mb-3">
@@ -92,20 +92,20 @@ class RegisterView extends Component {
                                 numbers.
                             </Tooltip>}
                         >
-                            <button type="button" className="btn btn-info btn-sm"
+                            <button type="button" className="btn btn-info btn-sm" id="username-role"
                                     style={{marginLeft: "5px", borderRadius: "40%"}}>
                                 i
                             </button>
                         </OverlayTrigger>
                     </div>
                     <input onChange={this.SetValueFromUserInput} type="text" className="form-control" id="username"
-                           placeholder="@username"/>
+                           placeholder="@username" autoComplete="username"/>
                 </div>
 
 
                 <div className="mb-3">
-                    <label htmlFor="dropdown">What is your role?</label>
-                    <select onChange={this.SetValueFromUserInput} className="form-control" id="role">
+                    <label htmlFor="role">What is your role?</label>
+                    <select onChange={this.SetValueFromUserInput} className="form-control" id="role" autoComplete="off">
                         <option value="">Select an option</option>
                         <option value="Helper">I want to help people</option>
                         <option value="Seeker">I want to ask for help</option>
@@ -131,13 +131,13 @@ class RegisterView extends Component {
                         </OverlayTrigger>
                     </div>
                     <input onChange={this.SetValueFromUserInput} type="password" className="form-control" id="password"
-                           placeholder="********"/>
+                           placeholder="********" autoComplete="off"/>
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="password2">Repeat password</label>
                     <input onChange={this.SetValueFromUserInput} type="password" className="form-control" id="password2"
-                           placeholder="********"/>
+                           placeholder="********" autoComplete="off"/>
                 </div>
 
 
