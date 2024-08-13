@@ -15,11 +15,6 @@ class ResetPasswordView extends React.Component {
         }
     }
 
-    componentDidMount() {
-        // Ensure the URL hash is set to #reset when the component mounts
-        window.location.hash = "reset"
-    }
-
     GetTextFromField(e) {
         this.setState(prevState => ({
             userInput: {
