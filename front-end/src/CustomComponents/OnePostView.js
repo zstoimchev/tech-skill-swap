@@ -16,9 +16,7 @@ class OnePostView extends React.Component {
             },
         }
         this.req = axios.create({
-            withCredentials: true,
-            baseURL: API_URL,
-            headers: {
+            withCredentials: true, baseURL: API_URL, headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         })
@@ -72,12 +70,18 @@ class OnePostView extends React.Component {
     fetchComments() {
         this.req.get('/posts/comment/' + this.state.id)
             .then(response => {
-                if (response.data.success && response.data.arr) {
+                if (response.data.success && response.data["arr"]) {
+                    const options = { year: 'numeric', month: '2-digit', day: '2-digit' }
+                    const comments = response.data["arr"].map(comment => {
+                        const date = new Date(comment.date)
+                        comment.date = date.toLocaleDateString('en-GB', options) + ' @ ' + date.toLocaleTimeString()
+                        return comment;
+                    })
                     this.setState({
-                        comments: response.data.arr
+                        comments: comments
                     })
                 } else {
-                    console.log("No comments data received");
+                    console.log("No comments data received")
                 }
             })
             .catch(error => {
@@ -110,7 +114,7 @@ class OnePostView extends React.Component {
 
                 <hr/>
                 <div className="card-body" style={{paddingTop: "0px"}}>
-                <h5 style={{marginBottom: "10px"}}>Leave a comment:</h5>
+                    <h5 style={{marginBottom: "10px"}}>Leave a comment:</h5>
                     <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                         <input id="comment" type="text" className="form-control" placeholder="Enter your comment here"
                                style={{marginRight: "10px", flex: "1"}} onChange={this.SetValueFromUserInput}/>

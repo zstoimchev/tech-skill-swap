@@ -97,6 +97,9 @@ class PostsView extends React.Component {
 
 
                 {data.length > 0 ? data.map((d) => {
+                    const date = new Date(d["created_at"])
+                    const options = { year: 'numeric', month: '2-digit', day: '2-digit' }
+                    const formattedDate = date.toLocaleDateString('en-GB', options) + ' @ ' + date.toLocaleTimeString()
                     return (<div className="col" key={d.id}>
                         <div className="card">
                             <div className="card-body">
@@ -105,7 +108,7 @@ class PostsView extends React.Component {
                                    className="card-text">{d.body}</p>
                                 <p className="card-text">
                                     Author: {d.name} {d.surname}<br/>
-                                    Date: {d.created_at}
+                                    Published on: {formattedDate}
                                 </p>
                             </div>
                             <button onClick={() => this.props.changeState({CurrentPage: POST, id: d.id})}
