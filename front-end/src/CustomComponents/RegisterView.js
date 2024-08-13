@@ -144,10 +144,6 @@ class RegisterView extends Component {
             </form>
 
             {this.state.status.success ? (<>
-                <button style={{margin: "10px"}}
-                        onClick={() => this.props.changeState({CurrentPage: USERINFO})}
-                        className="btn btn-primary bt">Complete your profile
-                </button>
             </>) : <button style={{margin: "10px"}}
                            onClick={() => this.Register()}
                            className="btn btn-primary bt">Submit
@@ -161,7 +157,7 @@ class RegisterView extends Component {
 
 
             {this.state.status.success ? (<><p className="alert alert-success" role="alert">{this.state.status.msg}</p>
-                <p>Click on the link above to complete your profile.</p>
+                <p>Check your email for further instructions on how to complete your account.</p>
             </>) : null}
 
             {!this.state.status.success && this.state.status.msg !== "" ?
