@@ -62,7 +62,7 @@ class App extends Component {
             case POST:
                 return <OnePostView changeState={this.updateStateApp} id={this.state.id}/>
             case ADDPOST:
-                return <AddPostView/>
+                return <AddPostView changeState={this.updateStateApp}/>
             case LOGIN:
                 return <LoginView updateState={this.updateStateApp}/>
             case REGISTER:

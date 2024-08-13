@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import {API_URL} from "../Utils/Configuration";
+import {POST} from "../Utils/Constants";
 
 class AddPostView extends React.Component {
     constructor(props) {
@@ -9,7 +10,7 @@ class AddPostView extends React.Component {
             category: [], post: {
                 title: "", body: "", img: null, category: "1"
             }, status: {
-                success: null, msg: ""
+                success: null, msg: "", id: null
             }, editCat: false,
         }
     }
@@ -65,6 +66,10 @@ class AddPostView extends React.Component {
             .catch(err => {
                 console.log(err)
             })
+    }
+
+    VisitPost = () => {
+        this.props.changeState({CurrentPage: POST, id: this.state.status.id})
     }
 
 
@@ -136,12 +141,15 @@ class AddPostView extends React.Component {
                 </div>
             </div>
 
-
-            <button className="btn btn-primary bt" onClick={() => this.AddPost()}
-                    style={{margin: "10px"}}>
-                Submit new Post
-            </button>
-
+            {!this.state.status.success ?
+                <button className="btn btn-primary bt" onClick={() => this.AddPost()}
+                        style={{margin: "10px"}}>
+                    Submit new Post
+                </button> : null}
+            {this.state.status.success ? <button className="btn btn-primary bt" onClick={() => this.VisitPost()}
+                                                 style={{margin: "10px"}}>
+                View your post
+            </button> : null}
 
             {this.state.status.success ? <p className="alert alert-success"
                                             role="alert">{this.state.status.msg}</p> : null}
