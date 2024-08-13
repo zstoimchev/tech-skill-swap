@@ -3,6 +3,7 @@ import {useNavigate, useParams} from 'react-router-dom'
 import axios from "axios"
 import {API_URL} from "../Utils/Configuration"
 import {LOGIN} from "../Utils/Constants";
+import {OverlayTrigger, Tooltip} from "react-bootstrap";
 
 
 class PasswordResetRouterView extends React.Component {
@@ -74,7 +75,22 @@ class PasswordResetRouterView extends React.Component {
             <form style={{margin: "20px"}}>
 
                 <div className="mb-3">
-                    <label className="form-label">Password</label>
+                    {/*<label className="form-label">Password</label>*/}
+                    <div className={"d-flex align-items-center justify-content-between"}>
+                        <label htmlFor="password">Password</label>
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={<Tooltip id="password-tooltip">
+                                Password Rules: Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special
+                                character.
+                            </Tooltip>}
+                        >
+                            <button type="button" className="btn btn-info btn-sm"
+                                    style={{marginLeft: "5px", borderRadius: "40%"}}>
+                                i
+                            </button>
+                        </OverlayTrigger>
+                    </div>
                     <input name="password" onChange={(e) => this.GetTextFromField(e)}
                            type="password"
                            className="form-control"
