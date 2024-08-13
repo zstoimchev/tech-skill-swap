@@ -3,6 +3,8 @@ const posts = express.Router()
 const DB = require('../DB/dbConn.js')
 const UTILS = require('../utils/functions.js')
 const multer = require('multer')
+const path = require('path')
+const fs = require('fs')
 
 const storage = multer.diskStorage({
     destination: (req, file, callBack) => {
@@ -167,6 +169,29 @@ posts.delete('/:id', UTILS.authorizeLogin, async (req, res) => {
         if (!UTILS.verifyId(id)) {
             return res.status(400).json({ success: false, msg: "Bad post id!" })
         }
+
+        let post
+        try {
+            post = await DB.onePost(id)
+            if (!post) {
+                return res.status(404).json({ success: false, msg: "Post not found." })
+            }
+        } catch (error) {
+            console.error(error);
+            return res.status(503).json({ success: false, msg: "Error while retrieving post from DB..." })
+        }
+
+        // this is completely from internet, idk why I have ENOENT
+        if (post[0].image) {
+            const filePath = path.join(__dirname, '../uploads', post[0].image)
+            fs.unlink(filePath, (err) => {
+                if (err && err.code !== 'ENOENT') {
+                    console.error("Error deleting file:", err)
+                    return res.status(500).json({ success: false, msg: "Error deleting associated file." })
+                }
+            })
+        }
+        
         try {
             const queryResult = await DB.deletePost(id)
             if (queryResult.affectedRows <= 0) {
