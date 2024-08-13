@@ -115,6 +115,10 @@ reset.post('/reset/:token', async (req, res) => {
                 return res.status(401).json({ success: false, msg: "Passwords do not match!" })
             }
 
+            if (!(UTILS.verifyPassStrength(pw1))) {
+                return res.status(400).json({success: false, msg:"Password does nto match password strength criterya!"})
+            }
+
             const hashedPassword = await UTILS.hashPassword(pw1)
             const queryResult = await DB.changePass(hashedPassword, email)
 
