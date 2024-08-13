@@ -68,7 +68,8 @@ posts.post('/add', UTILS.authorizeLogin, upload.single('file'), async (req, res)
         if (!(queryResult.affectedRows)) {
             return res.status(503).json({ success: false, msg: "Error processing new post..." })
         }
-        return res.status(200).json({ success: true, msg: "New post successfully added!" })
+
+        return res.status(200).json({ success: true, msg: "New post successfully added!", id: queryResult.insertId })
     } catch (err) {
         console.error(err)
         return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
