@@ -72,22 +72,21 @@ class LoginView extends React.Component {
 
             <form style={{margin: "20px"}}>
                 <div className="mb-3">
-                    <label className="form-label">Username</label>
+                    <label htmlFor="username" className="form-label">Username</label>
                     <input name="username" onChange={(e) => this.GetTextFromField(e)}
                            type="text"
                            className="form-control"
-                           id="email"
+                           id="username"
                            placeholder="@username"
                            autoComplete="username"/>
                 </div>
                 <div className="mb-3">
-                    <label className="form-label">Password</label>
+                    <label htmlFor="password" className="form-label">Password</label>
                     <input name="password" onChange={(e) => this.GetTextFromField(e)}
                            type="password"
                            className="form-control"
                            id="password"
-                           placeholder="********"
-                           autoComplete="password"/>
+                           placeholder="********"/>
                 </div>
                 <div className="form-check form-check-inline">
                     <input className="form-check-input" type="checkbox" id="inlineCheckbox1" value="keep_logged_in"/>

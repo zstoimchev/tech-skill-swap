@@ -80,8 +80,8 @@ class AddPostView extends React.Component {
 
             <div className="mb-3"
                  style={{margin: "10px"}}>
-                <label className="form-label">Title</label>
-                <input name="title" type="text"
+                <label htmlFor="title" className="form-label">Title</label>
+                <input name="title" type="text" id="title"
                        onChange={this.SetValueFromUserInput.bind(this)}
                        className="form-control"
                        placeholder="Title"/>
@@ -89,7 +89,7 @@ class AddPostView extends React.Component {
 
             <div className="mb-3"
                  style={{margin: "10px"}}>
-                <label className="form-label">Body</label>
+                <label htmlFor="body" className="form-label">Body</label>
                 <div className="mb-3 m-3">
                     <textarea name="body"
                               id="body"
@@ -113,7 +113,7 @@ class AddPostView extends React.Component {
                 {/*</div>*/}
 
                 <div className="mb-3 col">
-                    <label htmlFor="dropdown" className="form-label">Select the category best describing your
+                    <label htmlFor="category" className="form-label">Select the category best describing your
                         problem:</label>
                     {!this.state.editCat ?
                         <select onChange={this.SetValueFromUserInput} className="form-control w-100" id="category"
@@ -134,7 +134,7 @@ class AddPostView extends React.Component {
                 </div>
 
                 <div className="mb-3 col">
-                    <label form="file" className="form-label">Select related image describing your problem
+                    <label htmlFor="file" form="file" className="form-label">Select related image describing your problem
                         (optional)</label>
                     <input className="form-control" type="file" id="file" name="file"
                            onChange={this.SetFileFromUserInput.bind(this)}/>
