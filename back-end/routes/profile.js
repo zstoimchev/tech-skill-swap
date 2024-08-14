@@ -2,6 +2,8 @@ const express = require("express")
 const profile = express.Router()
 const DB = require('../DB/dbConn.js')
 const UTILS = require('../utils/functions.js')
+const nodemailer = require('nodemailer')
+const jwt = require('jsonwebtoken')
 
 
 profile.get('/:username', UTILS.authorizeLogin, async (req, res) => {
@@ -122,6 +124,19 @@ profile.post('/change-name-surname', UTILS.authorizeLogin, async (req, res) => {
     }
 })
 
+let transporter = nodemailer.createTransport({
+    host: 'smtp-mail.outlook.com',
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+        user: process.env.MY_EMAIL,
+        pass: process.env.MY_PASSWORD
+    },
+    tls: {
+        ciphers: 'SSLv3'
+    }
+})
+
 profile.post('/change-email', UTILS.authorizeLogin, async (req, res) => {
     try {
         const { email, user } = req.body
@@ -137,10 +152,11 @@ profile.post('/change-email', UTILS.authorizeLogin, async (req, res) => {
             return res.status(400).json({ success: false, msg: "Please provide valid email address!" })
         }
 
+        let queryResultEmail = null
         try {
-            const queryResult = await DB.authUsername(user)
-            if (!queryResult) {
-                return res.status(503).json({ success: false, msg: "Cannot find such user in the DB" })
+            queryResultEmail = await DB.authUsername(user)
+            if (!queryResultEmail) {
+                return res.status(404).json({ success: false, msg: "Cannot find such user in the DB" })
             }
         } catch (error) {
             console.error(error)
@@ -157,20 +173,81 @@ profile.post('/change-email', UTILS.authorizeLogin, async (req, res) => {
             return res.status(503).json({ success: false, msg: "Error processing DB. Please try again later" })
         }
 
-        try {
-            const querr = await DB.changeEmail(email, user)
-            if (!querr) {
-                return res.status(503).json({ success: false, msg: "Error while updating email in the DB." })
-            }
-            return res.status(200).json({ success: true, msg: "Email succesfully changed." })
-        } catch (error) {
-            console.error(error)
-            return res.status(503).json({ success: false, msg: "Error while updating user row in DB..." })
+        // pack and email token
+        const secretKey = process.env.JWT_TOKEN_SECRET
+        const expiresIn = '15min'
+        const token = jwt.sign({ oldEmail: queryResultEmail[0].email, newEmail: email }, secretKey, { expiresIn })
+
+        let mailOptions = {
+            from: process.env.MY_EMAIL,
+            to: queryResultEmail[0].email,
+            subject: 'Change of Email - Tech Skill-Swap',
+            html: `
+                <p>You are receiving this because you (or someone else) have requested 
+                change of email using this email address.</p>
+                
+                <p>Please click on the following link, or paste this into your browser to complete 
+                the process within 15 minutes of receiving it:</p>
+                
+                <a href="http://88.200.63.148:8127/activate-account/${token}">Activate Account</a>
+
+                <p>If you did not request this, please ignore this email, hence no changes will be made.</p>
+                `
         }
+        transporter.sendMail(mailOptions, (err, response) => {
+            if (err) {
+                return res.status(500).json({ success: false, msg: "Error sending mail to the user." })
+            } else {
+                return res.status(200).json({ success: true, msg: "Confirmation email sent to old email address!" })
+            }
+        })
 
     } catch (error) {
         console.error(error)
         return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
+    }
+})
+
+profile.post('/activate-email/:token', async (req, res) => {
+    try {
+        const token = req.params.token
+        const secretKey = process.env.JWT_SECRET
+        try {
+            const decoded = jwt.verify(token, secretKey)
+            const oldEmail = decoded.oldEmail
+            const newEmail = decoded.newEmail
+
+            if (!(UTILS.verifyEmail(oldEmail) && UTILS.verifyEmail(newEmail))) {
+                return res.status(400).json({ success: false, msg: "Please provide valid email address!" })
+            }
+
+            const user = await DB.authEmail(oldEmail)
+            if (user.length <= 0) {
+                return res.status(404).json({ success: false, msg: "User not found!" })
+            }
+
+            const queryResultEmail = await DB.authEmail(newEmail)
+            if (queryResultEmail.length != 0) {
+                return res.status(400).json({ success: false, msg: "User with that E-mail already exists!" })
+            }
+
+            try {
+                const querr = await DB.changeEmail(newEmail, user[0].username)
+                if (!querr) {
+                    return res.status(503).json({ success: false, msg: "Error while updating email in the DB." })
+                }
+                return res.status(200).json({ success: true, msg: "Email succesfully changed." })
+            } catch (error) {
+                console.error(error)
+                return res.status(503).json({ success: false, msg: "Error while updating user row in DB..." })
+            }
+
+        } catch (err) {
+            return res.status(401).json({ success: false, msg: "Invalid or expired token!" })
+        }
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Something internally snapped..." })
     }
 })
 

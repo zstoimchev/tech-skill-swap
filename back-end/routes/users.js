@@ -218,6 +218,8 @@ users.post('/activate-account/:token', async (req, res) => {
     }
 })
 
+
+
 // Some way of logging, keeping logs of what is going on, like which user logs in registers logs out at what time etc.
 
 module.exports = users
