@@ -5,6 +5,7 @@ const UTILS = require('../utils/functions.js')
 const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
+const nodemailer = require('nodemailer')
 
 const storage = multer.diskStorage({
     destination: (req, file, callBack) => {
@@ -113,6 +114,19 @@ posts.get('/:id', UTILS.authorizeLogin, async (req, res) => {
     }
 })
 
+let transporter = nodemailer.createTransport({
+    host: 'smtp-mail.outlook.com',
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+        user: process.env.MY_EMAIL,
+        pass: process.env.MY_PASSWORD
+    },
+    tls: {
+        ciphers: 'SSLv3'
+    }
+})
+
 posts.post('/comment', UTILS.authorizeLogin, async (req, res) => {
     try {
         const { user, post_id, content } = req.body
@@ -141,11 +155,47 @@ posts.post('/comment', UTILS.authorizeLogin, async (req, res) => {
             if (!queryResult.affectedRows) {
                 return res.status(503).json({ success: false, msg: "Error saving comment to DB..." })
             }
-            return res.status(200).json({ success: true, msg: "Comment successfully saved in DB!" })
+            // return res.status(200).json({ success: true, msg: "Comment successfully saved in DB!" })
         } catch (error) {
             console.error(error)
             return res.status(503).json({ success: false, msg: "Error saving comment in DB..." })
         }
+
+        // TODO: notify author via email that someone commented on their post
+        let author = null
+        try {
+            author = await DB.findUserByPostId(post_id)
+            if (author.length <= 0) {
+                return res.status(404).json({ success: false, msg: "No post, hense no author found..." })
+            }
+        } catch (error) {
+            console.error(error)
+            return res.status(404).json({ success: false, msg: "Cannot find post in DB..." })
+        }
+        let mailOptions = {
+            from: process.env.MY_EMAIL,
+            to: author[0].email,
+            subject: 'New Comment - Tech Skill-Swap',
+            html: `
+                <p>You are receiving this because you (or someone else) commented on one of
+                your posts.</p>
+
+                <p>${user} commented on: ${author[0].title} the following: ${content} </p>
+                
+                <p>Please click on the following link, or paste this into your browser to 
+                open and view the latest notifications for your content.</p>
+
+                <a href="http://88.200.63.148:8127/">Log in to your Account</a>
+                `
+        }
+        transporter.sendMail(mailOptions, (err, response) => {
+            if (err) {
+                return res.status(500).json({ success: false, msg: "Error commenting (or sending mail)." })
+            } else {
+                return res.status(200).json({ success: true, msg: "Comment saved in DB!" })
+            }
+        })
+
     } catch (err) {
         console.error(err)
         return res.status(500).json({ success: false, msg: "Internal server error..." })
@@ -191,7 +241,7 @@ posts.delete('/:id', UTILS.authorizeLogin, async (req, res) => {
                 }
             })
         }
-        
+
         try {
             const queryResult = await DB.deletePost(id)
             if (queryResult.affectedRows <= 0) {

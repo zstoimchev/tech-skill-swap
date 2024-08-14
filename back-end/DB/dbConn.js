@@ -218,7 +218,7 @@ dataPool.allPostsJ = () => {
 
 dataPool.getAllPostsByUserId = (id) => {
     return new Promise((resolve, reject) => {
-        conn.query('SELECT * FROM Post WHERE user_id = ?', id, (err, res) => {
+        conn.query('SELECT * FROM Post WHERE user_id = ? ORDER BY created_at DESC', id, (err, res) => {
             if (err) { return reject(err) }
             return resolve(res)
         })
@@ -444,5 +444,20 @@ dataPool.fetchPostsByGivenCategory = (id) => {
     })
 }
 
+dataPool.findUserByPostId = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`
+                SELECT User.email, Post.title
+                FROM Post
+                JOIN User ON Post.user_id = User.id
+                WHERE Post.id = ?
+            `,
+            [id],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    })
+}
 
 module.exports = dataPool
