@@ -71,7 +71,7 @@ class OnePostView extends React.Component {
         this.req.get('/posts/comment/' + this.state.id)
             .then(response => {
                 if (response.data.success && response.data["arr"]) {
-                    const options = { year: 'numeric', month: '2-digit', day: '2-digit' }
+                    const options = {year: 'numeric', month: '2-digit', day: '2-digit'}
                     const comments = response.data["arr"].map(comment => {
                         const date = new Date(comment.date)
                         comment.date = date.toLocaleDateString('en-GB', options) + ' @ ' + date.toLocaleTimeString()
@@ -100,10 +100,10 @@ class OnePostView extends React.Component {
         let post = this.state.post
         const comments = this.state.comments
         return (<div className="card" style={{margin: "10px"}}>
-            {Object.keys(post).length !== 0 ? <div>
-                <h5 className="card-header">{post.title}</h5>
+            {Object.keys(post).length !== 0 ? <div className="card-body">
+                <h4 className="card-title">{post.title}</h4>
                 <div className="card-body">
-                    <h5 className="card-title">Category: </h5>
+                    <h6 className="card-title">Category: {this.state.post["category_name"]}</h6>
                     <p className="card-title">{post.body}</p>
                     <img className="img-fluid my-custom-image" src={API_URL + "/" + post.image} alt={""}></img>
 
@@ -117,8 +117,17 @@ class OnePostView extends React.Component {
                     <h5 style={{marginBottom: "10px"}}>Leave a comment:</h5>
                     <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                         <input id="comment" type="text" className="form-control" placeholder="Enter your comment here"
+                               value={this.state.user.comment}
                                style={{marginRight: "10px", flex: "1"}} onChange={this.SetValueFromUserInput}/>
-                        <button className="btn btn-primary" onClick={() => this.Send()}>Post</button>
+                        <button className="btn btn-primary"
+                                onClick={() => {
+                                    this.Send()
+                                    this.setState(prevState => ({
+                                        user: {...prevState.user, comment: ""}
+                                    }))
+                                }}
+                        >Post
+                        </button>
                     </div>
                 </div>
                 <hr/>
