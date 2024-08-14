@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import {API_URL} from "../Utils/Configuration";
 import {LOGIN, POST} from "../Utils/Constants";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 class ProfileView extends React.Component {
     constructor(props) {
@@ -19,6 +20,7 @@ class ProfileView extends React.Component {
             editAbout: false,
             editSkills: false,
             editInterests: false,
+            isAscending: false,
             userInput: {
                 name: "",
                 surname: "",
@@ -248,6 +250,11 @@ class ProfileView extends React.Component {
         })
     }
 
+    sortByDate = () => {
+        this.setState(prevState => ({
+            Posts: [...prevState.Posts].reverse(), isAscending: !this.state.isAscending
+        }));
+    }
 
     render() {
         const p = this.state.Posts
@@ -316,7 +323,8 @@ class ProfileView extends React.Component {
                     </> : <>
                         <div className="mb-3 w-50">
                             <label htmlFor="role">What is your role?</label>
-                            <select onChange={this.SetValueFromUserInput} className="form-control w-100" id="role" autoComplete="off">
+                            <select onChange={this.SetValueFromUserInput} className="form-control w-100" id="role"
+                                    autoComplete="off">
                                 <option value="">Select an option</option>
                                 <option value="Helper">Helper, I want to help people</option>
                                 <option value="Seeker">Seeker, I want to ask for help</option>
@@ -580,14 +588,16 @@ class ProfileView extends React.Component {
 
 
                 <div className={"mt-3"}>
-                    {this.state.status.success ? <div className="alert alert-success alert-dismissible fade show" role="alert">
+                    {this.state.status.success ?
+                        <div className="alert alert-success alert-dismissible fade show" role="alert">
                             {this.state.status.msg}
                             <button onClick={() => this.setState({status: {success: null, msg: ""}})}
                                     type="button" className="btn-close" data-bs-dismiss="alert"
                                     aria-label="Close"></button>
                         </div> : null}
 
-                    {!this.state.status.success && this.state.status.msg !== "" ? <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                    {!this.state.status.success && this.state.status.msg !== "" ?
+                        <div className="alert alert-danger alert-dismissible fade show" role="alert">
                             {this.state.status.msg}
                             <button onClick={() => this.setState({status: {success: null, msg: ""}})}
                                     type="button" className="btn-close" data-bs-dismiss="alert"
@@ -598,28 +608,41 @@ class ProfileView extends React.Component {
 
                 {/*ALL POSTS AUTHORED*/}
                 <div className="row row-cols-1 g-4" style={{margin: "10px"}}>
-                    <h4 className={"card-title"} style={{fontWeight: "bold"}}>All posts asking/requesting for
-                        help:</h4>    {p.length > 0 ? p.map((d) => {
-                    return <div className="col" key={d.id}>
-                        <div className="card">
-                            <div className="card-body">
-                                <h5 className="card-title">{d.title}</h5>
-                                <p className="card-text">{d.body}</p>
-                                <button onClick={() => this.props.changeState({CurrentPage: POST, id: d.id})}
-                                        style={{margin: "10px"}} className="btn btn-primary bt">Read more
-                                </button>
-                                <button onClick={this.editPost(d.id)}
-                                        style={{margin: "10px"}} className="btn btn-secondary bt">Edit
-                                </button>
-                                <button onClick={() => this.deletePost(d.id)}
-                                        style={{margin: "10px"}} className="btn btn-danger bt">Delete
-                                </button>
-                            </div>
-
-                        </div>
+                    <div className="d-flex justify-content-between align-items-center">
+                        <h4 className={"card-title"} style={{fontWeight: "bold"}}>All posts asking/requesting for
+                            help:</h4>
+                        <button
+                            onClick={this.sortByDate}
+                            className="btn btn-outline-primary"
+                            style={{marginLeft: "auto"}}
+                        >
+                            Sort by Date
+                            <span className="badge badge-dark">
+                                {this.state.isAscending ? (<i className="bi bi-arrow-up text-primary"></i>) : (
+                                    <i className="bi bi-arrow-down text-primary"></i>)}
+                            </span>
+                        </button>
 
                     </div>
-                }) : "No help requested yet"}
+                    {p.length > 0 ? p.map((d) => {
+                        return <div className="col" key={d.id}>
+                            <div className="card">
+                                <div className="card-body">
+                                    <h5 className="card-title">{d.title}</h5>
+                                    <p className="card-text">{d.body}</p>
+                                    <button onClick={() => this.props.changeState({CurrentPage: POST, id: d.id})}
+                                            style={{margin: "10px"}} className="btn btn-primary bt">Read more
+                                    </button>
+                                    <button onClick={this.editPost(d.id)}
+                                            style={{margin: "10px"}} className="btn btn-secondary bt">Edit
+                                    </button>
+                                    <button onClick={() => this.deletePost(d.id)}
+                                            style={{margin: "10px"}} className="btn btn-danger bt">Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }) : "No help requested yet"}
                 </div>
 
 
