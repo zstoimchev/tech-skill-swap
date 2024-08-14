@@ -18,6 +18,7 @@ import {useNavigate} from 'react-router-dom';
 import ProfileView from "./CustomComponents/ProfileView";
 import axios from "axios";
 import {API_URL} from "./Utils/Configuration";
+import ActivateEmailView from "./CustomComponents/ActivateEmailView";
 
 
 // import cookie here
@@ -153,6 +154,7 @@ class App extends Component {
                         <Route path="/" element={this.GetView(this.state)}/>
                         <Route path="/password-reset/:param" element={<PasswordResetRouterView changeState={this.updateStateApp}/>}/>
                         <Route path="/activate-account/:param" element={<ActivateAccountView changeState={this.updateStateApp}/>}/>
+                        <Route path="/activate-email/:param" element={<ActivateEmailView changeState={this.updateStateApp}/>}/>
                         <Route path="*" element={<DefaultRoute/>}/>
                     </Routes>
                 </Router>
