@@ -87,7 +87,6 @@ class PostsView extends React.Component {
     searchCategory = (id) => {
         axios.get(API_URL + '/posts/category/get/' + id)
             .then(response => {
-                console.log("---")
                 console.log(response.data)
                 if (Array.isArray(response.data["arr"])) {
                     this.setState({
