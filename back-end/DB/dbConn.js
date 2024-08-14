@@ -429,7 +429,13 @@ dataPool.addCategory = (name) => {
 
 dataPool.fetchPostsByGivenCategory = (id) => {
     return new Promise((resolve, reject) => {
-        conn.query('SELECT Post.* FROM Post JOIN Category ON Post.category = Category.id WHERE Category.id = ?',
+        conn.query(`
+                SELECT Post.*, User.name, User.surname
+                FROM Post
+                JOIN User ON Post.user_id = User.id
+                JOIN Category ON Post.category = Category.id
+                WHERE Category.id = ?
+            `,
             [id],
             (err, res) => {
                 if (err) { return reject(err) }
@@ -437,5 +443,6 @@ dataPool.fetchPostsByGivenCategory = (id) => {
             })
     })
 }
+
 
 module.exports = dataPool
