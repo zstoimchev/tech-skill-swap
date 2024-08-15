@@ -205,8 +205,9 @@ dataPool.allPosts = () => {
 dataPool.allPostsJ = () => {
     return new Promise((resolve, reject) => {
         const query = `
-            SELECT Post.*, User.name, User.surname
+            SELECT Post.*, User.name, User.surname, Category.name as category_name
             FROM Post
+            JOIN Category ON Post.category = Category.id
             JOIN User ON Post.user_id = User.id
         `
         conn.query(query, (err, res) => {
@@ -228,7 +229,11 @@ dataPool.getAllPostsByUserId = (id) => {
 
 dataPool.onePost = (id) => {
     return new Promise((resolve, reject) => {
-        conn.query('SELECT Post.*, Category.name AS category_name FROM Post JOIN Category ON Post.category = Category.id WHERE Post.id = ?', id, (err, res, fields) => {
+        conn.query(`SELECT Post.*, User.name, User.surname, User.email, Category.name AS category_name 
+                    FROM Post 
+                    JOIN Category ON Post.category = Category.id 
+                    JOIN User ON Post.user_id = User.id 
+                    WHERE Post.id = ?`, id, (err, res, fields) => {
             if (err) { return reject(err) }
             return resolve(res)
         })
