@@ -351,7 +351,7 @@ posts.post('/edit', UTILS.authorizeLogin, (req, res, next) => {
     })
 }, async (req, res) => {
     try {
-        const { title, body, username, category, old_post_id } = req.body
+        const { title, body, username, category, old_post_id, del_img } = req.body
 
         let currentPost = null
         try {
@@ -364,9 +364,22 @@ posts.post('/edit', UTILS.authorizeLogin, (req, res, next) => {
             return res.status(503).json({ success: false, msg: "Server snapped while processing DB for picture..." })
         }
 
-        let file = ""
+        let file = currentPost[0].image
         if (req.file) {
             file = req.file.filename
+            if (currentPost[0].image) {
+                const filePath = path.join(__dirname, '../uploads', currentPost[0].image)
+                fs.unlink(filePath, (err) => {
+                    if (err && err.code !== 'ENOENT') {
+                        console.error("Error deleting file:", err)
+                        return res.status(500).json({ success: false, msg: "Error deleting associated file." })
+                    }
+                })
+            }
+        }
+
+        if (del_img === "true") {
+            file = ""
             if (currentPost[0].image) {
                 const filePath = path.join(__dirname, '../uploads', currentPost[0].image)
                 fs.unlink(filePath, (err) => {
