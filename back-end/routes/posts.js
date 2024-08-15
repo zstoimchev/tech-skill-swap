@@ -307,5 +307,65 @@ posts.get('/category/get/:id', async (req, res) => {
     }
 })
 
+posts.post('/edit', UTILS.authorizeLogin, upload.single('file'), async (req, res) => {
+    const { title, body, username, category, old_post_id } = req.body
+    let file = ""
+    if (req.file) {
+        file = req.file.filename
+    }
+
+    if (!(title && body && username && category !== "")) {
+        return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" })
+    }
+
+    let category_id = category
+    if (!UTILS.verifyCategoryNumber(category)) {
+        try {
+            let queryCaregoryRes = await DB.authCategory(category)
+            if (queryCaregoryRes.length >= 1) {
+                return res.status(503).json({ success: false, msg: "Category already exists in DB..." })
+            }
+
+            const queryAddCat = await DB.addCategory(category)
+            if (!queryAddCat.affectedRows) {
+                return res.status(503).json({ success: false, msg: "Failed saving category in the DB..." })
+            }
+
+            queryCaregoryRes = await DB.authCategory(category)
+            category_id = queryCaregoryRes[0].id
+            if (!UTILS.verifyId) {
+                return res.status(503).json({ success: false, msg: "Error while saving category in the DB..." })
+            }
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while processing DB for category..." })
+        }
+    }
+
+    let user_id = null
+    try {
+        const q = await DB.getIdByUsername(username)
+        if (!q[0]) {
+            return res.status(400).json({ success: false, msg: "No such user found!" })
+        }
+        user_id = q[0].id
+    } catch (error) {
+        console.error(error)
+        return res.status(503).json({ success: false, msg: "Error while checking for user in DB..." })
+    }
+
+    // TODO: verify user input before sending to DB
+    try {
+        const queryResult = await DB.editPost(title, body, file, user_id, category_id, old_post_id)
+        if (!(queryResult.affectedRows)) {
+            return res.status(503).json({ success: false, msg: "Error processing the post..." })
+        }
+
+        return res.status(200).json({ success: true, msg: "New post successfully edited!", id: old_post_id })
+    } catch (err) {
+        console.error(err)
+        return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
+    }
+})
 
 module.exports = posts

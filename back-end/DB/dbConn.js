@@ -246,6 +246,23 @@ dataPool.addPost = (title, body, img, user_id, category_id) => {
     })
 }
 
+dataPool.editPost = (title, body, img, user_id, category_id, old_post_id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE Post
+                    SET title = ?,
+                    body = ?,
+                    image = ?,
+                    user_id = ?,
+                    category = ?
+                    WHERE id = ?;`,
+            [title, body, img, user_id, category_id, old_post_id],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    })
+}
+
 
 
 dataPool.searchPosts = (payload) => {
