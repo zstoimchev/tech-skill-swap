@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import {API_URL} from "../Utils/Configuration";
-import {LOGIN, POST} from "../Utils/Constants";
+import {ADDPOST, LOGIN, POST} from "../Utils/Constants";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 class ProfileView extends React.Component {
@@ -237,8 +237,8 @@ class ProfileView extends React.Component {
             })
     }
 
-    editPost = (id) => {
-
+    editPost = (d) => {
+        this.props.changeState({postData: {title: d.title, body: d.body}, CurrentPage: ADDPOST})
     }
 
     deletePost = (id) => {
@@ -633,7 +633,7 @@ class ProfileView extends React.Component {
                                     <button onClick={() => this.props.changeState({CurrentPage: POST, id: d.id})}
                                             style={{margin: "10px"}} className="btn btn-primary bt">Read more
                                     </button>
-                                    <button onClick={this.editPost(d.id)}
+                                    <button onClick={() => this.editPost(d)}
                                             style={{margin: "10px"}} className="btn btn-secondary bt">Edit
                                     </button>
                                     <button onClick={() => this.deletePost(d.id)}
