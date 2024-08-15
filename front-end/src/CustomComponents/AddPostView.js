@@ -77,9 +77,8 @@ class AddPostView extends React.Component {
                 this.setState({status: response.data})
             })
             .catch(err => {
-                console.log(err)
+                this.setState({status: err.response.data})
             })
-
     }
 
     VisitPost = () => {
