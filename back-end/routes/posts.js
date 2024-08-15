@@ -19,63 +19,68 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 posts.post('/add', UTILS.authorizeLogin, upload.single('file'), async (req, res) => {
-    const { title, body, username, category } = req.body
-    let file = ""
-    if (req.file) {
-        file = req.file.filename
-    }
+    try {
+        const { title, body, username, category } = req.body
+        let file = ""
+        if (req.file) {
+            file = req.file.filename
+        }
 
-    if (!(title && body && username && category !== "")) {
-        return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" })
-    }
+        if (!(title && body && username && category !== "")) {
+            return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" })
+        }
 
-    let category_id = category
-    if (!UTILS.verifyCategoryNumber(category)) {
+        let category_id = category
+        if (!UTILS.verifyCategoryNumber(category)) {
+            try {
+                let queryCaregoryRes = await DB.authCategory(category)
+                if (queryCaregoryRes.length >= 1) {
+                    return res.status(503).json({ success: false, msg: "Category already exists in DB..." })
+                }
+
+                const queryAddCat = await DB.addCategory(category)
+                if (!queryAddCat.affectedRows) {
+                    return res.status(503).json({ success: false, msg: "Failed saving category in the DB..." })
+                }
+
+                queryCaregoryRes = await DB.authCategory(category)
+                category_id = queryCaregoryRes[0].id
+                if (!UTILS.verifyId) {
+                    return res.status(503).json({ success: false, msg: "Error while saving category in the DB..." })
+                }
+            } catch (error) {
+                console.error(error)
+                return res.status(503).json({ success: false, msg: "Error while processing DB for category..." })
+            }
+        }
+
+        let user_id = null
         try {
-            let queryCaregoryRes = await DB.authCategory(category)
-            if (queryCaregoryRes.length >= 1) {
-                return res.status(503).json({ success: false, msg: "Category already exists in DB..." })
+            const q = await DB.getIdByUsername(username)
+            if (!q[0]) {
+                return res.status(400).json({ success: false, msg: "No such user found!" })
             }
-
-            const queryAddCat = await DB.addCategory(category)
-            if (!queryAddCat.affectedRows) {
-                return res.status(503).json({ success: false, msg: "Failed saving category in the DB..." })
-            }
-
-            queryCaregoryRes = await DB.authCategory(category)
-            category_id = queryCaregoryRes[0].id
-            if (!UTILS.verifyId) {
-                return res.status(503).json({ success: false, msg: "Error while saving category in the DB..." })
-            }
+            user_id = q[0].id
         } catch (error) {
             console.error(error)
-            return res.status(503).json({ success: false, msg: "Error while processing DB for category..." })
+            return res.status(503).json({ success: false, msg: "Error while checking for user in DB..." })
         }
-    }
 
-    let user_id = null
-    try {
-        const q = await DB.getIdByUsername(username)
-        if (!q[0]) {
-            return res.status(400).json({ success: false, msg: "No such user found!" })
+        // TODO: verify user input before sending to DB
+        try {
+            const queryResult = await DB.addPost(title, body, file, user_id, category_id)
+            if (!(queryResult.affectedRows)) {
+                return res.status(503).json({ success: false, msg: "Error processing new post..." })
+            }
+
+            return res.status(200).json({ success: true, msg: "New post successfully added!", id: queryResult.insertId })
+        } catch (err) {
+            console.error(err)
+            return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
         }
-        user_id = q[0].id
     } catch (error) {
         console.error(error)
-        return res.status(503).json({ success: false, msg: "Error while checking for user in DB..." })
-    }
-
-    // TODO: verify user input before sending to DB
-    try {
-        const queryResult = await DB.addPost(title, body, file, user_id, category_id)
-        if (!(queryResult.affectedRows)) {
-            return res.status(503).json({ success: false, msg: "Error processing new post..." })
-        }
-
-        return res.status(200).json({ success: true, msg: "New post successfully added!", id: queryResult.insertId })
-    } catch (err) {
-        console.error(err)
-        return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
+        return res.status(500).json({ succss: false, msg: "Internal server error... Try adding your post later." })
     }
 })
 
@@ -308,63 +313,89 @@ posts.get('/category/get/:id', async (req, res) => {
 })
 
 posts.post('/edit', UTILS.authorizeLogin, upload.single('file'), async (req, res) => {
-    const { title, body, username, category, old_post_id } = req.body
-    let file = ""
-    if (req.file) {
-        file = req.file.filename
-    }
+    try {
+        const { title, body, username, category, old_post_id } = req.body
 
-    if (!(title && body && username && category !== "")) {
-        return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" })
-    }
-
-    let category_id = category
-    if (!UTILS.verifyCategoryNumber(category)) {
+        let currentPost = null
         try {
-            let queryCaregoryRes = await DB.authCategory(category)
-            if (queryCaregoryRes.length >= 1) {
-                return res.status(503).json({ success: false, msg: "Category already exists in DB..." })
-            }
-
-            const queryAddCat = await DB.addCategory(category)
-            if (!queryAddCat.affectedRows) {
-                return res.status(503).json({ success: false, msg: "Failed saving category in the DB..." })
-            }
-
-            queryCaregoryRes = await DB.authCategory(category)
-            category_id = queryCaregoryRes[0].id
-            if (!UTILS.verifyId) {
-                return res.status(503).json({ success: false, msg: "Error while saving category in the DB..." })
+            currentPost = await DB.onePost(old_post_id)
+            if (currentPost.length <= 0) {
+                return res.status(404).json({ success: false, msg: "Post not found..." })
             }
         } catch (error) {
             console.error(error)
-            return res.status(503).json({ success: false, msg: "Error while processing DB for category..." })
+            return res.status(503).json({ success: false, msg: "Server snapped while processing DB for picture..." })
         }
-    }
 
-    let user_id = null
-    try {
-        const q = await DB.getIdByUsername(username)
-        if (!q[0]) {
-            return res.status(400).json({ success: false, msg: "No such user found!" })
+        let file = ""
+        if (req.file) {
+            file = req.file.filename
+            if (currentPost[0].image) {
+                const filePath = path.join(__dirname, '../uploads', currentPost[0].image)
+                fs.unlink(filePath, (err) => {
+                    if (err && err.code !== 'ENOENT') {
+                        console.error("Error deleting file:", err)
+                        return res.status(500).json({ success: false, msg: "Error deleting associated file." })
+                    }
+                })
+            }
         }
-        user_id = q[0].id
+
+        if (!(title && body && username && category !== "")) {
+            return res.status(400).json({ success: false, msg: "Please fill in all the fields and log in first!" })
+        }
+
+        let category_id = category
+        if (!UTILS.verifyCategoryNumber(category)) {
+            try {
+                let queryCaregoryRes = await DB.authCategory(category)
+                if (queryCaregoryRes.length >= 1) {
+                    return res.status(503).json({ success: false, msg: "Category already exists in DB..." })
+                }
+
+                const queryAddCat = await DB.addCategory(category)
+                if (!queryAddCat.affectedRows) {
+                    return res.status(503).json({ success: false, msg: "Failed saving category in the DB..." })
+                }
+
+                queryCaregoryRes = await DB.authCategory(category)
+                category_id = queryCaregoryRes[0].id
+                if (!UTILS.verifyId) {
+                    return res.status(503).json({ success: false, msg: "Error while saving category in the DB..." })
+                }
+            } catch (error) {
+                console.error(error)
+                return res.status(503).json({ success: false, msg: "Error while processing DB for category..." })
+            }
+        }
+
+        let user_id = null
+        try {
+            const q = await DB.getIdByUsername(username)
+            if (!q[0]) {
+                return res.status(400).json({ success: false, msg: "No such user found!" })
+            }
+            user_id = q[0].id
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({ success: false, msg: "Error while checking for user in DB..." })
+        }
+
+        // TODO: verify user input before sending to DB
+        try {
+            const queryResult = await DB.editPost(title, body, file, user_id, category_id, old_post_id)
+            if (!(queryResult.affectedRows)) {
+                return res.status(503).json({ success: false, msg: "Error processing the post..." })
+            }
+
+            return res.status(200).json({ success: true, msg: "New post successfully edited!", id: Number(old_post_id) })
+        } catch (err) {
+            console.error(err)
+            return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
+        }
     } catch (error) {
         console.error(error)
-        return res.status(503).json({ success: false, msg: "Error while checking for user in DB..." })
-    }
-
-    // TODO: verify user input before sending to DB
-    try {
-        const queryResult = await DB.editPost(title, body, file, user_id, category_id, old_post_id)
-        if (!(queryResult.affectedRows)) {
-            return res.status(503).json({ success: false, msg: "Error processing the post..." })
-        }
-
-        return res.status(200).json({ success: true, msg: "New post successfully edited!", id: Number(old_post_id) })
-    } catch (err) {
-        console.error(err)
-        return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
+        return res.status(500).json({ success: false, msg: "Internal server error... Try editing your post later." })
     }
 })
 
