@@ -118,8 +118,11 @@ class OnePostView extends React.Component {
                             <button onClick={() => this.props.changeState({CurrentPage: POSTS})}
                                     className="btn btn-primary m-1 ">Return news
                             </button>
+                            <button onClick={() => this.props.changeState({CurrentPage: POSTS})}
+                                    className="btn btn-outline-primary m-1 ">Visit Author Profile
+                            </button>
                             <button onClick={() => window.location = `mailto:${this.state.post.email}`}
-                                    className="btn btn-outline-success">Contact Author
+                                    className="btn btn-outline-success m-1">Contact Author
                             </button>
                         </div>
                         <div className="d-flex">
