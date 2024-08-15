@@ -361,7 +361,7 @@ posts.post('/edit', UTILS.authorizeLogin, upload.single('file'), async (req, res
             return res.status(503).json({ success: false, msg: "Error processing the post..." })
         }
 
-        return res.status(200).json({ success: true, msg: "New post successfully edited!", id: old_post_id })
+        return res.status(200).json({ success: true, msg: "New post successfully edited!", id: Number(old_post_id) })
     } catch (err) {
         console.error(err)
         return res.status(500).json({ success: false, msg: "Internal server error. Please try again later." })
