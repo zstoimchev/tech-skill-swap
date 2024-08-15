@@ -22,7 +22,8 @@ class AddPostView extends React.Component {
                 title: this.props.postData.title,
                 body: this.props.postData.body,
                 editExistingPostData: this.props.postData.editExistingPostData,
-                old_post_id: this.props.postData.old_post_id
+                old_post_id: this.props.postData.old_post_id,
+                img_name: this.props.postData.img_name,
             }
         }), () => this.props.changeState({postData: {title: "", body: "", editExistingPostData: "add"}}))
 
@@ -151,7 +152,7 @@ class AddPostView extends React.Component {
 
             {!this.state.status.success ? <button className="btn btn-primary bt" onClick={() => this.AddPost()}
                                                   style={{margin: "10px"}}>
-                Submit new Post
+                Submit Post
             </button> : null}
             {this.state.status.success ? <button className="btn btn-primary bt" onClick={() => this.VisitPost()}
                                                  style={{margin: "10px"}}>
