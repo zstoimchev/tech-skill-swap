@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {Nav, Navbar} from "react-bootstrap"
-import {ABOUT, ADDPOST, HOME, LOGIN, POST, POSTS, PROFILE, REGISTER, RESETPW, USERINFO} from "./Utils/Constants"
+import {ABOUT, ADDPOST, HOME, LOGIN, POST, POSTS, PROFILE, QNA, REGISTER, RESETPW, USERINFO} from "./Utils/Constants"
 import HomeView from "./CustomComponents/HomeView"
 import AboutView from "./CustomComponents/AboutView"
 import PostsView from "./CustomComponents/PostsView"
@@ -18,6 +18,7 @@ import ProfileView from "./CustomComponents/ProfileView";
 import axios from "axios";
 import {API_URL} from "./Utils/Configuration";
 import ActivateEmailView from "./CustomComponents/ActivateEmailView";
+import QnaView from "./CustomComponents/QnaView";
 
 
 // import cookie here
@@ -81,6 +82,8 @@ class App extends Component {
                 return <UserInfoSetupView getUserInfo={this.state} changeState={this.updateStateApp}/>
             case PROFILE:
                 return <ProfileView changeState={this.updateStateApp}/>
+            case QNA:
+                return <QnaView/>
             default:
                 return <HomeView/>
         }
@@ -123,7 +126,12 @@ class App extends Component {
                                     onClick={this.SetView.bind(this, {page: POSTS})}
                                     href="">Posts</Nav.Link>
 
-                                {this.state.loggedIn && localStorage.getItem('token') ? (<> <Nav.Link
+                                {this.state.loggedIn && localStorage.getItem('token') ? (<>
+                                        <Nav.Link
+                                            className={this.state.CurrentPage === QNA ? 'active' : ''}
+                                            onClick={this.SetView.bind(this, {page: QNA})}
+                                            href="">FAQ/Q&A</Nav.Link>
+                                        <Nav.Link
                                         className={this.state.CurrentPage === ADDPOST ? 'active' : ''}
                                         onClick={this.SetView.bind(this, {page: ADDPOST})}
                                         href="">Add New Post</Nav.Link>
