@@ -8,7 +8,7 @@ class AddPostView extends React.Component {
         super(props)
         this.state = {
             category: [], post: {
-                title: "", body: "", img: null, category: "1"
+                title: "", body: "", img: null, category: "1", editExistingPostData: "add"
             }, status: {
                 success: null, msg: "", id: null
             }, editCat: false,
@@ -18,9 +18,13 @@ class AddPostView extends React.Component {
     componentDidMount() {
         this.setState(prevState => ({
             post: {
-                ...prevState.post, title: this.props.postData.title, body: this.props.postData.body,
+                ...prevState.post,
+                title: this.props.postData.title,
+                body: this.props.postData.body,
+                editExistingPostData: this.props.postData.editExistingPostData,
+                old_post_id: this.props.postData.old_post_id
             }
-        }), () => this.props.changeState({postData: {title: "", body: ""}}))
+        }), () => this.props.changeState({postData: {title: "", body: "", editExistingPostData: "add"}}))
 
 
         axios.get(API_URL + '/posts/category/get/').then(res => {
@@ -56,6 +60,7 @@ class AddPostView extends React.Component {
         data.append('username', localStorage.getItem('user'))
         data.append('category', this.state.post.category)
         data.append('file', this.state.post.img)
+        data.append('old_post_id', this.state.post.old_post_id)
 
         const token = localStorage.getItem("token")
 
@@ -65,7 +70,7 @@ class AddPostView extends React.Component {
             },
         })
 
-        api.post(API_URL + '/posts/add', data)
+        api.post(API_URL + '/posts/' + this.state.post.editExistingPostData, data)
             .then(response => {
                 console.log("Sent to server...")
                 this.setState({status: response.data})
@@ -73,6 +78,7 @@ class AddPostView extends React.Component {
             .catch(err => {
                 console.log(err)
             })
+
     }
 
     VisitPost = () => {

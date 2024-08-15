@@ -36,6 +36,8 @@ class App extends Component {
             postData: {
                 title: "",
                 body: "",
+                editExistingPostData: "add",
+                old_post_id: null
             }
         }
         this.updateStateApp = this.updateStateApp.bind(this)

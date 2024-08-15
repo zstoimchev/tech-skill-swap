@@ -238,7 +238,7 @@ class ProfileView extends React.Component {
     }
 
     editPost = (d) => {
-        this.props.changeState({postData: {title: d.title, body: d.body}, CurrentPage: ADDPOST})
+        this.props.changeState({postData: {title: d.title, body: d.body, editExistingPostData: "edit", old_post_id: d.id}, CurrentPage: ADDPOST})
     }
 
     deletePost = (id) => {
