@@ -8,7 +8,7 @@ class AddPostView extends React.Component {
         super(props)
         this.state = {
             category: [], post: {
-                title: "", body: "", img: null, category: "1", editExistingPostData: "add"
+                title: "", body: "", img: null, category: "1", editExistingPostData: "add", img_name: "",
             }, status: {
                 success: null, msg: "", id: null
             }, editCat: false,
@@ -44,7 +44,7 @@ class AddPostView extends React.Component {
 
     SetFileFromUserInput = (e) => {
         this.setState(prevState => ({
-            post: {...prevState.post, img: e.target.files[0]}
+            post: {...prevState.post, img: e.target.files[0], img_name: e.target.files[0].name},
         }))
     }
 
@@ -145,6 +145,7 @@ class AddPostView extends React.Component {
                         (optional)</label>
                     <input className="form-control" type="file" id="file" name="file"
                            onChange={this.SetFileFromUserInput.bind(this)}/>
+                    <small id="fileHelp" className="form-text text-muted">Current file: {this.state.post.img_name}</small>
                 </div>
             </div>
 
