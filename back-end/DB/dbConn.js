@@ -259,7 +259,7 @@ dataPool.editPost = (title, body, img, user_id, category_id, old_post_id) => {
                     image = ?,
                     user_id = ?,
                     category = ?
-                    WHERE id = ?;`,
+                    WHERE id = ?`,
             [title, body, img, user_id, category_id, old_post_id],
             (err, res) => {
                 if (err) { return reject(err) }
