@@ -107,10 +107,31 @@ class OnePostView extends React.Component {
                     <p className="card-title">{post.body}</p>
                     <img className="img-fluid my-custom-image" src={API_URL + "/" + post.image} alt={""}></img>
 
+                    <div className="d-flex justify-content-between align-items-center">
+
                     <button onClick={() => this.props.changeState({CurrentPage: POSTS})}
                             className="btn btn-primary">Return news
                     </button>
+                    <div className="d-flex">
+                        {[...Array(5)].map((_, index) => {
+                            const currentRating = index + 1;
+                            return (
+                                <i
+                                    key={index}
+                                    className={`bi ${currentRating <= this.state.rating ? 'bi-star-fill' : 'bi-star'}`}
+                                    style={{
+                                        cursor: 'pointer',
+                                        color: currentRating <= this.state.rating ? '#ffc107' : '#e4e5e9',
+                                        fontSize: '24px'
+                                    }}
+                                    onClick={() => this.setState({rating: currentRating})}
+                                ></i>
+                            );
+                        })}
+                    </div>
+                    </div>
                 </div>
+
 
                 <hr/>
                 <div className="card-body" style={{paddingTop: "0px"}}>
