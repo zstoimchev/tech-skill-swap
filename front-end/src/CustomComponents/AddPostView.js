@@ -8,7 +8,7 @@ class AddPostView extends React.Component {
         super(props)
         this.state = {
             category: [], post: {
-                title: "", body: "", img: null, category: "1", editExistingPostData: "add", img_name: "",
+                title: "", body: "", img: null, category: "1", editExistingPostData: "add", img_name: "", del_img: false
             }, status: {
                 success: null, msg: "", id: null
             }, editCat: false,
@@ -62,6 +62,7 @@ class AddPostView extends React.Component {
         data.append('category', this.state.post.category)
         data.append('file', this.state.post.img)
         data.append('old_post_id', this.state.post.old_post_id)
+        data.append('del_img', this.state.post.del_img)
 
         const token = localStorage.getItem("token")
 
@@ -143,9 +144,28 @@ class AddPostView extends React.Component {
                     <label htmlFor="file" form="file" className="form-label">Select related image describing your
                         problem
                         (optional)</label>
-                    <input className="form-control" type="file" id="file" name="file"
-                           onChange={this.SetFileFromUserInput.bind(this)}/>
-                    <small id="fileHelp" className="form-text text-muted">Current file: {this.state.post.img_name}</small>
+                    <div className="input-group">
+                        <input className="form-control" type="file" id="file" name="file"
+                               onChange={this.SetFileFromUserInput.bind(this)}
+                               ref={(input) => {
+                                   this.fileInput = input;
+                               }}/>
+                        <button
+                            type="button"
+                            className="btn btn-outline-danger"
+                            onClick={() => {
+                                this.fileInput.value = null; // Clear the file input
+                                this.setState(prevState => ({
+                                    post: {
+                                        ...prevState.post, img_name: "", del_img: true, img: null
+                                    }
+                                }))
+                            }}>
+                            X
+                        </button>
+                    </div>
+                    <small id="fileHelp" className="form-text text-muted">Current
+                        image: {this.state.post.img_name}</small>
                 </div>
             </div>
 
