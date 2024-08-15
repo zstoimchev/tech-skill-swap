@@ -125,12 +125,12 @@ class App extends Component {
                                     className={this.state.CurrentPage === POSTS ? 'active' : ''}
                                     onClick={this.SetView.bind(this, {page: POSTS})}
                                     href="">Posts</Nav.Link>
+                                <Nav.Link
+                                    className={this.state.CurrentPage === QNA ? 'active' : ''}
+                                    onClick={this.SetView.bind(this, {page: QNA})}
+                                    href="">FAQ/Q&A</Nav.Link>
 
                                 {this.state.loggedIn && localStorage.getItem('token') ? (<>
-                                        <Nav.Link
-                                            className={this.state.CurrentPage === QNA ? 'active' : ''}
-                                            onClick={this.SetView.bind(this, {page: QNA})}
-                                            href="">FAQ/Q&A</Nav.Link>
                                         <Nav.Link
                                         className={this.state.CurrentPage === ADDPOST ? 'active' : ''}
                                         onClick={this.SetView.bind(this, {page: ADDPOST})}
