@@ -102,6 +102,13 @@ class PostsView extends React.Component {
             })
     }
 
+    truncateText = (text, maxNum) => {
+        if (text.length > maxNum) {
+            return text.substring(0, maxNum) + '...'
+        }
+        return text
+    }
+
 
     render() {
         const data = this.state.Posts
@@ -148,17 +155,17 @@ class PostsView extends React.Component {
                     const date = new Date(d["created_at"])
                     const options = {year: 'numeric', month: '2-digit', day: '2-digit'}
                     const formattedDate = date.toLocaleDateString('en-GB', options) + ' @ ' + date.toLocaleTimeString()
-                    return (<div className="col" key={d.id}>
-                        <div className="card">
-                            <div className="card-body">
-                                <h5 className="card-title">{d.title}</h5>
-                                <p style={{height: "5rem", overflow: "hidden"}}
-                                   className="card-text">{d.body}</p>
+                    return (<div className="col-md-4 mb-4" key={d.id}>
+                        <div className="card h-100 d-flex flex-column">
+                            <div className="card-body flex-grow-1 d-flex flex-column">
+                                <h5 className="card-title">{this.truncateText(d.title, 25)}</h5>
+                                <p className="card-text mb-2">{this.truncateText(d.body, 75)}</p>
+                                <div className="mt-auto">
                                 <p className="card-text">
                                     Author: {d.name} {d.surname}<br/>
                                     Category: {d["category_name"]}<br/>
-                                    Published on: {formattedDate}
-                                </p>
+                                    Published: {formattedDate}</p>
+                                </div>
                             </div>
                             <button onClick={() => this.props.changeState({CurrentPage: POST, id: d.id})}
                                     style={{margin: "10px"}} className="btn btn-primary bt">Read more
