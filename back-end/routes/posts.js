@@ -16,9 +16,36 @@ const storage = multer.diskStorage({
     }
 })
 
-const upload = multer({ storage: storage })
+// const upload = multer({ storage: storage })
 
-posts.post('/add', UTILS.authorizeLogin, upload.single('file'), async (req, res) => {
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, callBack) => {
+        const fileTypes = /jpeg|jpg|png|gif/
+        const mimeType = fileTypes.test(file.mimetype)  // check mimetype
+        const extname = fileTypes.test(path.extname(file.originalname).toLowerCase())   // check extension (lowercase so it matches)
+
+        if (mimeType && extname) {
+            return callBack(null, true)
+        } else {
+            // callBack('Error: File upload only supports the following filetypes - ' + fileTypes, false)
+            req.fileValidationError = 'Error: File upload only supports the following filetypes - ' + fileTypes
+            return callBack(null, false)
+        }
+    }
+})
+
+posts.post('/add', UTILS.authorizeLogin, (req, res, next) => {
+    upload.single('file')(req, res, (err) => {
+        if (req.fileValidationError) {
+            return res.status(400).json({ success: false, msg: req.fileValidationError })
+        }
+        if (err) {
+            return res.status(500).json({ success: false, msg: "Error while uploading file." })
+        }
+        next()
+    })
+}, async (req, res) => {
     try {
         const { title, body, username, category } = req.body
         let file = ""
@@ -80,7 +107,7 @@ posts.post('/add', UTILS.authorizeLogin, upload.single('file'), async (req, res)
         }
     } catch (error) {
         console.error(error)
-        return res.status(500).json({ succss: false, msg: "Internal server error... Try adding your post later." })
+        return res.status(500).json({ success: false, msg: "Internal server error... Try adding your post later." })
     }
 })
 
@@ -232,7 +259,7 @@ posts.delete('/:id', UTILS.authorizeLogin, async (req, res) => {
                 return res.status(404).json({ success: false, msg: "Post not found." })
             }
         } catch (error) {
-            console.error(error);
+            console.error(error)
             return res.status(503).json({ success: false, msg: "Error while retrieving post from DB..." })
         }
 
@@ -312,7 +339,17 @@ posts.get('/category/get/:id', async (req, res) => {
     }
 })
 
-posts.post('/edit', UTILS.authorizeLogin, upload.single('file'), async (req, res) => {
+posts.post('/edit', UTILS.authorizeLogin, (req, res, next) => {
+    upload.single('file')(req, res, (err) => {
+        if (req.fileValidationError) {
+            return res.status(400).json({ success: false, msg: req.fileValidationError })
+        }
+        if (err) {
+            return res.status(500).json({ success: false, msg: "Error while uploading file." })
+        }
+        next()
+    })
+}, async (req, res) => {
     try {
         const { title, body, username, category, old_post_id } = req.body
 
