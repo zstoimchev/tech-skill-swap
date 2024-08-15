@@ -16,6 +16,13 @@ class AddPostView extends React.Component {
     }
 
     componentDidMount() {
+        this.setState(prevState => ({
+            post: {
+                ...prevState.post, title: this.props.postData.title, body: this.props.postData.body,
+            }
+        }), () => this.props.changeState({postData: {title: "", body: ""}}))
+
+
         axios.get(API_URL + '/posts/category/get/').then(res => {
             this.setState({category: res.data["arr"]})
             // this.setState({status: res.data})
@@ -84,7 +91,9 @@ class AddPostView extends React.Component {
                 <input name="title" type="text" id="title"
                        onChange={this.SetValueFromUserInput.bind(this)}
                        className="form-control"
-                       placeholder="Title"/>
+                       placeholder="Title"
+                       value={this.state.post.title}
+                />
             </div>
 
             <div className="mb-3"
@@ -96,22 +105,13 @@ class AddPostView extends React.Component {
                               className="form-control"
                               rows="5"
                               onChange={this.SetValueFromUserInput.bind(this)}
-                              placeholder="Briefly describe your problem"/>
+                              placeholder="Briefly describe your problem"
+                              value={this.state.post.body}
+                    />
                 </div>
             </div>
 
             <div className="row mb-3">
-
-                {/*<div className="mb-3 col">*/}
-                {/*    <label htmlFor="dropdown">Select the category best describing your problem:</label>*/}
-                {/*    <select onChange={this.SetValueFromUserInput} className="form-control w-100" id="category">*/}
-                {/*        <option value="">Select a category</option>*/}
-                {/*        {this.state.category.map((item, index) => (*/}
-                {/*            <option key={index} value={item.id}>{item.name}</option>*/}
-                {/*        ))}*/}
-                {/*    </select>*/}
-                {/*</div>*/}
-
                 <div className="mb-3 col">
                     <label htmlFor="category" className="form-label">Select the category best describing your
                         problem:</label>
@@ -134,18 +134,18 @@ class AddPostView extends React.Component {
                 </div>
 
                 <div className="mb-3 col">
-                    <label htmlFor="file" form="file" className="form-label">Select related image describing your problem
+                    <label htmlFor="file" form="file" className="form-label">Select related image describing your
+                        problem
                         (optional)</label>
                     <input className="form-control" type="file" id="file" name="file"
                            onChange={this.SetFileFromUserInput.bind(this)}/>
                 </div>
             </div>
 
-            {!this.state.status.success ?
-                <button className="btn btn-primary bt" onClick={() => this.AddPost()}
-                        style={{margin: "10px"}}>
-                    Submit new Post
-                </button> : null}
+            {!this.state.status.success ? <button className="btn btn-primary bt" onClick={() => this.AddPost()}
+                                                  style={{margin: "10px"}}>
+                Submit new Post
+            </button> : null}
             {this.state.status.success ? <button className="btn btn-primary bt" onClick={() => this.VisitPost()}
                                                  style={{margin: "10px"}}>
                 View your post
