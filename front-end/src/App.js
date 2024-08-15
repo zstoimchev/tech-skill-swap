@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {Nav, Navbar} from "react-bootstrap"
-import {ABOUT, HOME, POSTS, POST, LOGIN, REGISTER, ADDPOST, RESETPW, USERINFO, PROFILE} from "./Utils/Constants"
+import {ABOUT, ADDPOST, HOME, LOGIN, POST, POSTS, PROFILE, REGISTER, RESETPW, USERINFO} from "./Utils/Constants"
 import HomeView from "./CustomComponents/HomeView"
 import AboutView from "./CustomComponents/AboutView"
 import PostsView from "./CustomComponents/PostsView"
@@ -13,8 +13,7 @@ import PasswordResetRouterView from "./CustomComponents/PasswordResetRouterView"
 import UserInfoSetupView from "./CustomComponents/UserInfoSetupView"
 import ActivateAccountView from "./CustomComponents/ActivateAccountView";
 
-import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
-import {useNavigate} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Routes, useNavigate} from 'react-router-dom'
 import ProfileView from "./CustomComponents/ProfileView";
 import axios from "axios";
 import {API_URL} from "./Utils/Configuration";
@@ -34,6 +33,10 @@ class App extends Component {
             CurrentPage: HOME, status: {
                 success: null, msg: ""
             }, user: null, id: null, loggedIn: !!(token && user && loggedIn),
+            postData: {
+                title: "",
+                body: "",
+            }
         }
         this.updateStateApp = this.updateStateApp.bind(this)
         this.req = axios.create({
@@ -61,9 +64,10 @@ class App extends Component {
             case POSTS:
                 return <PostsView changeState={this.updateStateApp}/>
             case POST:
-                return <OnePostView changeState={this.updateStateApp} id={this.state.id}/>
+                const {id} = this.state;
+                return <OnePostView changeState={this.updateStateApp} id={id}/>
             case ADDPOST:
-                return <AddPostView changeState={this.updateStateApp}/>
+                return <AddPostView changeState={this.updateStateApp} postData={this.state.postData}/>
             case LOGIN:
                 return <LoginView updateState={this.updateStateApp}/>
             case REGISTER:
@@ -152,9 +156,12 @@ class App extends Component {
                 <Router>
                     <Routes>
                         <Route path="/" element={this.GetView(this.state)}/>
-                        <Route path="/password-reset/:param" element={<PasswordResetRouterView changeState={this.updateStateApp}/>}/>
-                        <Route path="/activate-account/:param" element={<ActivateAccountView changeState={this.updateStateApp}/>}/>
-                        <Route path="/activate-email/:param" element={<ActivateEmailView changeState={this.updateStateApp}/>}/>
+                        <Route path="/password-reset/:param"
+                               element={<PasswordResetRouterView changeState={this.updateStateApp}/>}/>
+                        <Route path="/activate-account/:param"
+                               element={<ActivateAccountView changeState={this.updateStateApp}/>}/>
+                        <Route path="/activate-email/:param"
+                               element={<ActivateEmailView changeState={this.updateStateApp}/>}/>
                         <Route path="*" element={<DefaultRoute/>}/>
                     </Routes>
                 </Router>
