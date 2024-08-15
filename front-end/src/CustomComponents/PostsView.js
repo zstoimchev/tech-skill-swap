@@ -156,6 +156,7 @@ class PostsView extends React.Component {
                                    className="card-text">{d.body}</p>
                                 <p className="card-text">
                                     Author: {d.name} {d.surname}<br/>
+                                    Category: {d["category_name"]}<br/>
                                     Published on: {formattedDate}
                                 </p>
                             </div>
