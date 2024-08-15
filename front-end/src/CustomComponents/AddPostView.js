@@ -164,7 +164,7 @@ class AddPostView extends React.Component {
                             X
                         </button>
                     </div>
-                    <small id="fileHelp" className="form-text text-muted">Current
+                    <small id="fileHelp" className="form-text text-muted">Your current
                         image: {this.state.post.img_name}</small>
                 </div>
             </div>
