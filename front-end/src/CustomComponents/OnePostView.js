@@ -99,24 +99,33 @@ class OnePostView extends React.Component {
     render() {
         let post = this.state.post
         const comments = this.state.comments
+        const date = new Date(this.state.post["created_at"])
+        const options = {year: 'numeric', month: '2-digit', day: '2-digit'}
+        const formattedDate = date.toLocaleDateString('en-GB', options) + ' @ ' + date.toLocaleTimeString()
         return (<div className="card" style={{margin: "10px"}}>
             {Object.keys(post).length !== 0 ? <div className="card-body">
-                <h4 className="card-title">{post.title}</h4>
+                <h4 className="card-title">{post.title} - {formattedDate}</h4>
                 <div className="card-body">
-                    <h6 className="card-title">Category: {this.state.post["category_name"]}</h6>
+                    <div className="d-flex justify-content-between align-items-center">
+                        <h5 className="card-title">Category: {this.state.post["category_name"]}</h5>
+                        <h5 className="card-title">Author: {this.state.post.name} {this.state.post.surname}</h5>
+                    </div>
                     <p className="card-title">{post.body}</p>
                     <img className="img-fluid my-custom-image" src={API_URL + "/" + post.image} alt={""}></img>
 
                     <div className="d-flex justify-content-between align-items-center">
-
-                    <button onClick={() => this.props.changeState({CurrentPage: POSTS})}
-                            className="btn btn-primary">Return news
-                    </button>
-                    <div className="d-flex">
-                        {[...Array(5)].map((_, index) => {
-                            const currentRating = index + 1;
-                            return (
-                                <i
+                        <div>
+                            <button onClick={() => this.props.changeState({CurrentPage: POSTS})}
+                                    className="btn btn-primary m-1 ">Return news
+                            </button>
+                            <button onClick={() => window.location = `mailto:${this.state.post.email}`}
+                                    className="btn btn-outline-success">Contact Author
+                            </button>
+                        </div>
+                        <div className="d-flex">
+                            {[...Array(5)].map((_, index) => {
+                                const currentRating = index + 1;
+                                return (<i
                                     key={index}
                                     className={`bi ${currentRating <= this.state.rating ? 'bi-star-fill' : 'bi-star'}`}
                                     style={{
@@ -125,10 +134,9 @@ class OnePostView extends React.Component {
                                         fontSize: '24px'
                                     }}
                                     onClick={() => this.setState({rating: currentRating})}
-                                ></i>
-                            );
-                        })}
-                    </div>
+                                ></i>);
+                            })}
+                        </div>
                     </div>
                 </div>
 
