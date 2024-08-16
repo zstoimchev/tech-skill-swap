@@ -1,29 +1,67 @@
 const express = require("express")
 const scraper = express.Router()
-const axios = require('axios');
-const cheerio = require('cheerio');
+const axios = require('axios')
+const cheerio = require('cheerio')
 
-scraper.get('/scrape-techradar', async (req, res) => {
+const scrapeSite = async (url, selectorClass, articleList) => {
     try {
-        const { data } = await axios.get('https://www.techradar.com/news');
-        const $ = cheerio.load(data);
-        const articles = [];
+        const { data } = await axios.get(url)
+        const $ = cheerio.load(data)
+        $(selectorClass.item).each((index, element) => {
+            if (index < 9) {
+                const title = $(element).find(selectorClass.title).text()
+                let link = $(element).find(selectorClass.link).attr('href')
+                if (selectorClass.originName === "GSMArena")
+                    link = `https://www.gsmarena.com/${$(element).find(selectorClass.link).attr('href')}`;
+                const summary = $(element).find(selectorClass.summary).text()
+                const image = $(element).find(selectorClass.image).attr('src')
 
-        $('.listingResult').each((index, element) => {
-            if (index < 10) {
-                const title = $(element).find('h3').text();
-                const link = $(element).find('a').attr('href');
-                const summary = $(element).find('p').text();
+                const articleExists = articleList.some(article => article.title === title || article.link === link)
 
-                articles.push({ title, link, summary });
+                if (title && summary)
+                    articleList.push({ title, link, summary, image, origin: selectorClass.originName })
             }
-        });
-        console.log("suc")
-        res.json({arr: articles});
+        })
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error occurred while scraping');
+        console.error(error)
     }
+}
+
+const techRadarSelectors = {
+    item: '.listingResult',
+    title: 'h3',
+    link: 'a',
+    summary: 'p.synopsis',
+    image: 'img',
+    originName: 'TechRadar',
+}
+const tomsGuideSelectors = {
+    item: '.listingResult',
+    title: 'h3',
+    link: 'a',
+    summary: 'p.synopsis',
+    image: 'img',
+    originName: 'Tom\'s\ Guide'
+}
+const gsmArenaSelectors = {
+    item: '.news-item',
+    title: 'h3',
+    link: 'a',
+    summary: 'p',
+    image: 'img',
+    originName: 'GSMArena'
+}
+
+
+scraper.get('/', async (req, res) => {
+    const articles = []
+
+    await scrapeSite('https://www.techradar.com/news', techRadarSelectors, articles)
+    await scrapeSite('https://www.techradar.com/pro/news', techRadarSelectors, articles)
+    await scrapeSite('https://www.tomsguide.com/news', tomsGuideSelectors, articles)
+    await scrapeSite('https://www.gsmarena.com/news.php3', gsmArenaSelectors, articles)
+
+    return res.status(200).json({ success: true, msg: "News succesfully scraped!", news: articles })
 })
 
 module.exports = scraper
