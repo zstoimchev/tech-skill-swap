@@ -229,7 +229,7 @@ dataPool.getAllPostsByUserId = (id) => {
 
 dataPool.onePost = (id) => {
     return new Promise((resolve, reject) => {
-        conn.query(`SELECT Post.*, User.name, User.surname, User.email, Category.name AS category_name 
+        conn.query(`SELECT Post.*, User.name, User.surname, User.email, User.username, Category.name AS category_name 
                     FROM Post 
                     JOIN Category ON Post.category = Category.id 
                     JOIN User ON Post.user_id = User.id 
