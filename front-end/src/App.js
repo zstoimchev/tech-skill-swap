@@ -186,7 +186,7 @@ class App extends Component {
 
             </div>
 
-            <div id="viewer" className="row container mt-lg-5 custom-body-padding">
+            <div id="viewer" className="row container" style={{marginTop: "4rem"}}>
                 {/*{this.GetView(this.state)}*/}
                 <Router>
                     <Routes>
