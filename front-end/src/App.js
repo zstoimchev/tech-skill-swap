@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import {Nav, Navbar} from "react-bootstrap"
 import {
     ABOUT,
-    ADDPOST,
+    ADDPOST, AUTHOR,
     HOME,
     LOGIN,
     POST,
@@ -33,6 +33,7 @@ import {API_URL} from "./Utils/Configuration";
 import ActivateEmailView from "./CustomComponents/ActivateEmailView";
 import QnaView from "./CustomComponents/QnaView";
 import TechNews from "./CustomComponents/TechNews";
+import AuthorView from "./CustomComponents/AuthorView";
 
 
 // import cookie here
@@ -54,7 +55,8 @@ class App extends Component {
                 editExistingPostData: "add",
                 old_post_id: null,
                 img_name: ""
-            }
+            },
+            author: null,
         }
         this.updateStateApp = this.updateStateApp.bind(this)
         this.req = axios.create({
@@ -100,6 +102,8 @@ class App extends Component {
                 return <QnaView/>
             case TECHNEWS:
                 return <TechNews/>
+            case AUTHOR:
+                return <AuthorView username={this.state.author} changeState={this.updateStateApp}/>
             default:
                 return <HomeView/>
         }
