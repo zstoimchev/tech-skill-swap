@@ -2,7 +2,7 @@ import React from "react"
 import PropTypes from 'prop-types'
 import axios from 'axios'
 import {API_URL} from "../Utils/Configuration"
-import {HOME, LOGIN, POSTS} from "../Utils/Constants"
+import {AUTHOR, HOME, LOGIN, POSTS} from "../Utils/Constants"
 import './style.css'
 
 class OnePostView extends React.Component {
@@ -118,7 +118,9 @@ class OnePostView extends React.Component {
                             <button onClick={() => this.props.changeState({CurrentPage: POSTS})}
                                     className="btn btn-primary m-1 ">Return news
                             </button>
-                            <button onClick={() => this.props.changeState({CurrentPage: POSTS})}
+                            <button onClick={() => this.props.changeState({
+                                author: this.state.post.username, CurrentPage: AUTHOR
+                            })}
                                     className="btn btn-outline-primary m-1 ">Visit Author Profile
                             </button>
                             <button onClick={() => window.location = `mailto:${this.state.post.email}`}
