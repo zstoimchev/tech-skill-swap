@@ -8,7 +8,7 @@ class PostsView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            Posts: [], payload: "", cat: []
+            Posts: [], payload: "", cat: [], isAscending: false,
         }
         this.req = axios.create({
             withCredentials: true, baseURL: API_URL, headers: {
@@ -112,6 +112,14 @@ class PostsView extends React.Component {
         return text
     }
 
+    sort = () => {
+        const sortedData = this.state.Posts.sort((a, b) =>
+            this.state.isAscending
+                ? new Date(b["created_at"]) - new Date(a["created_at"])
+                : new Date(a["created_at"]) - new Date(b["created_at"]))
+        this.setState({isAscending: !this.state.isAscending, Posts: sortedData})
+    }
+
 
     render() {
         const data = this.state.Posts
@@ -151,6 +159,17 @@ class PostsView extends React.Component {
                             }}
                             data-mdb-ripple-init="">Remove all filters
                     </button>
+                    <button
+                        onClick={this.sort}
+                        type="button"
+                        className="btn btn-outline-primary"
+                    >
+                        sort
+                        <span className="badge badge-dark">
+                                {this.state.isAscending ? (<i className="bi bi-arrow-up text-primary"></i>) : (
+                                    <i className="bi bi-arrow-down text-primary"></i>)}
+                            </span>
+                    </button>
                 </div>
 
 
@@ -164,10 +183,10 @@ class PostsView extends React.Component {
                                 <h5 className="card-title">{this.truncateText(d.title, 25)}</h5>
                                 <p className="card-text mb-2">{this.truncateText(d.body, 75)}</p>
                                 <div className="mt-auto">
-                                <p className="card-text">
-                                    Author: {d.name} {d.surname}<br/>
-                                    Category: {d["category_name"]}<br/>
-                                    Published: {formattedDate}</p>
+                                    <p className="card-text">
+                                        Author: {d.name} {d.surname}<br/>
+                                        Category: {d["category_name"]}<br/>
+                                        Published: {formattedDate}</p>
                                 </div>
                             </div>
                             <button onClick={() => this.props.changeState({CurrentPage: POST, id: d.id})}
