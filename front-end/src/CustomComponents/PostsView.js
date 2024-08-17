@@ -98,6 +98,9 @@ class PostsView extends React.Component {
             })
             .catch(error => {
                 console.error(error.response.data)
+                this.setState({
+                    Posts: []
+                })
                 this.setState({status: error.response.data})
             })
     }
@@ -172,7 +175,7 @@ class PostsView extends React.Component {
                             </button>
                         </div>
                     </div>)
-                }) : "No posts found yet..."}
+                }) : "No posts found..."}
             </div>
 
         </div>)
