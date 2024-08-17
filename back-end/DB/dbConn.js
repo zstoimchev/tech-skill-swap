@@ -273,9 +273,10 @@ dataPool.editPost = (title, body, img, user_id, category_id, old_post_id) => {
 dataPool.searchPosts = (payload) => {
     return new Promise((resolve, reject) => {
         const query = `
-                SELECT Post.*, User.name, User.surname
+                SELECT Post.*, User.name, User.surname, Category.name as category_name
                 FROM Post
                 JOIN User ON Post.user_id = User.id
+                JOIN Category on Category.id = Post.category
                 WHERE Post.title LIKE ? OR Post.body LIKE ?
             `
         conn.query(query, ['%' + payload + '%', '%' + payload + '%'], (err, res) => {
@@ -452,7 +453,7 @@ dataPool.addCategory = (name) => {
 dataPool.fetchPostsByGivenCategory = (id) => {
     return new Promise((resolve, reject) => {
         conn.query(`
-                SELECT Post.*, User.name, User.surname
+                SELECT Post.*, User.name, User.surname, Category.name as category_name
                 FROM Post
                 JOIN User ON Post.user_id = User.id
                 JOIN Category ON Post.category = Category.id
