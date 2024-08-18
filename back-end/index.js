@@ -31,11 +31,13 @@ const posts = require("./routes/posts")
 const reset = require("./routes/reset")
 const profile = require("./routes/profile")
 const scraper = require("./routes/scraper")
+const rating = require("./routes/rating")
 app.use('/users', users)
 app.use('/posts', posts)
 app.use('/password', reset)
 app.use('/profile', profile)
 app.use('/scraper', scraper)
+app.use('/rating', rating)
 
 // here most probably path needs to be initialized for the brontend build directory
 // and then app uses that build directory, and sends file index.html in the root page?

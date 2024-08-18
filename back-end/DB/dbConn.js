@@ -522,4 +522,64 @@ dataPool.editComment = (id, content) => {
     })
 }
 
+dataPool.addRating = (user_id, post_id, value) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`INSERT INTO Rating (user_id, post_id, star) VALUES (?,?,?) `, [user_id, post_id, value], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
+dataPool.updateRating = (user_id, post_id, value) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE Rating 
+                    SET star = ? 
+                    WHERE post_id = ? AND user_id = ?`, 
+            [value, post_id, user_id], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
+dataPool.fetchRatingForUserOnPost = (user_id, post_id, value) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`SELECT * FROM Rating
+                    WHERE post_id = ? AND user_id = ?`, 
+            [post_id, user_id], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
+dataPool.fetchRatings = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`SELECT AVG(star) as rating FROM Rating WHERE post_id = ?`, [id], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
+dataPool.getRatingByUserAndPostId = (user_id, post_id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`SELECT * FROM Rating WHERE user_id = ? AND post_id = ?`, [user_id, post_id], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
 module.exports = dataPool
