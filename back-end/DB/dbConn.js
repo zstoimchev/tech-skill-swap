@@ -483,4 +483,21 @@ dataPool.findUserByPostId = (id) => {
     })
 }
 
+dataPool.fetchCommentsFromPerson = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`
+                SELECT Comment.*, Post.id, Post.title
+                FROM Comment
+                JOIN Post ON Post.id = Comment.post_id
+                WHERE Comment.user_id = ?
+                ORDER BY Comment.date
+            `,
+            [id],
+            (err, res) => {
+                if (err) { return reject(err) }
+                return resolve(res)
+            })
+    })
+}
+
 module.exports = dataPool
