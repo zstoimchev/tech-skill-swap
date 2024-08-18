@@ -176,8 +176,7 @@ class OnePostView extends React.Component {
                 <div className="card-body" style={{paddingTop: "0px"}}>
                     <h5>Other comments:</h5>
                     {comments.length > 0 ? comments.map((d) => {
-                        return (
-                            <div key={d.id} className="d-flex justify-content-between align-items-center">
+                        return (<div key={d.id} className="d-flex justify-content-between align-items-center">
                             <p><b>{d.username}</b>: {d.content} - <i>{d.date}</i></p>
                             {this.state.user.username === d.username ? <div className="d-flex">
                                 <button onClick={() => this.editComment}
