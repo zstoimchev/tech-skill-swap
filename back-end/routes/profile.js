@@ -555,33 +555,63 @@ profile.post('/change-role', UTILS.authorizeLogin, async (req, res) => {
 })
 
 profile.get('/comments/:id', async (req, res) => {
-    const username = req.params.id
-    // if (UTILS.verifyUsername(username)) {
-    //     return res.status(400).json({ success: false, msg: "Username not valid!" })
-    // }
-
-    let user = null
     try {
-        user = await DB.authUsername(username)
-        if (user.length <= 0)
-            return res.status(404).json({ success: false, msg: "User not found..." })
-    } catch (error) {
-        console.error(error)
-        return res.status(500).json({ success: false, msg: "Error while processing DB for user..." })
-    }
+        const username = req.params.id
+        // if (UTILS.verifyUsername(username)) {
+        //     return res.status(400).json({ success: false, msg: "Username not valid!" })
+        // }
 
-    let comments = null
-    try {
-        comments = await DB.fetchCommentsFromPerson(user[0].id)
-        if (comments.length <= 0) {
-            return res.status(500).json({ success: false, msg: "No comments fetched..." })
+        let user = null
+        try {
+            user = await DB.authUsername(username)
+            if (user.length <= 0)
+                return res.status(404).json({ success: false, msg: "User not found..." })
+        } catch (error) {
+            console.error(error)
+            return res.status(500).json({ success: false, msg: "Error while processing DB for user..." })
         }
+
+        let comments = null
+        try {
+            comments = await DB.fetchCommentsFromPerson(user[0].id)
+            if (comments.length <= 0) {
+                return res.status(500).json({ success: false, msg: "No comments fetched..." })
+            }
+        } catch (error) {
+            console.error(error)
+            return res.status(500).json({ success: false, msg: "Error while processing DB for comments..." })
+        }
+
+        return res.status(200).json({ success: true, msg: "Comments fetched succesfully.", comments: comments })
     } catch (error) {
         console.error(error)
-        return res.status(500).json({ success: false, msg: "Error while processing DB for comments..." })
+        return res.status(500).json({ success: false, msg: "Internal server error..." })
     }
+})
 
-    return res.status(200).json({ success: true, msg: "Comments fetched succesfully.", comments: comments })
+profile.delete('/comments/:id', async (req, res) => {
+    try {
+        const result = await DB.deleteComment(req.params.id)
+        if (!result.affectedRows)
+            return res.status(400).json({ success: false, msg: "Error deleting comment..." })
+        return res.status(200).json({ success: true, msg: "Comment deleted succesfully!" })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Internal server error..." })
+    }
+})
+
+profile.post('/comments/', async (req, res) => {
+    try {
+        const {id, content} = req.body
+        const result = await DB.editComment(id, content)
+        if (!result.affectedRows)
+            return res.status(400).json({ success: false, msg: "Error editing comment..." })
+        return res.status(200).json({ success: true, msg: "Comment edited succesfully!" })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ success: false, msg: "Internal server error..." })
+    }
 })
 
 module.exports = profile

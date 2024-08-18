@@ -500,4 +500,26 @@ dataPool.fetchCommentsFromPerson = (id) => {
     })
 }
 
+dataPool.deleteComment = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`DELETE FROM Comment WHERE id = ?`, [id], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
+dataPool.editComment = (id, content) => {
+    return new Promise((resolve, reject) => {
+        conn.query(`UPDATE Comment SET content = ? WHERE id = ?`, [content, id], (err, res) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(res)
+        })
+    })
+}
+
 module.exports = dataPool
