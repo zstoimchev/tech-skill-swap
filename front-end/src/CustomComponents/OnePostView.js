@@ -4,16 +4,17 @@ import axios from 'axios'
 import {API_URL} from "../Utils/Configuration"
 import {AUTHOR, HOME, LOGIN, POSTS} from "../Utils/Constants"
 import './style.css'
+import Rating from '@mui/material/Rating'
 
 class OnePostView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             post: {}, comments: {}, user: {
-                comment: "", username: localStorage.getItem("user"),
+                comment: "", rating: 0, username: localStorage.getItem("user"),
             }, status: {
-                success: null, msg: ""
-            },
+                success: null, msg: "", rating: null
+            }, rating: 0,
         }
         this.req = axios.create({
             withCredentials: true, baseURL: API_URL, headers: {
@@ -25,14 +26,15 @@ class OnePostView extends React.Component {
 
     componentDidMount() {
         this.setState({id: this.props.id})
-
         this.req.get('/posts/' + this.props.id)
             .then(response => {
-                if (response.data.success && response.data.arr) {
+                if (response.data.success && response.data["arr"]) {
                     this.setState({
-                        post: response.data.arr
+                        post: response.data["arr"]
                     })
                     this.fetchComments()
+                    this.fetchRatings()
+                    this.fetchRatingForUser()
                 } else {
                     console.log("No post data received");
                 }
@@ -49,6 +51,41 @@ class OnePostView extends React.Component {
                     this.props.changeState({CurrentPage: HOME})
                 }
             })
+    }
+
+    fetchRatings = () => {
+        this.req.get('/rating/' + this.state.id).then(response => {
+            this.setState({status: response.data, rating: response.data.rating})
+        }).catch(err => {
+            console.error(err)
+        })
+    }
+
+    submitRating = (value) => {
+        this.req.post('/rating/add', {
+            user: this.state.user.username, post_id: this.state.id, value: value
+        }).then(response => {
+            this.setState(prevState => ({
+                user: {...prevState.user, rating: value}, status: response.data,
+            }), () => {
+                this.fetchRatings()
+            })
+        }).catch(err => {
+            console.error(err)
+        })
+    }
+
+    fetchRatingForUser = () => {
+        this.req.get('/rating/fetch-user/' + this.state.id + '/' + this.state.user.username)
+            .then(response => {
+                this.setState(prevState => ({
+                    user: {...prevState.user, rating: response.data.rating}, status: response.data,
+                }), () => {
+                    this.fetchRatings()
+                })
+            }).catch(err => {
+            console.error(err)
+        })
     }
 
     Send() {
@@ -105,6 +142,7 @@ class OnePostView extends React.Component {
         console.log("here toggle input box")
     }
 
+
     deleteComment = (id) => {
         this.req.delete('profile/comments/' + id).then(response => {
             this.fetchComments()
@@ -144,24 +182,23 @@ class OnePostView extends React.Component {
                                     className="btn btn-outline-success m-1">Contact Author
                             </button>
                         </div>
-                        <div className="d-flex">
-                            {[...Array(5)].map((_, index) => {
-                                const currentRating = index + 1;
-                                return (<i
-                                    key={index}
-                                    className={`bi ${currentRating <= this.state.rating ? 'bi-star-fill' : 'bi-star'}`}
-                                    style={{
-                                        cursor: 'pointer',
-                                        color: currentRating <= this.state.rating ? '#ffc107' : '#e4e5e9',
-                                        fontSize: '24px'
-                                    }}
-                                    onClick={() => this.setState({rating: currentRating})}
-                                ></i>);
-                            })}
+
+
+                        <div className="d-flex flex-column align-items-end">
+                            <label>Your rating: {this.state.user.rating} / Average: {this.state.rating}</label>
+                            <Rating
+                                name="simple-controlled"
+                                size="large"
+                                value={this.state.rating}
+                                onChange={(event) => {
+                                    this.submitRating(event.target["value"])
+                                }}
+                            />
                         </div>
+
+
                     </div>
                 </div>
-
 
                 <hr/>
                 <div className="card-body" style={{paddingTop: "0px"}}>
