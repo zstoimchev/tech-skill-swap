@@ -96,12 +96,21 @@ class OnePostView extends React.Component {
         }))
     }
 
-    editComment = () => {
-
+    editComment = (id) => {
+        // this.req.post('profile/comments/' + id).then(response => {
+        //     this.fetchComments()
+        // }).catch(err => {
+        //     this.setState({status: err.response.data})
+        // })
+        console.log("here toggle input box")
     }
 
-    deleteComment = () => {
-
+    deleteComment = (id) => {
+        this.req.delete('profile/comments/' + id).then(response => {
+            this.fetchComments()
+        }).catch(err => {
+            this.setState({status: err.response.data})
+        })
     }
 
     render() {
@@ -182,7 +191,7 @@ class OnePostView extends React.Component {
                                 <button onClick={() => this.editComment}
                                         className="btn btn-sm btn-outline-primary m-1 text-nowrap">Edit Comment
                                 </button>
-                                <button onClick={() => this.deleteComment}
+                                <button onClick={() => this.deleteComment(d.id)}
                                         className="btn btn-sm btn-outline-danger m-1 text-nowrap">Delete Comment
                                 </button>
                             </div> : null}</div>)
