@@ -84,35 +84,33 @@ rating.post('/add', async (req, res) => {
             return res.status(503).json({ success: false, msg: "Error while processing DB for user comment" })
         }
 
-        // TODO: send mail to author that someone rated
-        // find the person, the author email and send the email
-
-        // let mailOptions = {
-        //     from: process.env.MY_EMAIL,
-        //     to: email,
-        //     subject: 'New Rating - Tech Skill-Swap',
-        //     html: `
-        //         <p>You are receiving this because you (or someone else) have submitted 
-        //         a rating for one of your posts.</p>
+        const email = await DB.findUserByPostId(post_id)
+        let mailOptions = {
+            from: process.env.MY_EMAIL,
+            to: email[0].email,
+            subject: 'New Rating - Tech Skill-Swap',
+            html: `
+                <p>You are receiving this because you (or someone else) have submitted 
+                a rating for one of your posts.</p>
                 
-        //         <p>Please click on the following link, or paste this into your browser to review
-        //         the latest interactions on your posts:</p>
+                <p>Please click on the following link, or paste this into your browser to review
+                the latest interactions on your posts:</p>
                 
-        //         <a href="http://88.200.63.148:8127/">Visit Account</a>
+                <a href="http://88.200.63.148:8127/">Visit Account</a>
 
-        //         <p>If you did not request this, please ignore this email, hence no changes will be made.</p>
-        //         `
-        // }
+                <p>Thank you for using this platform and trusting in our services.</p>
+                `
+        }
 
-        // transporter.sendMail(mailOptions, (err, response) => {
-        //     if (err) {
-        //         return res.status(500).json({ success: false, msg: "Error sending mail to the user." })
-        //     } else {
-        //         return res.status(200).json({ success: true, msg: "Rating saved!" })
-        //     }
-        // })
+        transporter.sendMail(mailOptions, (err, response) => {
+            if (err) {
+                return res.status(500).json({ success: false, msg: "Error sending mail to the user." })
+            } else {
+                return res.status(200).json({ success: true, msg: "Rating saved!" })
+            }
+        })
 
-        return res.status(200).json({ success: true, msg: "Rating saved!" })
+        // return res.status(200).json({ success: true, msg: "Rating saved!" })
     } catch (error) {
         console.error(error)
         return res.status(500).json({ success: false, msg: "Internal server error..." })
