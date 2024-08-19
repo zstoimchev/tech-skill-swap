@@ -601,12 +601,23 @@ profile.delete('/comments/:id', async (req, res) => {
     }
 })
 
-profile.post('/comments/', async (req, res) => {
+profile.post('/comments/edit', async (req, res) => {
     try {
-        const {id, content} = req.body
-        const result = await DB.editComment(id, content)
+        const {post_id, content, user} = req.body
+        let user_id = null
+        try {
+            const quer = await DB.authUsername(user)
+            if (quer.length <= 0)
+                return res.status(404).json({success: false, msg:"User not found!"})
+            user_id = quer[0].id
+        } catch (error) {
+            console.error(error)
+            return res.status(503).json({success: false, msg:"Error processing DB for user..."})
+        }
+
+        const result = await DB.editComment(post_id, user_id, content)
         if (!result.affectedRows)
-            return res.status(400).json({ success: false, msg: "Error editing comment..." })
+            return res.status(503).json({ success: false, msg: "Error editing comment..." })
         return res.status(200).json({ success: true, msg: "Comment edited succesfully!" })
     } catch (error) {
         console.error(error)

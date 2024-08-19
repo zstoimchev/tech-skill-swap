@@ -511,9 +511,9 @@ dataPool.deleteComment = (id) => {
     })
 }
 
-dataPool.editComment = (id, content) => {
+dataPool.editComment = (post_id, user_id, content) => {
     return new Promise((resolve, reject) => {
-        conn.query(`UPDATE Comment SET content = ? WHERE id = ?`, [content, id], (err, res) => {
+        conn.query(`UPDATE Comment SET content = ? WHERE id = ? AND user_id = ?`, [content, post_id, user_id], (err, res) => {
             if (err) {
                 return reject(err)
             }
