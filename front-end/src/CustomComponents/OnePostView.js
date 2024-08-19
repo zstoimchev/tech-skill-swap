@@ -11,10 +11,10 @@ class OnePostView extends React.Component {
         super(props);
         this.state = {
             post: {}, comments: {}, user: {
-                comment: "", rating: 0, username: localStorage.getItem("user"),
+                comment: "", editComment:"", rating: 0, username: localStorage.getItem("user"),
             }, status: {
                 success: null, msg: "", rating: null
-            }, rating: 0,
+            }, rating: 0, box: {}
         }
         this.req = axios.create({
             withCredentials: true, baseURL: API_URL, headers: {
@@ -109,13 +109,15 @@ class OnePostView extends React.Component {
             .then(response => {
                 if (response.data.success && response.data["arr"]) {
                     const options = {year: 'numeric', month: '2-digit', day: '2-digit'}
+                    const box = {}
                     const comments = response.data["arr"].map(comment => {
+                        if (comment.username === this.state.user.username) box[comment.id] = false
                         const date = new Date(comment.date)
                         comment.date = date.toLocaleDateString('en-GB', options) + ' @ ' + date.toLocaleTimeString()
                         return comment;
                     })
                     this.setState({
-                        comments: comments
+                        comments: comments, box: box
                     })
                 } else {
                     console.log("No comments data received")
@@ -133,18 +135,30 @@ class OnePostView extends React.Component {
         }))
     }
 
-    editComment = (id) => {
-        // this.req.post('profile/comments/' + id).then(response => {
-        //     this.fetchComments()
-        // }).catch(err => {
-        //     this.setState({status: err.response.data})
-        // })
-        console.log("here toggle input box")
+    editComment = (commentId) => {
+        this.setState(prevState => ({
+            box: {
+                ...prevState.box, [commentId]: !prevState.box[commentId]
+            }
+        }))
+    }
+
+    submitEditedComment = (id) => {
+        console.log(id)
+        this.editComment(id)
+        this.req.post('/profile/comments/edit/', {
+            post_id: id, content: this.state.user.editComment, user: localStorage.getItem("user")
+        }).then(response => {
+            this.setState({status: response.data})
+            this.fetchComments()
+        }).catch(err => {
+            this.setState({status: err.response.data})
+        })
     }
 
 
     deleteComment = (id) => {
-        this.req.delete('profile/comments/' + id).then(response => {
+        this.req.delete('/profile/comments/' + id).then(response => {
             this.fetchComments()
         }).catch(err => {
             this.setState({status: err.response.data})
@@ -222,16 +236,38 @@ class OnePostView extends React.Component {
                 <div className="card-body" style={{paddingTop: "0px"}}>
                     <h5>Other comments:</h5>
                     {comments.length > 0 ? comments.map((d) => {
-                        return (<div key={d.id} className="d-flex justify-content-between align-items-center">
-                            <p><b>{d.username}</b>: {d.content} - <i>{d.date}</i></p>
-                            {this.state.user.username === d.username ? <div className="d-flex">
-                                <button onClick={() => this.editComment}
-                                        className="btn btn-sm btn-outline-primary m-1 text-nowrap">Edit Comment
-                                </button>
-                                <button onClick={() => this.deleteComment(d.id)}
-                                        className="btn btn-sm btn-outline-danger m-1 text-nowrap">Delete Comment
-                                </button>
-                            </div> : null}</div>)
+                        return (
+
+                            <div key={d.id} className="d-flex justify-content-between align-items-center">
+                                {!this.state.box[d.id] ? <p><b>{d.username}</b>: {d.content} - <i>{d.date}</i></p> :
+                                    <input name="editComment" onChange={(e) => this.SetValueFromUserInput(e)}
+                                           type="text"
+                                           className="form-control"
+                                           id="editComment"
+                                            defaultValue={d.content}/>}
+                                {this.state.user.username === d.username ? <div className="d-flex">
+                                    {!this.state.box[d.id] ? <>
+                                        <button onClick={() => this.editComment(d.id)}
+                                                className="btn btn-sm btn-outline-primary m-1 text-nowrap">Edit
+                                            Comment
+                                        </button>
+                                        <button onClick={() => this.deleteComment(d.id)}
+                                                className="btn btn-sm btn-outline-danger m-1 text-nowrap">Delete
+                                            Comment
+                                        </button>
+                                    </> : <>
+                                        <button onClick={() => this.submitEditedComment(d.id)}
+                                                className="btn btn-sm btn-outline-success m-1 text-nowrap">Save
+                                            Comment
+                                        </button>
+                                        <button onClick={() => this.editComment(d.id)}
+                                                className="btn btn-sm btn-outline-danger m-1 text-nowrap">Cancel
+                                        </button>
+                                    </>}
+                                </div> : null}
+                            </div>
+
+                        )
                     }) : "There are no comments yet..."}
                 </div>
 
