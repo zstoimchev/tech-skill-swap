@@ -1,71 +1,56 @@
 const express = require('express')
-const session = require('express-session')
-const cors=require("cors")
-const cookieParser = require("cookie-parser");
+const cors = require("cors")
+// const session = require('express-session')
+// const cookieParser = require("cookie-parser")
+
+
+// TODO: manage the packages, everything is everywhere
 
 
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 8127
 
-app.use(cookieParser());
+// app.use(cookieParser())
 
-// Configuration if we had cross origin enabled.
-// let sess = {
-//     secret: 'our litle secret',
-//     resave: false,
-//     proxy: true,
-//     saveUninitialized: true,
-//     cookie: {
-//         secure: true,
-//         sameSite: 'none'
-//     }
-// }
 
-let sess = {
-    secret: 'our litle secrett',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }
-}
-// let sess = {
-//     secret: 'our litle secret',
-//     saveUninitialized: true,
-//     resave: false,
-//     proxy: true,
-//     name:"app",
-//     cookie: {
-//         httpOnly: true,
-//     }
-// }
-
-app.use(session(sess))
-
-//Some configurations
-app.use(express.urlencoded({extended : true}));
+// configurations
+app.use(express.json())
+// app.use(session(sess))
+app.use(express.urlencoded({ extended: true }))
 app.use(cors({
- methods:["GET", "POST"],
-  credentials: true, 
-  origin: ['http://localhost:3000','http://localhost:3001']
+    methods: ["GET", "POST", "DELETE"],
+    credentials: true,
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+
 }))
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-const novice = require('./routes/novice')
-const users = require('./routes/users')
-const upload = require('./routes/upload')
 
-app.use('/novice', novice)
+const users = require("./routes/users")
+const posts = require("./routes/posts")
+const reset = require("./routes/reset")
+const profile = require("./routes/profile")
+const scraper = require("./routes/scraper")
+const rating = require("./routes/rating")
 app.use('/users', users)
-app.use('/uploadFile', upload)
+app.use('/posts', posts)
+app.use('/password', reset)
+app.use('/profile', profile)
+app.use('/scraper', scraper)
+app.use('/rating', rating)
 
+// here most probably path needs to be initialized for the brontend build directory
+// and then app uses that build directory, and sends file index.html in the root page?
+
+
+// app.get("/", (req, res) => { res.send("Tech Skill-Swap - HOME page. Welcome!") })
 const path = require('path')
 console.log(__dirname)
 app.use(express.static(path.join(__dirname, "build")))
 app.use(express.static(path.join(__dirname, "uploads")))
 
-app.get("/", (req, res) => {
+app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "build", "index.html")) 
 })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => { console.log(`Server is running on port: ${port}`) })
