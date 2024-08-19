@@ -1,0 +1,30 @@
+.form-for-reset-pw {
+    cursor: pointer;
+}
+
+.forgot-password:hover {
+    color: #0056b3; /* Darker blue color on hover */
+}
+
+#span-form-reset{
+    color: #0056b3; /* Darker blue color on hover */
+}
+
+#font-weight-paragraph {
+    font-weight: bold;
+    cursor: pointer;
+    /*color: red;*/
+}
+
+.my-custom-image {
+    width: 50%;  /* Adjust this value to change the image size */
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.custom-body-padding {
+    padding-top: 20px;
+}

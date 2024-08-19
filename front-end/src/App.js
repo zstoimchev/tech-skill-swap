@@ -1,169 +1,218 @@
-import { Component } from "react";
-import { ABOUT, NOVICE, ADDNEW, SIGNUP, LOGIN, NOVICA, HOME, LOGOUT, UPLOAD } from "./Utils/Constants"
-import HomeView from "./CustomComponents/HomeView";
-import AboutView from "./CustomComponents/AboutView";
-import NoviceView from "./CustomComponents/NoviceView";
-import AddNovicaView from "./CustomComponents/AddNovicaView";
-import SignupView from "./CustomComponents/SignupView";
-import LoginView from "./CustomComponents/LoginView";
-import SingleNovicaView from "./CustomComponents/SingleNovicaView";
-import FilesUploadComponent from "./CustomComponents/FilesUpload";
+import React, {Component} from "react"
+import {Nav, Navbar} from "react-bootstrap"
+import {
+    ABOUT,
+    ADDPOST, AUTHOR,
+    HOME,
+    LOGIN,
+    POST,
+    POSTS,
+    PROFILE,
+    QNA,
+    REGISTER,
+    RESETPW,
+    TECHNEWS,
+    USERINFO
+} from "./Utils/Constants"
+import HomeView from "./CustomComponents/HomeView"
+import AboutView from "./CustomComponents/AboutView"
+import PostsView from "./CustomComponents/PostsView"
+import LoginView from "./CustomComponents/LoginView"
+import RegisterView from "./CustomComponents/RegisterView"
+import OnePostView from "./CustomComponents/OnePostView"
+import AddPostView from "./CustomComponents/AddPostView"
+import ResetPasswordView from "./CustomComponents/ResetPasswordView"
+import PasswordResetRouterView from "./CustomComponents/PasswordResetRouterView"
+import UserInfoSetupView from "./CustomComponents/UserInfoSetupView"
+import ActivateAccountView from "./CustomComponents/ActivateAccountView";
+
+import {BrowserRouter as Router, Route, Routes, useNavigate} from 'react-router-dom'
+import ProfileView from "./CustomComponents/ProfileView";
 import axios from "axios";
-import { API_URL } from "./Utils/Configuration";
-import Cookies from 'universal-cookie';
-const cookies = new Cookies();
+import {API_URL} from "./Utils/Configuration";
+import ActivateEmailView from "./CustomComponents/ActivateEmailView";
+import QnaView from "./CustomComponents/QnaView";
+import TechNews from "./CustomComponents/TechNews";
+import AuthorView from "./CustomComponents/AuthorView";
+
+
+// import cookie here
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      CurrentPage: HOME,
-      Novica: 1,
-      status: {
-        success: null,
-        msg: ""
-      },
-      user: null
-    };
-  }
+    constructor(props) {
+        const token = localStorage.getItem('token')
+        const user = localStorage.getItem('user')
+        const loggedIn = localStorage.getItem('loggedIn')
 
-  QGetView(state) {
-    const page = state.CurrentPage;
-    switch (page) {
-      case ABOUT:
-        return <AboutView />;
-      case NOVICE:
-        return <NoviceView QIDFromChild={this.QSetView} />;
-      case ADDNEW:
-        return <AddNovicaView />;
-      case SIGNUP:
-        return <SignupView />;
-      case LOGIN:
-        return <LoginView QUserFromChild={this.QSetLoggedIn} />;
-      case LOGOUT:
-        return <HomeView />;
-      case UPLOAD:
-        return <FilesUploadComponent />;
-      case NOVICA:
-        return <SingleNovicaView data={state.Novica} QIDFromChild={this.QSetView} />;
-      default:
-        return <HomeView />;
+        super(props)
+        this.state = {
+            CurrentPage: HOME, status: {
+                success: null, msg: ""
+            }, user: null, id: null, loggedIn: !!(token && user && loggedIn),
+            postData: {
+                title: "",
+                body: "",
+                editExistingPostData: "add",
+                old_post_id: null,
+                img_name: ""
+            },
+            author: null,
+        }
+        this.updateStateApp = this.updateStateApp.bind(this)
+        this.req = axios.create({
+            withCredentials: true, baseURL: API_URL, headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        })
     }
-  };
 
-  QSetView = (obj) => {
-    this.setState(this.state.status = { success: null, msg: "" })
+    componentDidMount() {
+        this.setState({CurrentPage: HOME})
+    }
 
-    console.log("QSetView");
-    this.setState({
-      CurrentPage: obj.page,
-      Novica: obj.id || 0
-    });
-  };
+    updateStateApp(newState) {
+        this.setState(newState)
+    }
 
-  render() {
-    return (
-      <div id="APP" className="container">
-        <div id="menu" className="row">
-          <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
-            <div className="container-fluid">
-              <a
-                //onClick={() => this.QSetView({ page: "home" })}
-                onClick={this.QSetView.bind(this, { page: "home" })}
-                className="navbar-brand"
-                href="#"
-              >
-                Home
-              </a>
-              <button
-                className="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-              >
-                <span className="navbar-toggler-icon"></span>
-              </button>
+    GetView(state) {
+        const page = state.CurrentPage
+        switch (page) {
+            case HOME:
+                return <HomeView/>
+            case ABOUT:
+                return <AboutView/>
+            case POSTS:
+                return <PostsView changeState={this.updateStateApp}/>
+            case POST:
+                const {id} = this.state;
+                return <OnePostView changeState={this.updateStateApp} id={id}/>
+            case ADDPOST:
+                return <AddPostView changeState={this.updateStateApp} postData={this.state.postData}/>
+            case LOGIN:
+                return <LoginView updateState={this.updateStateApp}/>
+            case REGISTER:
+                return <RegisterView changeState={this.updateStateApp}/>
+            case RESETPW:
+                return <ResetPasswordView/>
+            case USERINFO:
+                return <UserInfoSetupView getUserInfo={this.state} changeState={this.updateStateApp}/>
+            case PROFILE:
+                return <ProfileView changeState={this.updateStateApp}/>
+            case QNA:
+                return <QnaView/>
+            case TECHNEWS:
+                return <TechNews/>
+            case AUTHOR:
+                return <AuthorView username={this.state.author} changeState={this.updateStateApp}/>
+            default:
+                return <HomeView/>
+        }
+    }
 
-              <div
-                className="collapse navbar-collapse"
-                id="navbarSupportedContent"
-              >
-                <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                  <li className="nav-item">
-                    <a
-                      // onClick={() => this.QSetView({ page: ABOUT })}
-                      onClick={this.QSetView.bind(this, { page: ABOUT })}
-                      className="nav-link "
-                      href="#"
-                    >
-                      About
-                    </a>
-                  </li>
+    SetView = (obj) => {
+        this.setState({CurrentPage: obj.page})
+    }
 
-                  <li className="nav-item">
-                    <a
-                      // onClick={() => this.QSetView({ page: NOVICE })}
-                      onClick={this.QSetView.bind(this, { page: NOVICE })}
-                      className="nav-link "
-                      href="#"
-                    >
-                      News
-                    </a>
-                  </li>
-
-                  <li className="nav-item">
-                    <a
-                      //onClick={() => this.QSetView({ page: ADDNEW })}
-                      onClick={this.QSetView.bind(this, { page: ADDNEW })}
-                      className="nav-link"
-                      href="#"
-                    >
-                      Add news
-                    </a>
-                  </li>
+    Logout() {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        localStorage.removeItem('loggedIn')
+        this.setState({CurrentPage: LOGIN, status: {success: null, msg: ""}, user: null, id: null})
+    }
 
 
-                  <li className="nav-item">
-                    <a
-                      //onClick={() => this.QSetView({ page: ADDNEW })}
-                      onClick={this.QSetView.bind(this, { page: UPLOAD })}
-                      className="nav-link"
-                      href="#"
-                    >
-                      Upload
-                    </a>
-                  </li>
+    render() {
+        return (<div id="APP" className="container">
+            <div id="menu" className="row">
 
-                  <li className="nav-item">
-                    <a
-                      //onClick={() => this.QSetView({ page: SIGNUP })}
-                      onClick={this.QSetView.bind(this, { page: SIGNUP })}
-                      className="nav-link "
-                      href="#"
-                    >
-                      Sign up
-                    </a>
-                  </li>
+                <Navbar className="fixed-top navbar navbar-expand-lg navbar-dark" bg="primary" expand="lg">
+                    <div className="container-fluid">
+                        <Navbar.Brand
+                            onClick={this.SetView.bind(this, {page: HOME})}
+                            href="">Tech Skill Swap</Navbar.Brand>
+                        <Navbar.Toggle aria-controls="basic-navbar-nav"/>
+                        <Navbar.Collapse id="basic-navbar-nav">
+                            <Nav className="mr-auto">
+                                <Nav.Link
+                                    className={this.state.CurrentPage === HOME ? 'active' : ''}
+                                    onClick={this.SetView.bind(this, {page: HOME})}
+                                    href="">Home</Nav.Link>
+                                <Nav.Link
+                                    className={this.state.CurrentPage === ABOUT ? 'active' : ''}
+                                    onClick={this.SetView.bind(this, {page: ABOUT})}
+                                    href="">About</Nav.Link>
+                                <Nav.Link
+                                    className={this.state.CurrentPage === POSTS ? 'active' : ''}
+                                    onClick={this.SetView.bind(this, {page: POSTS})}
+                                    href="">Posts</Nav.Link>
+                                <Nav.Link
+                                    className={this.state.CurrentPage === QNA ? 'active' : ''}
+                                    onClick={this.SetView.bind(this, {page: QNA})}
+                                    href="">FAQ/Q&A</Nav.Link>
 
-                 <li className="nav-item" ><a onClick={this.QSetView.bind(this, { page: LOGIN })}
-                      className="nav-link " href="#"> Login </a>
-                 </li>
-                
-                </ul>
-              </div>
+                                {this.state.loggedIn && localStorage.getItem('token') ? (<>
+                                        <Nav.Link
+                                        className={this.state.CurrentPage === ADDPOST ? 'active' : ''}
+                                        onClick={this.SetView.bind(this, {page: ADDPOST})}
+                                        href="">Add New Post</Nav.Link>
+                                        <Nav.Link
+                                        className={this.state.CurrentPage === TECHNEWS ? 'active' : ''}
+                                        onClick={this.SetView.bind(this, {page: TECHNEWS})}
+                                        href="">Tech News</Nav.Link>
+                                        <Nav.Link
+                                            className={this.state.CurrentPage === PROFILE ? 'active' : ''}
+                                            onClick={this.SetView.bind(this, {
+                                                page: PROFILE, user: this.state.user
+                                            })}>Profile</Nav.Link>
+                                        <Nav.Link
+                                            onClick={() => this.Logout()}
+                                            href="">Logout</Nav.Link>
+                                    </>)
+
+                                    : (<> <Nav.Link
+                                        className={this.state.CurrentPage === REGISTER ? 'active' : ''}
+                                        onClick={this.SetView.bind(this, {page: REGISTER})}
+                                        href="">Register</Nav.Link>
+                                        <Nav.Link
+                                            className={this.state.CurrentPage === LOGIN ? 'active' : ''}
+                                            onClick={this.SetView.bind(this, {page: LOGIN})}
+                                            href="">Login</Nav.Link>
+                                    </>)}
+
+                            </Nav>
+                        </Navbar.Collapse>
+                    </div>
+                </Navbar>
+
             </div>
-          </nav>
-        </div>
 
-        <div id="viewer" className="row container">
-          {this.QGetView(this.state)}
-        </div>
-      </div>
-    );
-  }
+            <div id="viewer" className="row container" style={{marginTop: "4rem"}}>
+                {/*{this.GetView(this.state)}*/}
+                <Router>
+                    <Routes>
+                        <Route path="/" element={this.GetView(this.state)}/>
+                        <Route path="/password-reset/:param"
+                               element={<PasswordResetRouterView changeState={this.updateStateApp}/>}/>
+                        <Route path="/activate-account/:param"
+                               element={<ActivateAccountView changeState={this.updateStateApp}/>}/>
+                        <Route path="/activate-email/:param"
+                               element={<ActivateEmailView changeState={this.updateStateApp}/>}/>
+                        <Route path="*" element={<DefaultRoute/>}/>
+                    </Routes>
+                </Router>
+            </div>
+        </div>)
+    }
 }
 
-export default App;
+// used to go back to root page
+function DefaultRoute() {
+    const navigate = useNavigate();
+    React.useEffect(() => {
+        navigate('/');
+    }, [navigate]);
+
+    return null;
+}
+
+export default App
