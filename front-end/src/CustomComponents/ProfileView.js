@@ -269,7 +269,7 @@ class ProfileView extends React.Component {
         this.req.get('profile/comments/' + this.state.username).then(response => {
             this.setState({comments: response.data.comments})
         }).catch(error => {
-            this.setState({status: error.response.data})
+            // this.setState({status: error.response.data})
             console.error(error.response.data)
         })
     }
